@@ -86,7 +86,9 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm){
         printf("FR_2 position: %f\n",  RecvLowROS.motorState[0].q);
 
         imu_pub.publish(RecvLowROS.imu);
-        //joint_state_pub.publish(RecvLowROS.motorState);
+        for (int i=0; i<20; i++){
+            joint_state_pub.publish(RecvLowROS.motorState[i]);
+        }
 
         ros::spinOnce();
         loop_rate.sleep();
