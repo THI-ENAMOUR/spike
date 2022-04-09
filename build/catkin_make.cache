@@ -1,2 +1,0 @@
-enamour_ros_to_a1/bridge:enamour_ros_to_a1/bridge_msgs
--DCATKIN_DEVEL_PREFIX=/home/bichl/Enamour/spike/devel -DCMAKE_INSTALL_PREFIX=/home/bichl/Enamour/spike/install -G Unix Makefiles

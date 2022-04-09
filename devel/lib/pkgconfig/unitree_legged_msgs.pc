@@ -1,8 +1,8 @@
-prefix=/home/bichl/Enamour/spike/devel
+prefix=/home/lars/Desktop/project/devel
 
 Name: unitree_legged_msgs
 Description: Description of unitree_legged_msgs
 Version: 0.0.0
-Cflags: -I/home/bichl/Enamour/spike/devel/include
+Cflags: -I/home/lars/Desktop/project/devel/include
 Libs: -L${prefix}/lib 
 Requires: message_runtime std_msgs geometry_msgs sensor_msgs
