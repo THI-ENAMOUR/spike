@@ -1,4 +1,4 @@
-prefix=/home/lars/Desktop/project/devel
+prefix=/home/bichl/Enamour/spike/devel
 
 Name: ros_to_a1
 Description: Description of ros_to_a1

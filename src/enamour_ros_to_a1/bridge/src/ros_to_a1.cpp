@@ -1,11 +1,13 @@
 #include <ros/ros.h>
 #include <string>
-//#include <std_msgs/String.h>
+#include <std_msgs/String.h>
 #include <pthread.h>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <unitree_legged_msgs/LowCmd.h>
 #include <unitree_legged_msgs/LowState.h>
+#include <unitree_legged_msgs/IMU.h>
+#include <unitree_legged_msgs/MotorState.h>
 #include "convert.h"
 
 using namespace UNITREE_LEGGED_SDK;
@@ -25,17 +27,17 @@ public:
     RosCommandHandler(TLCM &roslcm) : roslcm(roslcm)
     {}
     void handleRosCommand(const unitree_legged_msgs::LowCmd& msg);
-private:
+    TCmd SendLowLCM = {0};
     TLCM roslcm;
     unitree_legged_msgs::LowCmd SendLowROS;
-    TCmd SendLowLCM = {0};
 };
 
-void RosCommandHandler::handleRosCommand(const unitree_legged_msgs::LowCmd& msg){
-    SendLowROS = *msg;
+template<typename TCmd, typename TLCM>
+void RosCommandHandler<TCmd, TLCM>::handleRosCommand(const unitree_legged_msgs::LowCmd& msg){
+    //SendLowROS = msg;
     ROS_INFO("Command received");
-    SendLowLCM = ToLcm(SendLowROS, SendLowLCM);
-    roslcm.Send(SendLowLCM);
+    //SendLowLCM = ToLcm(SendLowROS, SendLowLCM);
+    //roslcm.Send(SendLowLCM);
 }
 
 template<typename TCmd, typename TState, typename TLCM>
@@ -51,53 +53,51 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm){
     TState RecvLowLCM = {0};
     unitree_legged_msgs::LowState RecvLowROS;
 
-    RosCommandHandler rcm(roslcm);
+    RosCommandHandler<TCmd, TLCM> rcm{roslcm};
     //Todo: Subscribe to relative path if possible
     //Todo: Define optimal length of buffer
     ros::Subscriber sub = n.subscribe(
         "/joint_group_position_controller/command", 
         1000, 
-        &RosCommandHandler::handleRosCommand,
+        &RosCommandHandler<TCmd, TLCM>::handleRosCommand,
         &rcm
     );
     //Todo: Define optimal length of buffer
-    ros::Publisher imu_pub = 
-        n.advertise<unitree_legged_msgs::LowState>("/imu/data", 1000);
+    ros::Publisher imu_pub = n.advertise<unitree_legged_msgs::IMU>("/imu/data", 1000);
     //Todo: Define optimal length of buffer
-    ros::Publisher joint_state_pub = 
-        n.advertise<unitree_legged_msgs::LowState>("/joint_states", 1000);
+    ros::Publisher joint_state_pub = n.advertise<unitree_legged_msgs::MotorState>("/joint_states", 1000);
 
     roslcm.SubscribeState();
     pthread_t tid;
     pthread_create(&tid, NULL, update_loop<TLCM>, &roslcm);
 
-    for(int i=0; i<12; i++){
-        SendLowROS.motorCmd[i].mode = 0x0A;
-        SendLowROS.motorCmd[i].q = PosStopF;
-        SendLowROS.motorCmd[i].Kp = 0;
-        SendLowROS.motorCmd[i].dq = VelStopF;
-        SendLowROS.motorCmd[i].Kd = 0;
-        SendLowROS.motorCmd[i].tau = 0;
-    }
+    // for(int i=0; i<12; i++){
+    //     SendLowROS.motorCmd[i].mode = 0x0A;
+    //     SendLowROS.motorCmd[i].q = PosStopF;
+    //     SendLowROS.motorCmd[i].Kp = 0;
+    //     SendLowROS.motorCmd[i].dq = VelStopF;
+    //     SendLowROS.motorCmd[i].Kd = 0;
+    //     SendLowROS.motorCmd[i].tau = 0;
+    // }
 
     while(ros::ok()){
         roslcm.Get(RecvLowLCM);
         RecvLowROS = ToRos(RecvLowLCM);
-        printf("FR_2 position: %f\n",  RecvLowROS.motorState[FR_2].q);
+        printf("FR_2 position: %f\n",  RecvLowROS.motorState[0].q);
 
         imu_pub.publish(RecvLowROS.imu);
-        joint_state_pub.publish(RecvLowROS.motorState);
+        //joint_state_pub.publish(RecvLowROS.motorState);
 
         ros::spinOnce();
         loop_rate.sleep();
     }
-
+    return 0;
 }
 
 int main(int argc, char *argv[]){
     ros::init(argc, argv, "ros_to_real_bridge");
     std::string firmwork;
-    ros::param::get("/firmwork")
+    ros::param::get("/firmwork", firmwork);
 
     UNITREE_LEGGED_SDK::LeggedType rname;
     rname = UNITREE_LEGGED_SDK::LeggedType::A1;
