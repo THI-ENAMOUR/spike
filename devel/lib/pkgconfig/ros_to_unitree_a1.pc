@@ -1,0 +1,8 @@
+prefix=/home/bichl/Enamour/spike/devel
+
+Name: ros_to_unitree_a1
+Description: Description of ros_to_unitree_a1
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
