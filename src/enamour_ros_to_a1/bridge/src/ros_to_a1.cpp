@@ -8,40 +8,53 @@
 #include <unitree_legged_msgs/LowState.h>
 #include <unitree_legged_msgs/IMU.h>
 #include <unitree_legged_msgs/MotorState.h>
+#include "unitree_legged_sdk/unitree_legged_sdk.h"
+#include "trajectory_msgs/JointTrajectory.h"
+#include "sensor_msgs/Imu.h"
+#include "sensor_msgs/JointState.h"
 #include "convert.h"
 
 using namespace UNITREE_LEGGED_SDK;
 
-template<typename TLCM>
-void *update_loop(void *param){
+template <typename TLCM>
+void *update_loop(void *param)
+{
     TLCM *data = (TLCM *)param;
-    while(ros::ok){
+    while (ros::ok)
+    {
         data->Recv();
         usleep(2000);
     }
 }
 
-template<typename TCmd, typename TLCM>
-class RosCommandHandler{
+template <typename TCmd, typename TLCM>
+class RosCommandHandler
+{
 public:
     RosCommandHandler(TLCM &roslcm) : roslcm(roslcm)
-    {}
-    void handleRosCommand(const unitree_legged_msgs::LowCmd& msg);
-    TCmd SendLowLCM = {0};
+    {
+    }
+    void handleRosCommand(const trajectory_msgs::JointTrajectory &msg);
+    UNITREE_LEGGED_SDK::LowCmd SendLowLCM;
     TLCM roslcm;
-    unitree_legged_msgs::LowCmd SendLowROS;
+    TCmd SendLowROS;
 };
 
-template<typename TCmd, typename TLCM>
-void RosCommandHandler<TCmd, TLCM>::handleRosCommand(const unitree_legged_msgs::LowCmd& msg){
-    //SendLowROS = msg;
+template <typename TCmd, typename TLCM>
+void RosCommandHandler<TCmd, TLCM>::handleRosCommand(const trajectory_msgs::JointTrajectory &msg)
+{
+    SendLowROS = msg;
     ROS_INFO("Command received");
-    //SendLowLCM = ToLcm(SendLowROS, SendLowLCM);
-    //roslcm.Send(SendLowLCM);
+    SendLowLCM = RosToLcm(SendLowROS);
+    printf("Low_Cmd position [0]: %f\n", SendLowLCM.motorCmd[0].q);
+    printf("Low_Cmd position [1]: %f\n", SendLowLCM.motorCmd[1].q);
+    printf("Low_Cmd position [2]: %f\n", SendLowLCM.motorCmd[2].q);
+    roslcm.Send(SendLowLCM);
 }
 
-template<typename TCmd, typename TState, typename TLCM>
-int mainHelper(int argc, char *argv[], TLCM &roslcm){
+template <typename TCmd, typename TState, typename TLCM>
+int mainHelper(int argc, char *argv[], TLCM &roslcm)
+{
     std::cout << "WARNING: Control level is set to LOW-level." << std::endl
               << "Make sure the robot is hung up." << std::endl
               << "Press Enter to continue..." << std::endl;
@@ -51,43 +64,41 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm){
     ros::Rate loop_rate(500);
 
     TState RecvLowLCM = {0};
-    unitree_legged_msgs::LowState RecvLowROS;
+    sensor_msgs::Imu RecvImu;
+    sensor_msgs::JointState RecvState;
+    UNITREE_LEGGED_SDK::IMU lcmImu;
 
     RosCommandHandler<TCmd, TLCM> rcm{roslcm};
-    //Todo: Subscribe to relative path if possible
-    //Todo: Define optimal length of buffer
+    // Todo: Subscribe to relative path if possible
+    // Todo: Define optimal length of buffer
     ros::Subscriber sub = n.subscribe(
-        "/joint_group_position_controller/command", 
-        1000, 
+        "/joint_group_position_controller/command",
+        1000,
         &RosCommandHandler<TCmd, TLCM>::handleRosCommand,
-        &rcm
-    );
-    //Todo: Define optimal length of buffer
-    ros::Publisher imu_pub = n.advertise<unitree_legged_msgs::IMU>("/imu/data", 1000);
-    //Todo: Define optimal length of buffer
-    ros::Publisher joint_state_pub = n.advertise<unitree_legged_msgs::MotorState>("/joint_states", 1000);
+        &rcm);
+    // Todo: Define optimal length of buffer
+    ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("/imu/data", 1000);
+    // Todo: Define optimal length of buffer
+    ros::Publisher joint_state_pub = n.advertise<sensor_msgs::JointState>("/joint_states", 1000);
 
     roslcm.SubscribeState();
     pthread_t tid;
     pthread_create(&tid, NULL, update_loop<TLCM>, &roslcm);
 
-    // for(int i=0; i<12; i++){
-    //     SendLowROS.motorCmd[i].mode = 0x0A;
-    //     SendLowROS.motorCmd[i].q = PosStopF;
-    //     SendLowROS.motorCmd[i].Kp = 0;
-    //     SendLowROS.motorCmd[i].dq = VelStopF;
-    //     SendLowROS.motorCmd[i].Kd = 0;
-    //     SendLowROS.motorCmd[i].tau = 0;
-    // }
-
-    while(ros::ok()){
+    while (ros::ok())
+    {
         roslcm.Get(RecvLowLCM);
-        RecvLowROS = ToRos(RecvLowLCM);
-        printf("FR_2 position: %f\n",  RecvLowROS.motorState[0].q);
+        lcmImu = RecvLowLCM.imu;
 
-        imu_pub.publish(RecvLowROS.imu);
-        for (int i=0; i<20; i++){
-            joint_state_pub.publish(RecvLowROS.motorState[i]);
+        // A valid LCM message should have a sequence number. 
+        // TODO: Test in real operation.
+        int32_t sequenzNumber = RecvLowLCM.SN;
+        if (sequenzNumber != 0)
+        {
+            RecvImu = LcmToRos(lcmImu, sequenzNumber);
+            RecvState = LcmToRos(RecvLowLCM);
+            imu_pub.publish(RecvImu);
+            joint_state_pub.publish(RecvState);
         }
 
         ros::spinOnce();
@@ -96,7 +107,8 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm){
     return 0;
 }
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
     ros::init(argc, argv, "ros_to_real_bridge");
     std::string firmwork;
     ros::param::get("/firmwork", firmwork);
@@ -107,5 +119,5 @@ int main(int argc, char *argv[]){
     // UNITREE_LEGGED_SDK::InitEnvironment();
 
     UNITREE_LEGGED_SDK::LCM roslcm(LOWLEVEL);
-    mainHelper<UNITREE_LEGGED_SDK::LowCmd, UNITREE_LEGGED_SDK::LowState, UNITREE_LEGGED_SDK::LCM>(argc, argv, roslcm);
+    mainHelper<trajectory_msgs::JointTrajectory, UNITREE_LEGGED_SDK::LowState, UNITREE_LEGGED_SDK::LCM>(argc, argv, roslcm);
 }

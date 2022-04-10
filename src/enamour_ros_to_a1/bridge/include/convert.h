@@ -28,9 +28,10 @@ static ros::V_string joint_names = {"FR_hip_joint", "FR_thigh_joint", "FR_calf_j
 
 // STATES
 
-sensor_msgs::Imu LcmToRos(UNITREE_LEGGED_SDK::IMU &lcm_imu)
+sensor_msgs::Imu LcmToRos(UNITREE_LEGGED_SDK::IMU &lcm_imu, int32_t sequenz_number)
 {
     sensor_msgs::Imu imu;
+    imu.header.seq = sequenz_number;
     // LCM Order w, x, y, z
     imu.orientation.w = lcm_imu.quaternion[0];
     imu.orientation.x = lcm_imu.quaternion[1];
@@ -55,6 +56,9 @@ sensor_msgs::JointState LcmToRos(UNITREE_LEGGED_SDK::LowState &lcm_low_state)
 
     joint_state.name = joint_names;
 
+    joint_state.position [12] = {0};
+    joint_state.velocity [12] = {0};
+
     // Add motor state
     for (int i = 0; i < 12; i++)
     {
@@ -65,7 +69,7 @@ sensor_msgs::JointState LcmToRos(UNITREE_LEGGED_SDK::LowState &lcm_low_state)
     // TODO Missing Variables
     // joint_state.header.stamp = ;
     // joint_state.header.frame_id = ;
-
+    
     return joint_state;
 }
 

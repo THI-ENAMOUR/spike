@@ -45,6 +45,9 @@ void Custom::RobotControl()
     udp.GetRecv(state);
     mylcm.Send(state);
     mylcm.Get(cmd);
+    printf("Low_Cmd position [0]: %f\n",  cmd.motorCmd[0].q);
+    printf("Low_Cmd position [1]: %f\n",  cmd.motorCmd[1].q);
+    printf("Low_Cmd position [2]: %f\n",  cmd.motorCmd[2].q);
     udp.SetSend(cmd);
 }
 
