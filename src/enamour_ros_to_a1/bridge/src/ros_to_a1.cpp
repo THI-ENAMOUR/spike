@@ -64,9 +64,9 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     ros::Rate loop_rate(500);
 
     TState RecvLowLCM = {0};
-    sensor_msgs::Imu RecvImu;
+    sensor_msgs::Imu RecvImuROS;
+    UNITREE_LEGGED_SDK::IMU RecvImuLCM;
     sensor_msgs::JointState RecvState;
-    UNITREE_LEGGED_SDK::IMU lcmImu;
 
     RosCommandHandler<TCmd, TLCM> rcm{roslcm};
     // Todo: Subscribe to relative path if possible
@@ -88,14 +88,15 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     while (ros::ok())
     {
         roslcm.Get(RecvLowLCM);
-        lcmImu = RecvLowLCM.imu;
+        RecvImuLCM = RecvLowLCM.imu;
 
         // A valid LCM message should have a sequence number. 
         // TODO: Test in real operation.
-        int32_t sequenzNumber = RecvLowLCM.SN;
-        if (sequenzNumber != 0)
+        int32_t sequenceNumber = RecvLowLCM.SN;
+        printf("Sequence number: %d\n", sequenceNumber);
+        if (sequenceNumber != 0)
         {
-            RecvImu = LcmToRos(lcmImu, sequenzNumber);
+            RecvImuROS = LcmToRos(RecvImuLCM, sequenceNumber);
             RecvState = LcmToRos(RecvLowLCM);
             imu_pub.publish(RecvImu);
             joint_state_pub.publish(RecvState);
