@@ -22,9 +22,10 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v1
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           auto_fix: true
           black: true
-          black_args: "--color --check"
+          black_args: "--color"
           flake8: true
           flake8_args: "--max-line-length=88 --extend-ignore=E203,E501 --select=C,E,F,W,B,B950"
 
