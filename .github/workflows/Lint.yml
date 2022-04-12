@@ -22,10 +22,10 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          auto_fix: true
+          auto_fix: ${{ github.event_name != 'pull_request' }}
+          continue_on_error: ${{ github.event_name != 'pull_request' }}
           black: true
-          black_args: "--color"
+          black_args: "--color ${{ (github.event_name == 'pull_request' && '--diff --check') || '' }}"
           flake8: true
           flake8_args: "--max-line-length=88 --extend-ignore=E203,E501 --select=C,E,F,W,B,B950"
 
