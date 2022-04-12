@@ -1,0 +1,10 @@
+.git/
+devel/
+build/
+.settings
+.vscode
+
+.catkin_workspace
+.project
+.cproject
+*.code-workspace
