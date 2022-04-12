@@ -26,6 +26,8 @@ if __name__ == '__main__':
         rospy.init_node('dummy')
         init_sub()
 
+
+
         loop_rate = rospy.get_param("loop_rate", default=10)  # Use tick from parameter server
         timer = rospy.Timer(rospy.Duration(1/loop_rate), pub_message)
 
