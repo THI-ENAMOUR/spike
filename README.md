@@ -11,6 +11,10 @@ The ENAMOUR project of the Technische Hochschule Ingolstadt focuses on controlli
 ### Building the project
 In order to build the project catkin is required. Executing `source make.sh` builds all modules under the "src/" dir and updates your environment with required variables. The script for setting up your environment can be found under "scripts/setup_environment.sh". Prefferabily, execute all commands while being sudo, since ROS uses system calls. Use `sudo -s` to switch into sudo mode, then execute `source make.sh` again.
 
+### Formating the code
+Executing `./scripts/format_code.sh` formats the source code inside the enamour source dir with 'back' and returns errors using 'flake8'.
+This is necessary to have a successful build. After commiting your code, visit the [action](https://github.com/THI-ENAMOUR/spike/actions) page and see if your build was sucessful.
+
 ### Try it out
 To test the project:
 - Build the project with `source make.sh`

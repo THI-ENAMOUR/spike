@@ -1,9 +1,13 @@
+__pycache__/
+*.pyc
+
 .git/
 devel/
 build/
 .settings
 .vscode
 
+.idea
 .catkin_workspace
 .project
 .cproject

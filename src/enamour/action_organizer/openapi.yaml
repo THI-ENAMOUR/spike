@@ -1,0 +1,61 @@
+openapi: 3.0.1
+info:
+  title: UXD Api Contract
+  version: 1.0.0
+paths:
+  /action:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+      responses:
+        200:
+          description: Received Request
+components:
+  schemas:
+    ActionRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uuid
+        clearActionQueue:
+          type: boolean
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+    Action:
+      oneOf:
+        - $ref: '#/components/schemas/SitAction'
+        - $ref: '#/components/schemas/ActionGroup'
+      discriminator:
+        propertyName: actionType
+        mapping:
+          sit: '#/components/schemas/SitAction'
+          group: '#/components/schemas/ActionGroup'
+    ActionType:
+      type: string
+      enum:
+        - sit
+        - group
+    SitAction:
+      type: object
+      required:
+        - objectType
+      properties:
+        actionType:
+          $ref: '#/components/schemas/ActionType'
+    ActionGroup:
+      type: object
+      required:
+        - objectType
+      properties:
+        actionType:
+          $ref: '#/components/schemas/ActionType'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
