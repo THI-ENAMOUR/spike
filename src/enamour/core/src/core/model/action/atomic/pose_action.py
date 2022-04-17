@@ -4,7 +4,7 @@ from src.core.model.action.action_type import ActionType
 from src.core.model.action.atomic.generic.atomic_action import AtomicAction
 from src.core.model.action.execution_method import ExecutionMethod
 from src.core.model.action.selection_type import SelectDuration
-from src.core.model.shared.vector3 import Vector3
+from src.core.model.common.vector3 import Vector3
 
 
 class PoseAction(AtomicAction):

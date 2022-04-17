@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(action_organizer)
+project(enamour_core)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy

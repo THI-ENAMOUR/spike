@@ -1,5 +1,5 @@
 <package format="2">
-    <name>action_organizer</name>
+    <name>enamour_core</name>
     <version>0.0.1</version>
     <description>
         Organizes the receiving and execution of robot actions.
