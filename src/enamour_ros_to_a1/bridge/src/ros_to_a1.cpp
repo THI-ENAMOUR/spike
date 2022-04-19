@@ -66,7 +66,7 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     TState RecvLowLCM = {0};
     sensor_msgs::Imu RecvImuROS;
     UNITREE_LEGGED_SDK::IMU RecvImuLCM;
-    sensor_msgs::JointState RecvState;
+    sensor_msgs::JointState RecvStateROS;
 
     RosCommandHandler<TCmd, TLCM> rcm{roslcm};
     // Todo: Subscribe to relative path if possible
@@ -97,9 +97,9 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         if (sequenceNumber != 0)
         {
             RecvImuROS = LcmToRos(RecvImuLCM, sequenceNumber);
-            RecvState = LcmToRos(RecvLowLCM);
-            imu_pub.publish(RecvImu);
-            joint_state_pub.publish(RecvState);
+            RecvStateROS = LcmToRos(RecvLowLCM);
+            imu_pub.publish(RecvImuROS);
+            joint_state_pub.publish(RecvStateROS);
         }
 
         ros::spinOnce();

@@ -31,7 +31,7 @@ static ros::V_string joint_names = {"FR_hip_joint", "FR_thigh_joint", "FR_calf_j
 sensor_msgs::Imu LcmToRos(UNITREE_LEGGED_SDK::IMU &lcm_imu, int32_t sequence_number)
 {
     sensor_msgs::Imu imu;
-    imu.header.seq = sequece_number;
+    imu.header.seq = sequence_number;
     // LCM Order w, x, y, z
     imu.orientation.w = lcm_imu.quaternion[0];
     imu.orientation.x = lcm_imu.quaternion[1];
