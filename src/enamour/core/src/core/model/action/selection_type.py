@@ -1,3 +1,5 @@
+"""
+
 from __future__ import annotations
 
 import abc
@@ -22,6 +24,9 @@ class SelectAlways(SelectionType):
     def is_selected_action(self, action: Action, time: ActionDuration = None) -> bool:
         return not action.completed
 
+    def __str__(self):
+        return f'{self.__class__.__name__}'
+
 
 class SelectStartTime(SelectionType):
     def __init__(self, start_time: ActionDuration, selection_type):
@@ -31,6 +36,9 @@ class SelectStartTime(SelectionType):
 
     def is_selected_action(self, action: Action, time: ActionDuration = None) -> bool:
         return not action.completed and self.start_time <= time
+
+    def __str__(self):
+        return f'{self.__class__.__name__}(start: {self.start_time}ns)'
 
 
 class SelectDuration(SelectionType):
@@ -45,3 +53,8 @@ class SelectDuration(SelectionType):
 
     def is_selected_action(self, action: Action, time: ActionDuration = None) -> bool:
         return not action.completed and self.start_time <= time <= self.end_time
+
+    def __str__(self):
+        return f'{self.__class__.__name__}(start: {self.start_time}ns, end: {self.end_time}ns)'
+
+"""

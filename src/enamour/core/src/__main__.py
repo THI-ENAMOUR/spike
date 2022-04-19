@@ -11,7 +11,8 @@ from src.util.ros_node import start_ros_node
 
 
 # TODO: Add logging library that works with ros AND console. Add tests. Check use cases if this architecture can handel
-# TODO: all of them. Rename classes to better names. Add exception management.
+# TODO: all of them. Rename classes to better names. Add exception management. Add global state management for other
+# TODO: components to access (containing information like current pose, current tasks etc.)
 
 
 class Node:

@@ -1,5 +1,5 @@
-from src.controller.no_op_controller import NoOpController
-from src.controller.pose_controller import PoseController
+from src.controller.atomic.no_op_controller import NoOpController
+from src.controller.atomic.pose_controller import PoseController
 
 # List of controllers. Use these instead of creating new ones.
 

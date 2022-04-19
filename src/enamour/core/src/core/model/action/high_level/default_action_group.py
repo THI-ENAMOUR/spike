@@ -1,8 +1,8 @@
+from src.core.completion_checker import check_completion_before
 from src.core.model.action.action import ActionList, Action
 from src.core.model.action.atomic.generic.action_execution_list import ActionExecutionList
 from src.core.model.action.atomic.generic.atomic_action import AtomicAction
 from src.core.model.action.atomic.no_op_action import NoOpAction
-from src.core.model.action.completion_checker import check_completion_before
 from src.core.model.action.high_level.generic.action_group import ActionGroup
 from src.util.action_duration import ActionDuration
 

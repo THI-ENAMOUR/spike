@@ -3,22 +3,29 @@ import uuid
 from typing import List
 
 from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.selection_type import SelectionType
+from src.core.model.action.timing_option import TimingOption
 from src.util.action_duration import ActionDuration
 
 
 class Action(metaclass=abc.ABCMeta):
-    def __init__(self, selection_type: SelectionType, execution_method: ExecutionMethod):
+    def __init__(self, timing_option: TimingOption, execution_method: ExecutionMethod):
         self.id = uuid.uuid4()
         self.completed = False
-        self.selection_type = selection_type
+        self.timing_option = timing_option
         self.execution_method = execution_method
 
     def complete(self):
         self.completed = True
 
     def is_selected(self, time: ActionDuration):
-        return self.selection_type.is_selected_action(self, time)
+        return self.timing_option.is_selected_action(self, time)
+
+    def __str__(self):
+        return (
+            f"{self.__class__.__name__}(id: {self.id}, "
+            f"timing: {self.timing_option}, "
+            f"execution: {self.execution_method.value})"
+        )
 
 
 ActionList = List[Action]
