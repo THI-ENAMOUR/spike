@@ -156,10 +156,10 @@ add_executable(${PROJECT_NAME}_node src/ros_to_a1.cpp)
 target_link_libraries(${PROJECT_NAME}_node ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-### TEST PURPOSE PLEASE CHANGE
-add_executable(${PROJECT_NAME}_node src/lcm_receiver_low.cpp)
-target_link_libraries(${PROJECT_NAME}_node ${EXTRA_LIBS} ${catkin_LIBRARIES})
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# ### TEST PURPOSE PLEASE CHANGE
+add_executable(receiver src/lcm_receiver_low.cpp)
+target_link_libraries(receiver ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(receiver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(lcm_server_3_2 $ENV{UNITREE_LEGGED_SDK_PATH}/examples/lcm_server_low.cpp)
 target_link_libraries(lcm_server_3_2 ${EXTRA_LIBS} ${catkin_LIBRARIES})
