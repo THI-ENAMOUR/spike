@@ -9,23 +9,22 @@ import requests
 # rostopic pub /cmd_facial_expression std_msgs/String \
 # "data: '{\"expression\": \"default\"}'"
 
-URL = 'http://localhost:5000/update-facial-expression'
-HEADERS = {'content-type': 'application/json'}
+URL = "http://localhost:5000/update-facial-expression"
+HEADERS = {"content-type": "application/json"}
 
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "publish %s", data.data)
     # Post command to web server
     try:
-        requests.post(URL,
-                      json=data.data, headers=HEADERS)
+        requests.post(URL, json=data.data, headers=HEADERS)
     except Exception as exp:
-        print('Post to server unsuccessful', exp)
+        print("Post to server unsuccessful", exp)
 
 
 def start_listener():
 
-    rospy.init_node('facial_expression_listener', anonymous=True)
+    rospy.init_node("facial_expression_listener", anonymous=True)
     # Get cmd from backend controller
     rospy.Subscriber("cmd_facial_expression", String, callback)
 
@@ -33,5 +32,5 @@ def start_listener():
     rospy.spin()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start_listener()

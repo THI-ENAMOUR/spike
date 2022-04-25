@@ -3,7 +3,6 @@ import queue
 
 
 class MediaQueue:
-
     def __init__(self):
         # Array of all registeres subscriber queue
         self.subscribers = []
@@ -15,9 +14,8 @@ class MediaQueue:
         # Get index of new subscriber Queue
         index = len(self.subscribers) - 1
         # Send an initial message to connect to the client
-        msg = {'info': "Connection successfully established"}
-        self.subscribers[index].put_nowait(
-            self.format_sse(data=json.dumps(msg)))
+        msg = {"info": "Connection successfully established"}
+        self.subscribers[index].put_nowait(self.format_sse(data=json.dumps(msg)))
         return self.subscribers[-1]
 
     def publish(self, msg):
@@ -32,7 +30,7 @@ class MediaQueue:
 
     # "Server-Sent-Events"-message format
     def format_sse(self, data: str, event=None) -> str:
-        msg = f'data: {data}\n\n'
+        msg = f"data: {data}\n\n"
         if event is not None:
-            msg = f'event: {event}\n{msg}'
+            msg = f"event: {event}\n{msg}"
         return msg

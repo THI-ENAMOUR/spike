@@ -3,27 +3,27 @@ import json
 from media_queue import MediaQueue
 
 
-app = flask.Flask(__name__, static_folder='static')
+app = flask.Flask(__name__, static_folder="static")
 
 media_Queue = MediaQueue()
 
 # Mapping between CMD and media files (face-expression.json)
-with open('face-expression.json') as expression_json:
+with open("face-expression.json") as expression_json:
     registry = json.load(expression_json)
 
 
-@app.route('/', methods=['GET'])
+@app.route("/", methods=["GET"])
 def index():
-    return flask.render_template('index.html')
+    return flask.render_template("index.html")
 
 
-@app.route('/favicon.ico', methods=['GET'])
+@app.route("/favicon.ico", methods=["GET"])
 def fav():
-    return flask.url_for('static', filename='favicon.ico')
+    return flask.url_for("static", filename="favicon.ico")
 
 
 # Set next facial expression
-@app.route('/update-facial-expression', methods=['POST'])
+@app.route("/update-facial-expression", methods=["POST"])
 def update():
     try:
         data = flask.request.get_json()
@@ -32,33 +32,33 @@ def update():
         return {}, 200
     except Exception as e:
         print(e)
-        print('error')
+        print("error")
         return {}, 400
 
 
 # Get next facial expression
-@app.route('/next-facial-expression', methods=['GET'])
+@app.route("/next-facial-expression", methods=["GET"])
 def listen():
-
     def stream():
         messages = media_Queue.subscribe()  # returns a queue.Queue
         while True:
             msg = messages.get()  # blocks until a new message arrives
             yield msg
 
-    return flask.Response(stream(), mimetype='text/event-stream')
+    return flask.Response(stream(), mimetype="text/event-stream")
 
 
 # Convert received command to media files
 def cmd_to_media(data):
     dic = json.loads(data)
     try:
-        obj = registry[dic['expression']]
+        obj = registry[dic["expression"]]
         json_str = json.dumps(obj)
     except KeyError:
-        obj = registry['default']
+        obj = registry["default"]
         json_str = json.dumps(obj)
     return json_str
+
 
 # Start webserver
 # Requirements:
