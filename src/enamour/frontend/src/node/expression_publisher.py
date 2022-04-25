@@ -3,10 +3,11 @@ import rospy
 from std_msgs.msg import String
 import requests
 
-# Publisher Message Format
+# Publisher Message Format:
 # '{"expression:" "<type>"}'
-# eg. with rostopic command:
-# pub rostopic pub /cmd_facial_expression std_msgs/String "data: '{\"expression\": \"default\"}'"
+# e.g. with rostopic command:
+# rostopic pub /cmd_facial_expression std_msgs/String \
+# "data: '{\"expression\": \"default\"}'"
 
 URL = 'http://localhost:5000/update-facial-expression'
 HEADERS = {'content-type': 'application/json'}

@@ -21,8 +21,8 @@ class MediaQueue:
         return self.subscribers[-1]
 
     def publish(self, msg):
-        # We go in reverse order because we might have to delete an element, which will shift the
-        # indices backward
+        # We go in reverse order because we might have to delete an element,
+        # which will shift the indices backward
         for i in reversed(range(len(self.subscribers))):
             try:
                 self.subscribers[i].put_nowait(self.format_sse(data=msg))

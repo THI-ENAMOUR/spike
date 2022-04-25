@@ -21,6 +21,7 @@ def index():
 def fav():
     return flask.url_for('static', filename='favicon.ico')
 
+
 # Set next facial expression
 @app.route('/update-facial-expression', methods=['POST'])
 def update():
@@ -34,6 +35,7 @@ def update():
         print('error')
         return {}, 400
 
+
 # Get next facial expression
 @app.route('/next-facial-expression', methods=['GET'])
 def listen():
@@ -46,19 +48,20 @@ def listen():
 
     return flask.Response(stream(), mimetype='text/event-stream')
 
+
 # Convert received command to media files
 def cmd_to_media(data):
     dic = json.loads(data)
     try:
         obj = registry[dic['expression']]
         json_str = json.dumps(obj)
-    except:
+    except KeyError:
         obj = registry['default']
         json_str = json.dumps(obj)
     return json_str
 
 # Start webserver
-# Requirements: 
+# Requirements:
 # flask, gunicorn, gevent
 # CMD:
 # gunicorn --workers 1 --threads 12 -k gevent --bind 0.0.0.0:5000 server:app
