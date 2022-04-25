@@ -1,0 +1,4 @@
+<launch>
+    <node name="frontend_server" pkg="frontend" type="start_server.bash"/>
+    <node name="frontend_publisher" pkg="frontend" type="expression_publisher.py"/>
+</launch>

@@ -1,0 +1,1 @@
+gunicorn --workers 1 --threads 12 -k gevent --bind 0.0.0.0:5000 server:app
