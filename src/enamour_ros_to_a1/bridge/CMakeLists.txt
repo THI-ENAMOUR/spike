@@ -157,9 +157,18 @@ target_link_libraries(${PROJECT_NAME}_node ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # ### TEST PURPOSE PLEASE CHANGE
-add_executable(receiver src/lcm_receiver_low.cpp)
-target_link_libraries(receiver ${EXTRA_LIBS} ${catkin_LIBRARIES})
-add_dependencies(receiver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(test_receiver src/lcm_receiver_low_test.cpp)
+target_link_libraries(test_receiver ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(test_receiver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(test_sender src/lcm_sender_low_test.cpp)
+target_link_libraries(test_sender ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(test_sender ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(test_server src/lcm_server_low_test.cpp)
+target_link_libraries(test_server ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(test_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 add_executable(lcm_server_3_2 $ENV{UNITREE_LEGGED_SDK_PATH}/examples/lcm_server_low.cpp)
 target_link_libraries(lcm_server_3_2 ${EXTRA_LIBS} ${catkin_LIBRARIES})
