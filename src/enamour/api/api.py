@@ -1,4 +1,3 @@
-from ctypes.wintypes import POINT
 from fastapi import FastAPI, Request, status
 from rospy_message_converter import json_message_converter
 import uvicorn
