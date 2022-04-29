@@ -1,5 +1,3 @@
-import time
-
 import rospy
 
 from src.controller.controller_organizer import ControllerOrganizer
@@ -32,17 +30,9 @@ class ActionOrganizer:
         self.running = True
 
         while self.running and not rospy.is_shutdown():
-            start = time.time()
-
             self.execute_action()
-
             # Sleep for a set duration to maintain a steady tick rate
             self.loop_rate.sleep()
-
-            end = time.time()
-
-            # TODO: Calculate with execution_rate (?)
-            self.last_loop_duration = ActionDuration(ms=int((end - start) * 1000))
 
     def execute_action(self):
         """Executes the next action in the action queue."""
@@ -55,7 +45,7 @@ class ActionOrganizer:
             # Queue is empty, do nothing
             return
 
-        (next_actions, parent_duration) = current_action_group.get_next_actions(self.last_loop_duration)
+        next_actions = current_action_group.get_next_actions()[0]
 
         if len(next_actions) == 0:
             if current_action_group.completed:
@@ -65,4 +55,6 @@ class ActionOrganizer:
             else:
                 raise IllegalStateError("No next action returned even tho action group is not completed")
 
-        self.controller_organizer.execute_actions(next_actions, parent_duration)
+        self.controller_organizer.execute_actions(next_actions)
+
+        current_action_group.update_time(self.loop_rate.sleep_dur)

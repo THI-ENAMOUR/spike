@@ -1,24 +1,36 @@
 import abc
 import uuid
-from typing import List
+from typing import List, Optional, TYPE_CHECKING
 
 from src.core.model.action.execution_method import ExecutionMethod
 from src.core.model.action.timing_option import TimingOption
+from src.exception.illegal_state_error import IllegalStateError
 from src.util.action_duration import ActionDuration
+
+if TYPE_CHECKING:
+    from src.core.model.action.group.action_group import ActionGroup
 
 
 class Action(metaclass=abc.ABCMeta):
-    def __init__(self, timing_option: TimingOption, execution_method: ExecutionMethod):
+    def __init__(
+        self, timing_option: TimingOption, execution_method: ExecutionMethod, parent: Optional["ActionGroup"] = None
+    ):
         self.id = uuid.uuid4()
         self.completed = False
         self.timing_option = timing_option
         self.execution_method = execution_method
+        self.parent = parent
 
     def complete(self):
         self.completed = True
 
-    def is_selected(self, time: ActionDuration):
-        return self.timing_option.is_selected_action(self, time)
+    def in_time_frame(self, time: ActionDuration):
+        return self.timing_option.in_time_frame(self, time)
+
+    def get_parent_time(self) -> ActionDuration:
+        if self.parent is not None:
+            return self.parent.time
+        raise IllegalStateError("Could not get parent time, since parent is none.")
 
     def __str__(self):
         return (

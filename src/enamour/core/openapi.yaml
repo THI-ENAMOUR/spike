@@ -14,7 +14,7 @@ paths:
       responses:
         200:
           description: (No actual responses will be sent)
-          
+
 components:
   schemas:
     ActionRequest:
@@ -34,7 +34,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Action'
-            
+
     Action:
       oneOf:
         - $ref: '#/components/schemas/SitAction'
@@ -45,8 +45,8 @@ components:
         mapping:
           sit: '#/components/schemas/SitAction'
           group: '#/components/schemas/ActionGroup'
-          
-          
+
+
     # All possible types of actions
     ActionGroup:
       type: object

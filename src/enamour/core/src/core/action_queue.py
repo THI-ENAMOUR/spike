@@ -1,7 +1,7 @@
 import typing
 from typing import Optional, Callable
 
-from src.core.model.action.high_level.generic.action_group import ActionGroup
+from src.core.model.action.group.action_group import ActionGroup
 from src.util.synchronized import synchronized
 
 T = typing.TypeVar("T")

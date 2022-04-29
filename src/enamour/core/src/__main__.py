@@ -5,7 +5,8 @@ from src.api.action_api_client import ActionApiClient
 from src.api.action_factory import ActionFactory
 from src.core.action_organizer import ActionOrganizer
 from src.core.action_queue import ActionQueue
-from src.core.model.action.high_level.sit_action import SitAction
+from src.core.model.action.atomic.pose_action import PoseAction
+from src.core.model.action.group.default_action_group import DefaultActionGroup
 from src.util.config import ConfigProvider
 from src.util.ros_node import start_ros_node
 
@@ -21,7 +22,15 @@ class Node:
         ConfigProvider.init_config()
         action_queue = ActionQueue()
 
-        action_queue.push(SitAction())
+        action_queue.push(
+            DefaultActionGroup(
+                actions=[
+                    PoseAction(start_ms=0, end_ms=2000),
+                    PoseAction(start_ms=4000, end_ms=4500),
+                    PoseAction(start_ms=2500, end_ms=2900),
+                ]
+            )
+        )
 
         threads = self.__start_threads(action_queue)
 

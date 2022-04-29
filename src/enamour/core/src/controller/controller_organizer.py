@@ -4,7 +4,7 @@ from src.controller.atomic.pose_controller import PoseController
 from src.core.completion_checker import check_completion_after
 from src.core.model.action.atomic.generic.action_execution_list import ActionExecutionList
 from src.core.model.action.atomic.generic.atomic_action import AtomicAction
-from src.util.action_duration import ActionDuration
+from src.core.model.action.execution_method import ExecutionMethod
 
 
 class ControllerOrganizer:
@@ -18,14 +18,29 @@ class ControllerOrganizer:
         self.movement_controller = movement_controller
         self.no_op_controller = no_op_controller
 
-    def execute_actions(self, actions: ActionExecutionList, parent_duration: ActionDuration):
+    def execute_actions(self, actions: ActionExecutionList):
+        self.validate_actions(actions)
         for action in actions:
-            self.execute_action(action, parent_duration)
+            self.execute_action(action)
 
     @staticmethod
-    def execute_action(action: AtomicAction, parent_duration: ActionDuration):
+    def validate_actions(actions: ActionExecutionList):
+        action_types = set()
+        for action in actions:
+            # TODO: Think about if Pose and Navigation should have the same action type or not
+            action_type = action.action_type if not action.action_type.is_movement_action() else "movement"
+
+            if action.execution_method == ExecutionMethod.NO_SAME_TYPE and action_type in action_types:
+                raise ValueError
+            elif action.execution_method == ExecutionMethod.SOLO and len(actions) > 1:
+                raise ValueError
+
+            action_types.add(action_type)
+
+    @staticmethod
+    def execute_action(action: AtomicAction):
         print(f"Executing {action}")
         controller = action.get_controller()
-        controller.execute_action(action, parent_duration)
+        controller.execute_action(action)
         if check_completion_after(action):
             action.complete()

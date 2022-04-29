@@ -1,7 +1,6 @@
 import abc
 
 from src.core.model.action.atomic.generic.atomic_action import AtomicAction
-from src.util.action_duration import ActionDuration
 
 
 class Controller(metaclass=abc.ABCMeta):
@@ -12,5 +11,5 @@ class Controller(metaclass=abc.ABCMeta):
         return (hasattr(subclass, "execute_action")) and callable(subclass.execute_action)
 
     @abc.abstractmethod
-    def execute_action(self, action: AtomicAction, parent_duration: ActionDuration):
+    def execute_action(self, action: AtomicAction):
         raise NotImplementedError

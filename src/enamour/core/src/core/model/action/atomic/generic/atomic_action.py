@@ -4,7 +4,7 @@ import abc
 
 # TODO: Cannot import directly, because of circular dependency. Better way?
 # Source: https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Callable
 
 from src.core.model.action.action import Action
 from src.core.model.action.action_type import ActionType
@@ -25,3 +25,8 @@ class AtomicAction(Action, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_controller(self) -> Controller:
         raise NotImplementedError
+
+    @staticmethod
+    def map_to_action_types(actions: List[AtomicAction]) -> List[ActionType]:
+        to_action_type: Callable[[AtomicAction], ActionType] = lambda a: a.action_type
+        return list(map(to_action_type, actions))

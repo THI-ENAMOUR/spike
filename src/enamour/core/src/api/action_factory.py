@@ -1,5 +1,5 @@
 from src.api.model.api_action import ApiAction
-from src.core.model.action.high_level.generic.action_group import ActionGroup
+from src.core.model.action.group.action_group import ActionGroup
 
 
 class ActionFactory:
