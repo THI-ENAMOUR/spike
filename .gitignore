@@ -8,6 +8,8 @@ build/
 .settings
 .vscode
 
+
+.DS_Store 
 .idea
 .catkin_workspace
 .project

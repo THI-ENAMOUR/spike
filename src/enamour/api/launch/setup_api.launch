@@ -1,3 +1,3 @@
 <launch>
-    <node name="api_server" pkg="api" type="api.py"/>
+    <node name="intent_api_server" pkg="enamour_api" type="api.py"/>
 </launch>
