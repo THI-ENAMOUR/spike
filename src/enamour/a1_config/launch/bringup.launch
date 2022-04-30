@@ -45,4 +45,8 @@
         <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_imu"   args="0 0 0 0 0 0 $(arg frame_prefix)base $(arg frame_prefix)imu_link" />
         <!-- include your hardware launch file here -->
     </group>
+    <group unless="$(arg hardware_connected)">
+        <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 1 map odom 5" />
+      
+    </group>
 </launch>
