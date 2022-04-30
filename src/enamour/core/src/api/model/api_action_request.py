@@ -1,8 +1,11 @@
+from typing import TYPE_CHECKING
+
 from src.api.model.api_action import ApiAction
 
+from src.core.model.action.group.action_group import ActionGroup
 
-# TODO: Generate the api model from the openapi.yaml? Tried it, it works, but we prop want to edit them, therefore
-# TODO: auto-generation does not make sense. Find another solution? Or just live with the manual editing labor.
+if TYPE_CHECKING:
+    from src.core.model.action.group.sit_action import SitAction
 
 
 class ApiActionRequest:
@@ -15,9 +18,14 @@ class ApiActionRequest:
         self.clear_action_queue = clear_action_queue
         self.actions = actions
 
-    # TODO: Error Handling, especially as info for client
+    def to_action_group(self) -> ActionGroup:
+        # TODO: Create mapping
+        return ActionGroup(actions=[SitAction()], start_time_ms=0)
+
     @staticmethod
     def from_json(data: dict):
+        # TODO: Create json deserialization
+
         actions: "list[ApiAction]" = []
         for action in data["actions"]:
             actions.append(ApiAction.from_json(action))

@@ -2,6 +2,7 @@ import rospy
 
 from src.controller.controller_organizer import ControllerOrganizer
 from src.core.action_queue import ActionQueue
+from src.core.validation.action_validator import ActionValidator
 from src.exception.illegal_state_error import IllegalStateError
 from src.util.action_duration import ActionDuration
 from src.util.config import ConfigProvider
@@ -14,7 +15,7 @@ class ActionOrganizer:
     def __init__(
         self,
         controller_organizer: ControllerOrganizer = ControllerOrganizer(),
-        action_queue: ActionQueue = ActionQueue(),
+        action_queue: ActionQueue = ActionQueue()
     ):
         self.controller_organizer = controller_organizer
         self.action_queue = action_queue
@@ -24,7 +25,7 @@ class ActionOrganizer:
         self.running = False
 
     @synchronized
-    def run(self):
+    def start(self):
         """Start an infinite loop of retrieving and executing the next action."""
 
         self.running = True

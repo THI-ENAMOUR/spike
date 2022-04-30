@@ -2,6 +2,7 @@ import typing
 from typing import Optional, Callable
 
 from src.core.model.action.group.action_group import ActionGroup
+from src.core.validation.action_validator import ActionValidator
 from src.util.synchronized import synchronized
 
 T = typing.TypeVar("T")
@@ -12,9 +13,12 @@ T = typing.TypeVar("T")
 class ActionQueue:
     """Provides a thread-safe FIFO queue for ActionGroups."""
 
-    def __init__(self, recent_completed_actions_list_size: int = 5):
+    def __init__(self, recent_completed_actions_list_size: int = 5,
+                 action_validator: ActionValidator = ActionValidator()):
         if recent_completed_actions_list_size < 0:
             recent_completed_actions_list_size = 0
+
+        self.action_validator = action_validator
 
         self.queue: "list[ActionGroup]" = []
         self.recent_completed_actions_list_size = recent_completed_actions_list_size
@@ -37,8 +41,9 @@ class ActionQueue:
         return None
 
     def push(self, *actions: ActionGroup):
-        """Pushes new actions to the end of the queue."""
+        """Validates actions and pushes them to the end of the queue."""
         for action in actions:
+            self.action_validator.validate(action)
             self.queue.append(action)
 
     def run_exclusive(self, func: Callable[["ActionQueue"], T]) -> T:
