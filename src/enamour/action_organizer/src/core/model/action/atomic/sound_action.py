@@ -15,3 +15,4 @@ class SoundAction(AtomicAction):
 
     def get_controller(self) -> Controller:
         return controller_provider.sound_controller
+        

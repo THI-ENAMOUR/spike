@@ -15,3 +15,4 @@ class DisplayAction(AtomicAction):
 
     def get_controller(self) -> Controller:
         return controller_provider.display_controller
+        

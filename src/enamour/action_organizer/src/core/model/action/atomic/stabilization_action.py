@@ -15,3 +15,4 @@ class StabilizationAction(AtomicAction):
 
     def get_controller(self) -> Controller:
         return controller_provider.stabilization_controller
+        
