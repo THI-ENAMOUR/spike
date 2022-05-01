@@ -16,9 +16,8 @@ source <your_ws>/devel/setup.bash
 
 ## Start the package
 The next command starts the web server and the ROS node.
-```
-roslaunch frontend setup_frontend.launch
-```
+- `roslaunch enamour_frontend bringup.launch`
+- OR: `rosrun enamour_frontend app.py`
 
 ## Test
 Visit the website. The server listens on port 5000 by default. Make sure that your browser allows automatic playback of video and audio, otherwise the sound will not play. <br>

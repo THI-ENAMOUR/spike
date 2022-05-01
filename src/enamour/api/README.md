@@ -5,7 +5,7 @@ them on a ROS topic.
 
 ### Running this node in ROS:
 - `rosrun enamour_api __main__.py`
-- OR: `roslaunch enamour_api setup_api.launch`
+- OR: `roslaunch enamour_api bringup.launch`
 
 ### API-Information:
 - Intent Topic Name: __\intent__

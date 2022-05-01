@@ -1,0 +1,4 @@
+<launch>
+    <node name="enamour_frontend_server" pkg="enamour_frontend" type="app.py"/>
+    <node name="enamour_frontend_publisher" pkg="enamour_frontend" type="expression_publisher.py"/>
+</launch>

@@ -26,9 +26,11 @@ async def receive_intent(request: Request):
         data = await request.json()
         publish_intent(data)
     except JSONDecodeError:
-        return ApiError(title="Invalid request payload format",
-                        message="The payload is no valid json",
-                        http_status=status.HTTP_400_BAD_REQUEST).to_response()
+        return ApiError(
+            title="Invalid request payload format",
+            message="The payload is no valid json",
+            http_status=status.HTTP_400_BAD_REQUEST,
+        ).to_response()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
