@@ -8,6 +8,9 @@ build/
 .settings
 .vscode
 
+logs/
+
+.log
 .DS_Store 
 .idea
 .catkin_workspace

@@ -1,7 +1,9 @@
 from typing import Optional, Callable, TypeVar, List
+from uuid import UUID
 
 from core.model.action.group.action_group import ActionGroup
 from core.validation.action_group_validator import ActionGroupValidator
+from util.logger import Logger
 from util.synchronized import synchronized
 
 T = TypeVar("T")
@@ -11,6 +13,8 @@ T = TypeVar("T")
 @synchronized
 class ActionQueue:
     """Provides a thread-safe FIFO queue for ActionGroups."""
+
+    __logger = Logger(__name__)
 
     def __init__(
         self,
@@ -45,11 +49,16 @@ class ActionQueue:
         """Validates actions and pushes them to the end of the queue."""
         for action in actions:
             self.action_validator.validate(action)
+            self.__logger.info(f"Add action {action.id} to action queue")
             self.queue.append(action)
 
     def lock_queue_for_execution(self, func: Callable[["ActionQueue"], T]) -> T:
         """Locks the queue for all threads while running the provided function."""
         return func(self)
+
+    def pop_by_index(self, id: UUID):
+        equal_id: Callable[[int, ActionGroup], bool] = lambda index, item: item.id == id
+        self.pop(filter_fun=equal_id)
 
     def pop(self, filter_fun: Callable[[int, ActionGroup], bool]):
         """Removes actions which statisfy the provided filter function from the queue and
@@ -64,7 +73,7 @@ class ActionQueue:
     def __add_to_latest_completed_list(self, *actions: ActionGroup):
         if self.latest_completed_actions_list_size > 0:
             for action in actions:
-                print("Completed action list with id " + str(action.id))
+                self.__logger.info("Completed action list with id " + str(action.id))
                 self.latest_completed_actions.insert(0, action)
             while len(self.latest_completed_actions) > self.latest_completed_actions_list_size:
                 self.latest_completed_actions.pop()

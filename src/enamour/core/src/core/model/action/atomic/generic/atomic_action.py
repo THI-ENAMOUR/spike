@@ -12,7 +12,7 @@ from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import TimingOption
 
 if TYPE_CHECKING:
-    from controller.controller import Controller
+    from core.controller.controller import Controller
 
 
 class AtomicAction(Action, metaclass=abc.ABCMeta):

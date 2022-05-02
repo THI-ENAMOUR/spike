@@ -1,4 +1,4 @@
-from controller.controller import Controller
+from core.controller.controller import Controller
 from core.model.action.atomic.generic.atomic_action import AtomicAction
 
 

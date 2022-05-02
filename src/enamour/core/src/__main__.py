@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import threading
 from typing import List, Optional
 
@@ -10,10 +11,13 @@ from core.event_bus import event_bus
 from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.group.default_action_group import DefaultActionGroup
 from util.config import Config
+from util.logger import Logger
 from util.shutdown_hook import ShutdownHook
 
 
 class Node:
+    __logger = Logger(__name__)
+
     def __init__(self, action_queue: ActionQueue = ActionQueue()):
         event_bus.init_node(event_bus.get_parameter("core_node_name", "enamour_core"))
         Config.init_config()
@@ -23,6 +27,7 @@ class Node:
         ShutdownHook.on_shutdown = self.shutdown
 
     def start(self):
+        self.__logger.info("Start core node")
         threads = self.__start_threads(self.action_queue)
 
         for thread in threads:
@@ -30,7 +35,7 @@ class Node:
             thread.join()
 
     def shutdown(self):
-        print("Shutting down node")
+        self.__logger.info("Shutting down node")
         if self.action_api_client is not None:
             self.action_api_client.running = False
         if self.action_organizer is not None:
@@ -54,7 +59,14 @@ class Node:
         self.action_organizer.start()
 
 
+def setup_logger():
+    logging_file = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir), "logs")
+    Logger.update_file_logger(logging_file)
+
+
 if __name__ == "__main__":
+    setup_logger()
+
     __queue = ActionQueue()
     node = Node(action_queue=__queue)
 
@@ -79,4 +91,5 @@ if __name__ == "__main__":
             ]
         )
     )
+
     node.start()

@@ -1,5 +1,4 @@
-from controller import controller_provider
-from controller.controller import Controller
+from core.controller.controller import Controller
 from core.model.action.action_type import ActionType
 from core.model.action.atomic.generic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
@@ -18,10 +17,9 @@ class NoOpAction(AtomicAction):
         parent: ActionGroup = None,
     ):
 
-        if start_time is None:
-            start_time = (ActionDuration(ms=start_time_ms),)
-
         if timing_option is None:
+            if start_time is None:
+                start_time = ActionDuration(ms=start_time_ms)
             if end_time_ms is None:
                 timing_option = TimingOption.StartTime(start_time)
             else:
@@ -34,4 +32,7 @@ class NoOpAction(AtomicAction):
         self.parent = parent
 
     def get_controller(self) -> Controller:
-        return controller_provider.no_op_controller
+        # Local import to break cyclic import chain
+        from core.controller.controller_organizer import ControllerOrganizer
+
+        return ControllerOrganizer.no_op_controller

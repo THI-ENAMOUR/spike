@@ -1,16 +1,19 @@
 import rospy
 
-from controller.controller_organizer import ControllerOrganizer
 from core.action_queue import ActionQueue
+from core.controller.controller_organizer import ControllerOrganizer
 from core.event_bus import event_bus
 from core.model.common.action_duration import ActionDuration
 from exception.illegal_state_error import IllegalStateError
 from util.config import Config
+from util.logger import Logger
 from util.synchronized import synchronized
 
 
 class ActionOrganizer:
     """Organizes the selection and execution of an ActionQueue"""
+
+    __logger = Logger(__name__)
 
     def __init__(
         self,
@@ -28,6 +31,7 @@ class ActionOrganizer:
     def start(self):
         """Start an infinite loop of retrieving and executing the next action."""
         self.running = True
+        self.__logger.info("Start action organizer")
         while event_bus.is_running and self.running:
             self.execute_action()
             # Sleep for a set duration to maintain a steady tick rate
@@ -58,4 +62,4 @@ class ActionOrganizer:
 
         current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
 
-        print("----------------------------------------------------------------------------------")
+        self.__logger.info("----------------------------------------------------------------------------------")
