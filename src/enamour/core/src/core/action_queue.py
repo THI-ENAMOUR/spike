@@ -1,4 +1,5 @@
 from typing import Optional, Callable, TypeVar, List
+from uuid import UUID
 
 from core.model.action.group.action_group import ActionGroup
 from core.validation.action_group_validator import ActionGroupValidator
@@ -15,15 +16,21 @@ class ActionQueue:
     def __init__(
         self,
         latest_completed_actions_list_size: int = 5,
+        latest_error_actions_list_size: int = 5,
         action_validator: ActionGroupValidator = ActionGroupValidator(),
     ):
         if latest_completed_actions_list_size < 0:
             latest_completed_actions_list_size = 0
         self.latest_completed_actions_list_size = latest_completed_actions_list_size
 
+        if latest_error_actions_list_size < 0:
+            latest_error_actions_list_size = 0
+        self.latest_error_actions_list_size = latest_error_actions_list_size
+
         self.action_validator = action_validator
         self.queue: List[ActionGroup] = []
         self.latest_completed_actions: List[ActionGroup] = []
+        self.latest_error_actions: List[ActionGroup] = []
         """ List of latest completed actions, lower means more recently completed.
             The max size is defined by recent_completed_actions_list_size."""
 
@@ -51,6 +58,13 @@ class ActionQueue:
         """Locks the queue for all threads while running the provided function."""
         return func(self)
 
+    def pop_on_error(self, *actions: ActionGroup):
+        for action in actions:
+            for index, item in enumerate(self.queue):
+                if item.id == action.id:
+                    self.queue.pop(index)
+                    self.__add_to_latest_error_list(action)
+
     def pop(self, filter_fun: Callable[[int, ActionGroup], bool]):
         """Removes actions which statisfy the provided filter function from the queue and
         adds them to recent_completed_actions."""
@@ -68,3 +82,11 @@ class ActionQueue:
                 self.latest_completed_actions.insert(0, action)
             while len(self.latest_completed_actions) > self.latest_completed_actions_list_size:
                 self.latest_completed_actions.pop()
+
+    def __add_to_latest_error_list(self, *actions: ActionGroup):
+        if self.latest_error_actions_list_size > 0:
+            for action in actions:
+                print("Add action to error list with id " + str(action.id))
+                self.latest_error_actions.insert(0, action)
+            while len(self.latest_error_actions) > self.latest_error_actions_list_size:
+                self.latest_error_actions.pop()

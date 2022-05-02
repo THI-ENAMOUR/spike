@@ -5,15 +5,18 @@ from std_msgs.msg import String
 from api.model.api_action_request import ApiActionRequest
 from core.action_queue import ActionQueue
 
-# TODO: Adjust class once we know how the api looks like
 from core.event_bus import event_bus
+from error.handler.action_api_error_handler import ActionApiErrorHandler
 
 
 class ActionApiClient:
     """Creates a communication channel for exchanging actions and the current state"""
 
-    def __init__(self, action_queue: ActionQueue):
+    def __init__(
+        self, action_queue: ActionQueue, action_api_error_handler: ActionApiErrorHandler = ActionApiErrorHandler()
+    ):
         self.action_queue = action_queue
+        self.action_api_error_handler = action_api_error_handler
         self.running = False
 
     def start(self):
@@ -23,8 +26,11 @@ class ActionApiClient:
             event_bus.spin()
 
     def receive_action(self, action):
-        print("Received a new action request")
-        action_request_json = json.loads(action.data)
-        action_request = ApiActionRequest.from_json(action_request_json)
-        action_group = action_request.to_action_group()
-        self.action_queue.push(action_group)
+        try:
+            print("Received a new action request")
+            action_request_json = json.loads(action.data)
+            action_request = ApiActionRequest.from_json(action_request_json)
+            action_group = action_request.to_action_group()
+            self.action_queue.push(action_group)
+        except (BaseException,) as error:
+            self.action_api_error_handler.handle(error)

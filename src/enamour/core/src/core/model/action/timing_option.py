@@ -2,6 +2,8 @@ import abc
 from typing import TYPE_CHECKING
 
 from core.model.common.action_duration import ActionDuration
+from error.illegal_argument_error import IllegalArgumentError
+from error.illegal_state_error import IllegalStateError
 
 if TYPE_CHECKING:
     from core.model.action.action import Action, ActionList
@@ -22,13 +24,13 @@ class TimingOption(metaclass=abc.ABCMeta):
         actions.sort(key=TimingOption.__get_start_time)
 
     @staticmethod
-    def __get_start_time(elem: "Action"):
-        if isinstance(elem.timing_option, StartTime):
-            return elem.timing_option.start_time
-        elif isinstance(elem.timing_option, Duration):
-            return elem.timing_option.start_time
+    def __get_start_time(action: "Action"):
+        if isinstance(action.timing_option, StartTime):
+            return action.timing_option.start_time
+        elif isinstance(action.timing_option, Duration):
+            return action.timing_option.start_time
         else:
-            raise NotImplementedError
+            raise IllegalStateError(f"The timeing option of action {action.id} is an unknown instance type")
 
 
 class StartTime(TimingOption):
@@ -59,7 +61,7 @@ class Duration(TimingOption):
     def __init__(self, start_time: ActionDuration, end_time: ActionDuration):
         super().__init__()
         if start_time > end_time:
-            raise ValueError
+            raise IllegalArgumentError(f"Start time {start_time} should be smaller than end time {end_time}")
         self.start_time = start_time
         self.end_time = end_time
 

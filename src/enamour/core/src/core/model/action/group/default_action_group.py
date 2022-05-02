@@ -6,7 +6,7 @@ from core.model.action.atomic.no_op_action import NoOpAction
 from core.model.action.execution_method import ExecutionMethod
 from core.model.action.group.action_group import ActionGroup
 from core.model.common.action_duration import ActionDuration
-from exception.illegal_state_error import IllegalStateError
+from error.illegal_state_error import IllegalStateError
 
 
 class DefaultActionGroup(ActionGroup):
@@ -77,13 +77,13 @@ class DefaultActionGroup(ActionGroup):
         elif isinstance(action, AtomicAction):
             return self.__select_atomic_action(action)
         else:
-            raise ValueError
+            raise IllegalStateError(f"Action {action.id} is an unknown action instance")
 
     def __select_action_group(self, action: ActionGroup) -> bool:
         if action.execution_method == ExecutionMethod.MULTIPLE:
             self.__execute_action_group(action)
         elif action.execution_method == ExecutionMethod.NO_SAME_TYPE:
-            raise ValueError("NO_SAME_TYPE cannot be chosen for action group")
+            raise IllegalStateError("NO_SAME_TYPE is not supported for action group")
         elif action.execution_method == ExecutionMethod.SOLO:
             if self.execution_list_is_empty():
                 self.__execute_action_group(action)
@@ -102,7 +102,9 @@ class DefaultActionGroup(ActionGroup):
             contained_action_types = AtomicAction.to_action_type_set(self.__execution_list)
             if action.action_type in contained_action_types:
                 # Raise error since the execution of atomic actions cannot be delayed
-                raise ValueError("Atomic action with no_same_type execution conflicts with other running action")
+                raise IllegalStateError(
+                    f"Atomic action {action.id} with no_same_type execution conflicts with other actions"
+                )
             else:
                 self.__execute_atomic_action(action)
         elif action.execution_method == ExecutionMethod.SOLO:
@@ -111,7 +113,7 @@ class DefaultActionGroup(ActionGroup):
                 return False
             else:
                 # Raise error since the execution of atomic actions cannot be delayed
-                raise ValueError("Atomic action with solo execution conflicts with other running action")
+                raise IllegalStateError(f"Atomic action {action.id} with solo execution conflicts with other actions")
         return True
 
     def update_parent_time_of_executed_actions(self, delta_time: ActionDuration):

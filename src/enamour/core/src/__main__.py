@@ -66,10 +66,7 @@ if __name__ == "__main__":
                     actions=[
                         PoseAction(start_ms=0, end_ms=2000),
                         DefaultActionGroup(
-                            actions=[
-                                PoseAction(start_ms=4000, end_ms=4500),
-                                PoseAction(start_ms=2500, end_ms=2900),
-                            ]
+                            actions=[PoseAction(start_ms=4000, end_ms=4500), PoseAction(start_ms=2500, end_ms=2900)]
                         ),
                         PoseAction(start_ms=4000, end_ms=4500),
                         PoseAction(start_ms=2500, end_ms=2900),

@@ -1,8 +1,8 @@
 from controller.controller import Controller
 from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.timing_option import TimingOption
-from exception.illegal_state_error import IllegalStateError
-from exception.not_supported_error import NotSupportedError
+from error.illegal_state_error import IllegalStateError
+from error.not_supported_error import NotSupportedError
 
 
 class PoseController(Controller):
@@ -19,4 +19,4 @@ class PoseController(Controller):
             # TODO Interpolate the pose based on the parent_duration, current location (TODO), and desired end position
             pass
         else:
-            raise NotSupportedError(action)
+            raise NotImplementedError(f"Timing option {action.timing_option} for action {action.id} not implemented")
