@@ -1,10 +1,10 @@
 import abc
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
-from src.util.action_duration import ActionDuration
+from core.model.common.action_duration import ActionDuration
 
 if TYPE_CHECKING:
-    from src.core.model.action.action import Action
+    from core.model.action.action import Action, ActionList
 
 
 class TimingOption(metaclass=abc.ABCMeta):
@@ -17,8 +17,8 @@ class TimingOption(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @staticmethod
-    def sort(actions: List["Action"]):
-        """Uses list sort function, which is in-place and stable"""
+    def sort(actions: "ActionList"):
+        """In-place and stable sorts actions by their start date"""
         actions.sort(key=TimingOption.__get_start_time)
 
     @staticmethod
@@ -37,8 +37,8 @@ class StartTime(TimingOption):
         self.start_time = start_time
 
     def in_time_frame(self, action: "Action", time: ActionDuration = None) -> bool:
-        """Returns true if the start time < current time. The start time is exclusive.
-        If both of them are zero, true is also returned."""
+        """Returns true if the start_time < time. The start time is exclusive.
+        If both of them are zero returns true."""
         return not action.completed and (self.start_time < time or (self.start_time.is_zero() and time.is_zero()))
 
     def __str__(self):
@@ -50,6 +50,9 @@ class StartTime(TimingOption):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+
+TimingOption.StartTime = StartTime
 
 
 class Duration(TimingOption):
@@ -65,8 +68,8 @@ class Duration(TimingOption):
         return cls(start_time=ActionDuration(ms=start), end_time=ActionDuration(ms=end))
 
     def in_time_frame(self, action: "Action", time: ActionDuration = None) -> bool:
-        """Returns true if the start time < current time <= end time. The start time is exclusive.
-        If the start and current time are zero, true is also returned."""
+        """Returns true if the start_time < time <= end_time. The start time is exclusive.
+        If the start_time and time are zero returns true"""
         return not action.completed and (
             (self.start_time < time and self.start_time <= self.end_time)
             or (self.start_time.is_zero() and time.is_zero())
@@ -85,5 +88,4 @@ class Duration(TimingOption):
         return not self.__eq__(other)
 
 
-TimingOption.StartTime = StartTime
 TimingOption.Duration = Duration

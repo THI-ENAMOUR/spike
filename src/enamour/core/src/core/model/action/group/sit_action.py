@@ -1,6 +1,6 @@
-from src.core.model.action.atomic.pose_action import PoseAction
-from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.group.default_action_group import DefaultActionGroup
+from core.model.action.atomic.pose_action import PoseAction
+from core.model.action.execution_method import ExecutionMethod
+from core.model.action.group.default_action_group import DefaultActionGroup
 
 
 class SitAction(DefaultActionGroup):

@@ -1,4 +1,4 @@
-from src.core.model.action.atomic.lambda_action import LambdaAction
+from core.model.action.atomic.lambda_action import LambdaAction
 
 
 # TODO: Implement

@@ -10,12 +10,10 @@ class ApiActionType(Enum):
 class ApiAction(metaclass=abc.ABCMeta):
     type: ApiActionType
 
-    @classmethod
-    def __subclasshook__(cls, subclass):
-        return hasattr(subclass, "type")
-
     @staticmethod
     def from_json(data: dict):
+        # TODO: Implement correctly and in a nice, readable way including error handling
+
         parse_action = {
             ApiSitAction.type.value: lambda x: ApiSitAction.from_json(x),
             ApiActionGroup.type.value: lambda x: ApiActionGroup.from_json(x),
@@ -31,10 +29,7 @@ class ApiActionGroup(ApiAction):
     type = ApiActionType.GROUP
 
     def __init__(self, actions: "list[ApiAction]" = None):
-        if actions is None:
-            actions = []
-
-        self.actions = actions
+        self.actions = actions if actions is not None else []
 
     @staticmethod
     def from_json(data: dict):
@@ -47,9 +42,6 @@ class ApiActionGroup(ApiAction):
 
 class ApiSitAction(ApiAction):
     type = ApiActionType.SIT
-
-    def __init__(self):
-        self.type = type
 
     @staticmethod
     def from_json(data: dict):

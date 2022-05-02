@@ -2,13 +2,13 @@ import abc
 import uuid
 from typing import List, Optional, TYPE_CHECKING
 
-from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.timing_option import TimingOption
-from src.exception.illegal_state_error import IllegalStateError
-from src.util.action_duration import ActionDuration
+from core.model.action.execution_method import ExecutionMethod
+from core.model.action.timing_option import TimingOption
+from core.model.common.action_duration import ActionDuration
+from exception.illegal_state_error import IllegalStateError
 
 if TYPE_CHECKING:
-    from src.core.model.action.group.action_group import ActionGroup
+    from core.model.action.group.action_group import ActionGroup
 
 
 class Action(metaclass=abc.ABCMeta):

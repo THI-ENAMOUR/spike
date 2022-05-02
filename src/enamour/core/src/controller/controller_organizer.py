@@ -1,10 +1,10 @@
-from src.controller import controller_provider
-from src.controller.atomic.no_op_controller import NoOpController
-from src.controller.atomic.pose_controller import PoseController
-from src.core.completion_checker import check_completion_after
-from src.core.model.action.atomic.generic.action_execution_list import ActionExecutionList
-from src.core.model.action.atomic.generic.atomic_action import AtomicAction
-from src.core.model.action.execution_method import ExecutionMethod
+from controller import controller_provider
+from controller.atomic.no_op_controller import NoOpController
+from controller.atomic.pose_controller import PoseController
+from core.completion_checker import check_completion_after_execution
+from core.model.action.atomic.generic.action_execution_list import ActionExecutionList
+from core.model.action.atomic.generic.atomic_action import AtomicAction
+from core.validation.execution_list_validator import ExecutionListValidator
 
 
 class ControllerOrganizer:
@@ -12,35 +12,23 @@ class ControllerOrganizer:
 
     def __init__(
         self,
+        validator: ExecutionListValidator = ExecutionListValidator(),
         movement_controller: PoseController = controller_provider.movement_controller,
         no_op_controller: NoOpController = controller_provider.no_op_controller,
     ):
+        self.validator = validator
         self.movement_controller = movement_controller
         self.no_op_controller = no_op_controller
 
     def execute_actions(self, actions: ActionExecutionList):
-        self.validate_actions(actions)
+        self.validator.validate(actions)
         for action in actions:
-            self.execute_action(action)
+            self.__execute_action(action)
 
     @staticmethod
-    def validate_actions(actions: ActionExecutionList):
-        action_types = set()
-        for action in actions:
-            # TODO: Think about if Pose and Navigation should have the same action type or not
-            action_type = action.action_type if not action.action_type.is_movement_action() else "movement"
-
-            if action.execution_method == ExecutionMethod.NO_SAME_TYPE and action_type in action_types:
-                raise ValueError
-            elif action.execution_method == ExecutionMethod.SOLO and len(actions) > 1:
-                raise ValueError
-
-            action_types.add(action_type)
-
-    @staticmethod
-    def execute_action(action: AtomicAction):
+    def __execute_action(action: AtomicAction):
         print(f"Executing {action}")
         controller = action.get_controller()
         controller.execute_action(action)
-        if check_completion_after(action):
+        if check_completion_after_execution(action):
             action.complete()

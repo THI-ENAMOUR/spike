@@ -1,5 +1,5 @@
-from src.controller.controller import Controller
-from src.core.model.action.atomic.generic.atomic_action import AtomicAction
+from controller.controller import Controller
+from core.model.action.atomic.generic.atomic_action import AtomicAction
 
 
 class NoOpController(Controller):

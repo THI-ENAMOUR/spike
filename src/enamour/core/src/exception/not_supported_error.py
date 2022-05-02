@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from src.exception.application_error import ApplicationError
+from exception.application_error import ApplicationError
 
 if TYPE_CHECKING:
-    from src.core.model.action.action import Action
+    from core.model.action.action import Action
 
 
 class NotSupportedError(ApplicationError):

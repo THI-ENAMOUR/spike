@@ -3,7 +3,7 @@ import threading
 import types
 
 
-# Source: https://theorangeduck.com/page/synchronized-python. Modified to use RLock and fixed mistakes.
+# Source: https://theorangeduck.com/page/synchronized-python. Modified, and utilizing RLocks instead.
 
 
 def __synchronized_with_attr(lock_name):

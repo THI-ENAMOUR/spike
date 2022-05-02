@@ -1,4 +1,4 @@
-from src.exception.application_error import ApplicationError
+from exception.application_error import ApplicationError
 
 
 class IllegalStateError(ApplicationError):

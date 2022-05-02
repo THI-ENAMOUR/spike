@@ -2,11 +2,11 @@ import abc
 from typing import Dict
 from uuid import UUID
 
-from src.core.model.action.action import Action, ActionList
-from src.core.model.action.atomic.generic.action_execution_list import ActionExecutionList
-from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.timing_option import TimingOption
-from src.util.action_duration import ActionDuration
+from core.model.action.action import Action, ActionList
+from core.model.action.atomic.generic.action_execution_list import ActionExecutionList
+from core.model.action.execution_method import ExecutionMethod
+from core.model.action.timing_option import TimingOption
+from core.model.common.action_duration import ActionDuration
 
 
 class ActionGroup(Action, metaclass=abc.ABCMeta):
@@ -24,18 +24,16 @@ class ActionGroup(Action, metaclass=abc.ABCMeta):
 
         super(ActionGroup, self).__init__(timing_option, execution_method)
 
+        self.time = ActionDuration(ns=0)
         self.actions = actions
-
         # IMPORTANT: Sort the action list, so we can make assumptions based on the sorting of the start time
         self.sort()
-
-        self.time = ActionDuration(ns=0)
 
     def sort(self):
         TimingOption.sort(self.actions)
 
     @abc.abstractmethod
-    def update_time(self, delta_time: ActionDuration):
+    def update_parent_time_of_executed_actions(self, delta_time: ActionDuration):
         raise NotImplementedError
 
     @abc.abstractmethod

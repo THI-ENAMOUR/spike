@@ -4,15 +4,15 @@ import abc
 
 # TODO: Cannot import directly, because of circular dependency. Better way?
 # Source: https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
-from typing import TYPE_CHECKING, List, Callable
+from typing import TYPE_CHECKING, List, Callable, Set
 
-from src.core.model.action.action import Action
-from src.core.model.action.action_type import ActionType
-from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.timing_option import TimingOption
+from core.model.action.action import Action
+from core.model.action.action_type import ActionType
+from core.model.action.execution_method import ExecutionMethod
+from core.model.action.timing_option import TimingOption
 
 if TYPE_CHECKING:
-    from src.controller.controller import Controller
+    from controller.controller import Controller
 
 
 class AtomicAction(Action, metaclass=abc.ABCMeta):
@@ -27,6 +27,6 @@ class AtomicAction(Action, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @staticmethod
-    def map_to_action_types(actions: List[AtomicAction]) -> List[ActionType]:
+    def to_action_type_set(actions: List[AtomicAction]) -> Set[ActionType]:
         to_action_type: Callable[[AtomicAction], ActionType] = lambda a: a.action_type
-        return list(map(to_action_type, actions))
+        return set(map(to_action_type, actions))

@@ -1,22 +1,14 @@
-from src.util.ros_node import get_ros_parameter
+from core.event_bus import event_bus
 
 
 class Config:
-    """Application config container"""
+    """Application config"""
+
+    loop_rate: int
 
     def __init__(self, loop_rate: int):
-        self.loop_rate = loop_rate
-
-
-class ConfigProvider:
-    """Global config provider for accessing the application config"""
-
-    config: Config
-
-    def __init__(self, config: Config):
-        ConfigProvider.config = config
+        Config.loop_rate = loop_rate
 
     @staticmethod
-    def init_config() -> Config:
-        ConfigProvider.config = Config(loop_rate=get_ros_parameter("loop_rate", 10))
-        return ConfigProvider.config
+    def init_config():
+        Config.loop_rate = event_bus.get_parameter("loop_rate", 10)

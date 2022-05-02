@@ -1,26 +1,30 @@
 import json
 
-import rospy
+from std_msgs.msg import String
 
-from src.api.model.api_action_request import ApiActionRequest
-from src.core.action_queue import ActionQueue
-
+from api.model.api_action_request import ApiActionRequest
+from core.action_queue import ActionQueue
 
 # TODO: Adjust class once we know how the api looks like
+from core.event_bus import event_bus
+
+
 class ActionApiClient:
     """Creates a communication channel for exchanging actions and the current state"""
 
     def __init__(self, action_queue: ActionQueue):
         self.action_queue = action_queue
+        self.running = False
 
     def start(self):
-        while not rospy.is_shutdown():
-            rospy.Subscriber("action", self.receive_action)
-            rospy.spin()
+        self.running = True
+        while event_bus.is_running() and self.running:
+            event_bus.subscribe("action", String, self.receive_action)
+            event_bus.spin()
 
     def receive_action(self, action):
-        action_request_json = json.loads(action)
+        print("Received a new action request")
+        action_request_json = json.loads(action.data)
         action_request = ApiActionRequest.from_json(action_request_json)
         action_group = action_request.to_action_group()
         self.action_queue.push(action_group)
-

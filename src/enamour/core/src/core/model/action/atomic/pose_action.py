@@ -1,10 +1,10 @@
-from src.controller import controller_provider
-from src.controller.controller import Controller
-from src.core.model.action.action_type import ActionType
-from src.core.model.action.atomic.generic.atomic_action import AtomicAction
-from src.core.model.action.execution_method import ExecutionMethod
-from src.core.model.action.timing_option import TimingOption
-from src.core.model.common.vector3 import Vector3
+from controller import controller_provider
+from controller.controller import Controller
+from core.model.action.action_type import ActionType
+from core.model.action.atomic.generic.atomic_action import AtomicAction
+from core.model.action.execution_method import ExecutionMethod
+from core.model.action.timing_option import TimingOption
+from core.model.common.vector3 import Vector3
 
 
 class PoseAction(AtomicAction):

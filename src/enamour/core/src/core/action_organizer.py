@@ -1,12 +1,12 @@
 import rospy
 
-from src.controller.controller_organizer import ControllerOrganizer
-from src.core.action_queue import ActionQueue
-from src.core.validation.action_validator import ActionValidator
-from src.exception.illegal_state_error import IllegalStateError
-from src.util.action_duration import ActionDuration
-from src.util.config import ConfigProvider
-from src.util.synchronized import synchronized
+from controller.controller_organizer import ControllerOrganizer
+from core.action_queue import ActionQueue
+from core.event_bus import event_bus
+from core.model.common.action_duration import ActionDuration
+from exception.illegal_state_error import IllegalStateError
+from util.config import Config
+from util.synchronized import synchronized
 
 
 class ActionOrganizer:
@@ -15,22 +15,20 @@ class ActionOrganizer:
     def __init__(
         self,
         controller_organizer: ControllerOrganizer = ControllerOrganizer(),
-        action_queue: ActionQueue = ActionQueue()
+        action_queue: ActionQueue = ActionQueue(),
     ):
         self.controller_organizer = controller_organizer
         self.action_queue = action_queue
 
-        self.loop_rate = rospy.Rate(ConfigProvider.config.loop_rate)
+        self.loop_rate = rospy.Rate(Config.loop_rate)
         self.last_loop_duration = ActionDuration(ns=0)
         self.running = False
 
     @synchronized
     def start(self):
         """Start an infinite loop of retrieving and executing the next action."""
-
         self.running = True
-
-        while self.running and not rospy.is_shutdown():
+        while event_bus.is_running and self.running:
             self.execute_action()
             # Sleep for a set duration to maintain a steady tick rate
             self.loop_rate.sleep()
@@ -46,7 +44,7 @@ class ActionOrganizer:
             # Queue is empty, do nothing
             return
 
-        next_actions = current_action_group.get_next_actions()[0]
+        next_actions = current_action_group.get_next_actions()
 
         if len(next_actions) == 0:
             if current_action_group.completed:
@@ -58,4 +56,6 @@ class ActionOrganizer:
 
         self.controller_organizer.execute_actions(next_actions)
 
-        current_action_group.update_time(self.loop_rate.sleep_dur)
+        current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
+
+        print("----------------------------------------------------------------------------------")

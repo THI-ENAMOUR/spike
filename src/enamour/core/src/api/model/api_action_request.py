@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING
 
-from src.api.model.api_action import ApiAction
-
-from src.core.model.action.group.action_group import ActionGroup
+from api.model.api_action import ApiAction
+from core.model.action.group.action_group import ActionGroup
 
 if TYPE_CHECKING:
-    from src.core.model.action.group.sit_action import SitAction
+    from core.model.action.group.sit_action import SitAction
 
 
 class ApiActionRequest:
@@ -24,7 +23,7 @@ class ApiActionRequest:
 
     @staticmethod
     def from_json(data: dict):
-        # TODO: Create json deserialization
+        # TODO: Implement correctly and in a nice, readable way including error handling
 
         actions: "list[ApiAction]" = []
         for action in data["actions"]:
