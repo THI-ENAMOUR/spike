@@ -8,4 +8,3 @@ class LambdaController(Controller):
 
     def execute_action(self, action: LambdaAction, parent_duration: ActionDuration):
         pass
-    

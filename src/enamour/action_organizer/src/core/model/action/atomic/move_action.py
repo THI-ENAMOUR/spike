@@ -15,4 +15,3 @@ class MoveAction(AtomicAction):
 
     def get_controller(self) -> Controller:
         return controller_provider.move_controller
-        

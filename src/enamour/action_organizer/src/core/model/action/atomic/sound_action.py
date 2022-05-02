@@ -10,9 +10,10 @@ from src.core.model.action.selection_type import SelectionType, SelectAlways
 class SoundAction(AtomicAction):
     def __init__(self, selection_type: SelectionType = SelectAlways()):
         super(SoundAction, self).__init__(
-            action_type=ActionType.SOUND_ACTION, selection_type=selection_type, execution_method=ExecutionMethod.MULTIPLE
+            action_type=ActionType.SOUND_ACTION,
+            selection_type=selection_type,
+            execution_method=ExecutionMethod.MULTIPLE,
         )
 
     def get_controller(self) -> Controller:
         return controller_provider.sound_controller
-        

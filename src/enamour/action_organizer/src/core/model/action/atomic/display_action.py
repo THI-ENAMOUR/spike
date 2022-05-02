@@ -10,9 +10,10 @@ from src.core.model.action.selection_type import SelectionType, SelectAlways
 class DisplayAction(AtomicAction):
     def __init__(self, selection_type: SelectionType = SelectAlways()):
         super(DisplayAction, self).__init__(
-            action_type=ActionType.DISPLAY_ACTION, selection_type=selection_type, execution_method=ExecutionMethod.MULTIPLE
+            action_type=ActionType.DISPLAY_ACTION,
+            selection_type=selection_type,
+            execution_method=ExecutionMethod.MULTIPLE,
         )
 
     def get_controller(self) -> Controller:
         return controller_provider.display_controller
-        
