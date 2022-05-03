@@ -8,6 +8,7 @@ class ShutdownHook:
     """Called the application receives a shutdown signal"""
 
 
+# Do not remove *args from function signature. It is required.
 def __call_on_shutdown(*args):
     ShutdownHook.is_running = False
     ShutdownHook.on_shutdown()

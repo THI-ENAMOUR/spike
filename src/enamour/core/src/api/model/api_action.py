@@ -1,6 +1,8 @@
 import abc
 from enum import Enum
 
+from error.deserialization_error import DeserializationError
+
 
 class ApiActionType(Enum):
     SIT = "sit"
@@ -20,7 +22,7 @@ class ApiAction(metaclass=abc.ABCMeta):
         }[data["type"]]
 
         if parse_action is None:
-            raise KeyError
+            raise DeserializationError(message="Key 'type' not contained in action")
 
         return parse_action(data)
 

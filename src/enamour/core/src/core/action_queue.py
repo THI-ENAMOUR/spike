@@ -1,5 +1,4 @@
 from typing import Optional, Callable, TypeVar, List
-from uuid import UUID
 
 from core.model.action.group.action_group import ActionGroup
 from core.validation.action_group_validator import ActionGroupValidator
@@ -19,17 +18,25 @@ class ActionQueue:
     def __init__(
         self,
         latest_completed_actions_list_size: int = 5,
+        latest_error_actions_list_size: int = 5,
         action_validator: ActionGroupValidator = ActionGroupValidator(),
     ):
         if latest_completed_actions_list_size < 0:
             latest_completed_actions_list_size = 0
         self.latest_completed_actions_list_size = latest_completed_actions_list_size
 
+        if latest_error_actions_list_size < 0:
+            latest_error_actions_list_size = 0
+        self.latest_error_actions_list_size = latest_error_actions_list_size
+
         self.action_validator = action_validator
         self.queue: List[ActionGroup] = []
         self.latest_completed_actions: List[ActionGroup] = []
         """ List of latest completed actions, lower means more recently completed.
-            The max size is defined by recent_completed_actions_list_size."""
+                    The max size is defined by recent_completed_actions_list_size."""
+        self.latest_error_actions: List[ActionGroup] = []
+        """ List of latest actions that got deleted based on an error, lower means more recently completed.
+                    The max size is defined by latest_error_actions_list_size."""
 
     def peek_and_pop_completed(self) -> Optional[ActionGroup]:
         """Until the first uncompleted action is encountered pops all completed actions, then returns it.
@@ -56,9 +63,13 @@ class ActionQueue:
         """Locks the queue for all threads while running the provided function."""
         return func(self)
 
-    def pop_by_index(self, id: UUID):
-        equal_id: Callable[[int, ActionGroup], bool] = lambda index, item: item.id == id
-        self.pop(filter_fun=equal_id)
+    def pop_on_error(self, *actions: ActionGroup):
+        for action in actions:
+            for index, item in enumerate(self.queue):
+                if item.id == action.id:
+                    self.__logger.warning(f"Delete action {action.id} from queue due to error")
+                    self.queue.pop(index)
+                    self.__add_to_latest_error_list(action)
 
     def pop(self, filter_fun: Callable[[int, ActionGroup], bool]):
         """Removes actions which statisfy the provided filter function from the queue and
@@ -77,3 +88,11 @@ class ActionQueue:
                 self.latest_completed_actions.insert(0, action)
             while len(self.latest_completed_actions) > self.latest_completed_actions_list_size:
                 self.latest_completed_actions.pop()
+
+    def __add_to_latest_error_list(self, *actions: ActionGroup):
+        if self.latest_error_actions_list_size > 0:
+            for action in actions:
+                self.__logger.info("Add action to error list with id " + str(action.id))
+                self.latest_error_actions.insert(0, action)
+            while len(self.latest_error_actions) > self.latest_error_actions_list_size:
+                self.latest_error_actions.pop()
