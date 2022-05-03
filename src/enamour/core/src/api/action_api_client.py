@@ -1,10 +1,10 @@
 import json
 
+import rospy
 from std_msgs.msg import String
 
 from api.model.api_action_request import ApiActionRequest
 from core.action_queue import ActionQueue
-from core.event_bus import event_bus
 from error.handler.action_api_error_handler import ActionApiErrorHandler
 from util.logger import Logger
 
@@ -23,9 +23,10 @@ class ActionApiClient:
 
     def start(self):
         self.running = True
-        while event_bus.is_running() and self.running:
-            event_bus.subscribe("action", String, self.receive_action)
-            event_bus.spin()
+        rospy.Subscriber("action", String, self.receive_action)
+        while not rospy.is_shutdown() and self.running:
+            # Build our own ros spin command, in order to shut down the server if self.running is false
+            rospy.rostime.wallsleep(0.5)
 
     def receive_action(self, action):
         try:

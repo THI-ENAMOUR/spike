@@ -1,47 +1,47 @@
 import abc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
-from core.model.common.action_duration import ActionDuration
+from core.model.common.time_stamp import TimeStamp
 from error.illegal_argument_error import IllegalArgumentError
-from error.illegal_state_error import IllegalStateError
 
 if TYPE_CHECKING:
     from core.model.action.action import Action, ActionList
 
 
 class TimingOption(metaclass=abc.ABCMeta):
-    # If you add new TimingOptions, don't forget to add the assignment at the end of this file
-    StartTime = None
-    Duration = None
+    """Determines in what way the action is selected/timed within an action group."""
 
     @abc.abstractmethod
-    def in_time_frame(self, action: "Action", time: ActionDuration) -> bool:
+    def in_time_frame(self, action: "Action", time: TimeStamp) -> bool:
+        """Returns true if the timing option is within a certain time stamp."""
         raise NotImplementedError
 
     @staticmethod
-    def sort(actions: "ActionList"):
+    def sort(
+        actions: "ActionList",
+        sort_function: Callable[["Action"], TimeStamp] = lambda x: x.timing_option.get_start_time(),
+    ):
         """In-place and stable sorts actions by their start date"""
-        actions.sort(key=TimingOption.__get_start_time)
+        actions.sort(key=sort_function)
 
-    @staticmethod
-    def __get_start_time(action: "Action"):
-        if isinstance(action.timing_option, StartTime):
-            return action.timing_option.start_time
-        elif isinstance(action.timing_option, Duration):
-            return action.timing_option.start_time
-        else:
-            raise IllegalStateError(f"The timeing option of action {action.id} is an unknown instance type")
+    @abc.abstractmethod
+    def get_start_time(self):
+        """Returns the start time stamp of the timing option"""
+        raise NotImplementedError
 
 
 class StartTime(TimingOption):
-    def __init__(self, start_time: ActionDuration):
+    def __init__(self, start_ms: int):
         super().__init__()
-        self.start_time = start_time
+        self.start_time = TimeStamp(start_ms)
 
-    def in_time_frame(self, action: "Action", time: ActionDuration = None) -> bool:
+    def in_time_frame(self, action: "Action", time: TimeStamp = None) -> bool:
         """Returns true if the start_time < time. The start time is exclusive.
         If both of them are zero returns true."""
         return not action.completed and (self.start_time < time or (self.start_time.is_zero() and time.is_zero()))
+
+    def get_start_time(self):
+        return self.start_time
 
     def __str__(self):
         return f"{self.__class__.__name__}(start: {self.start_time}ns)"
@@ -54,28 +54,24 @@ class StartTime(TimingOption):
         return not self.__eq__(other)
 
 
-TimingOption.StartTime = StartTime
-
-
 class Duration(TimingOption):
-    def __init__(self, start_time: ActionDuration, end_time: ActionDuration):
+    def __init__(self, start_ms: int, end_ms: int):
         super().__init__()
-        if start_time > end_time:
-            raise IllegalArgumentError(f"Start time {start_time} should be smaller than end time {end_time}")
-        self.start_time = start_time
-        self.end_time = end_time
+        if start_ms > end_ms:
+            raise IllegalArgumentError(f"Start time {start_ms} should be smaller than end time {end_ms}")
+        self.start_time = TimeStamp(ms=start_ms)
+        self.end_time = TimeStamp(ms=end_ms)
 
-    @classmethod
-    def from_ms(cls, start: int, end: int) -> "Duration":
-        return cls(start_time=ActionDuration(ms=start), end_time=ActionDuration(ms=end))
-
-    def in_time_frame(self, action: "Action", time: ActionDuration = None) -> bool:
+    def in_time_frame(self, action: "Action", time: TimeStamp = None) -> bool:
         """Returns true if the start_time < time <= end_time. The start time is exclusive.
         If the start_time and time are zero returns true"""
         return not action.completed and (
             (self.start_time < time and self.start_time <= self.end_time)
             or (self.start_time.is_zero() and time.is_zero())
         )
+
+    def get_start_time(self):
+        return self.start_time
 
     def __str__(self):
         return f"{self.__class__.__name__}(start: {self.start_time}ns, end: {self.end_time}ns)"
@@ -88,6 +84,3 @@ class Duration(TimingOption):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-
-TimingOption.Duration = Duration

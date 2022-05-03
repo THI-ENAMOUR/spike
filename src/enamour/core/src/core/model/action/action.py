@@ -4,7 +4,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import TimingOption
-from core.model.common.action_duration import ActionDuration
+from core.model.common.time_stamp import TimeStamp
 from error.illegal_state_error import IllegalStateError
 
 if TYPE_CHECKING:
@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Action(metaclass=abc.ABCMeta):
+    """Most generic, abstract action. Containing information all actions share among themselves."""
+
     def __init__(
         self, timing_option: TimingOption, execution_method: ExecutionMethod, parent: Optional["ActionGroup"] = None
     ):
@@ -24,10 +26,11 @@ class Action(metaclass=abc.ABCMeta):
     def complete(self):
         self.completed = True
 
-    def in_time_frame(self, time: ActionDuration):
-        return self.timing_option.in_time_frame(self, time)
+    def in_time_frame(self, time_stamp: TimeStamp) -> bool:
+        """Returns true if the time stamp is within the timing option of the action is"""
+        return self.timing_option.in_time_frame(self, time_stamp)
 
-    def get_parent_time(self) -> ActionDuration:
+    def get_parent_time(self) -> TimeStamp:
         if self.parent is not None:
             return self.parent.time
         raise IllegalStateError("Could not get parent time, since parent is none.")

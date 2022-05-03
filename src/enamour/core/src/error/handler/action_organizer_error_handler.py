@@ -9,6 +9,8 @@ from util.logger import Logger
 
 
 class ActionOrganizerErrorHandler(ErrorHandler):
+    """Handle errors occurring in the action organizer."""
+
     __logger = Logger(__name__)
 
     def __init__(self, action_queue: ActionQueue):
@@ -22,7 +24,7 @@ class ActionOrganizerErrorHandler(ErrorHandler):
                 f"No action provided for action organizer error handler. Cause of invocation: {error}"
             )
 
-        self.__logger.warning(f"Error occurred in action organizer with message: {error}")
+        self.__logger.error(f"Error occurred in action organizer with message: {error}")
 
         if isinstance(error, ApplicationError):
             if error.is_critical:

@@ -3,6 +3,8 @@ from util.logger import Logger
 
 
 class ActionApiErrorHandler(ErrorHandler):
+    """Handle errors occurring in the action api service."""
+
     __logger = Logger(__name__)
 
     def handle(self, error: BaseException, **kwargs):

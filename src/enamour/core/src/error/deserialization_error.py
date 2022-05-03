@@ -1,12 +1,8 @@
-import string
-
 from error.validation_error import ValidationError
 
 
 class DeserializationError(ValidationError):
-    def __init__(self, message: string):
-        self.message = message
-        super().__init__(reason=None, message=message)
+    """Thrown if the deserialization of a resource failed."""
 
-    def __str__(self):
-        return self.message
+    def __init__(self, message: str):
+        super().__init__(reason=None, message=message)

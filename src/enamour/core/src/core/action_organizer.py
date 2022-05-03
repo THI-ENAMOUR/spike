@@ -2,8 +2,7 @@ import rospy
 
 from core.action_queue import ActionQueue
 from core.controller.controller_organizer import ControllerOrganizer
-from core.event_bus import event_bus
-from core.model.common.action_duration import ActionDuration
+from core.model.common.time_stamp import TimeStamp
 from error.handler.action_organizer_error_handler import ActionOrganizerErrorHandler
 from error.handler.error_handler import ErrorHandler
 from error.illegal_state_error import IllegalStateError
@@ -27,7 +26,7 @@ class ActionOrganizer:
         self.action_queue = action_queue
 
         self.loop_rate = rospy.Rate(Config.loop_rate)
-        self.last_loop_duration = ActionDuration(ns=0)
+        self.last_loop_duration = TimeStamp(ns=0)
         self.running = False
         self.error_handler = error_handler if error_handler is not None else ActionOrganizerErrorHandler(action_queue)
 
@@ -36,7 +35,7 @@ class ActionOrganizer:
         """Start an infinite loop of retrieving and executing the next action."""
         self.running = True
         self.__logger.info("Start action organizer")
-        while event_bus.is_running and self.running:
+        while not rospy.is_shutdown() and self.running:
             self.execute_action()
 
             # Sleep for a set duration to maintain a steady tick rate
@@ -70,6 +69,6 @@ class ActionOrganizer:
 
             current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
 
-            self.__logger.info("----------------------------------------------------------------------------------")
+            self.__logger.info(f"-- End of time stamp of queued action: {current_action_group.time} -----------------")
         except (BaseException,) as error:
             self.error_handler.handle(error, action=current_action_group)

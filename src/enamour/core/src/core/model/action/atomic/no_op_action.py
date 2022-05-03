@@ -1,10 +1,13 @@
+from typing import TYPE_CHECKING
+
 from core.controller.controller import Controller
 from core.model.action.action_type import ActionType
-from core.model.action.atomic.generic.atomic_action import AtomicAction
+from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
-from core.model.action.group.action_group import ActionGroup
-from core.model.action.timing_option import TimingOption
-from core.model.common.action_duration import ActionDuration
+from core.model.action.timing_option import TimingOption, StartTime, Duration
+
+if TYPE_CHECKING:
+    from core.model.action.group.action_group import ActionGroup
 
 
 class NoOpAction(AtomicAction):
@@ -12,21 +15,18 @@ class NoOpAction(AtomicAction):
         self,
         start_time_ms=0,
         end_time_ms=None,
-        start_time: ActionDuration = None,
         timing_option: TimingOption = None,
-        parent: ActionGroup = None,
+        parent: "ActionGroup" = None,
     ):
 
         if timing_option is None:
-            if start_time is None:
-                start_time = ActionDuration(ms=start_time_ms)
             if end_time_ms is None:
-                timing_option = TimingOption.StartTime(start_time)
+                timing_option = StartTime(start_ms=start_time_ms)
             else:
-                timing_option = TimingOption.Duration(start_time, ActionDuration(ms=end_time_ms))
+                timing_option = Duration(start_ms=start_time_ms, end_ms=end_time_ms)
 
         super(NoOpAction, self).__init__(
-            action_type=ActionType.NO_OP, timing_option=timing_option, execution_method=ExecutionMethod.MULTIPLE
+            action_type=ActionType.NO_OP_ACTION, timing_option=timing_option, execution_method=ExecutionMethod.MULTIPLE
         )
 
         self.parent = parent

@@ -1,6 +1,6 @@
 import abc
 
-from core.model.action.atomic.generic.atomic_action import AtomicAction
+from core.model.action.atomic.atomic_action import AtomicAction
 
 
 class Controller(metaclass=abc.ABCMeta):

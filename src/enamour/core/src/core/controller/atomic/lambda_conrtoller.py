@@ -1,5 +1,5 @@
 from core.controller.controller import Controller
-from src.core.model.action.atomic.lambda_action import LambdaAction
+from core.model.action.atomic.lambda_action import LambdaAction
 
 
 class LambdaController(Controller):

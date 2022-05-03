@@ -8,7 +8,6 @@ from util.synchronized import synchronized
 T = TypeVar("T")
 
 
-# TODO: Write test cases including thread-safety
 @synchronized
 class ActionQueue:
     """Provides a thread-safe FIFO queue for ActionGroups."""
@@ -70,12 +69,6 @@ class ActionQueue:
                     self.__logger.warning(f"Delete action {action.id} from queue due to error")
                     self.queue.pop(index)
                     self.__add_to_latest_error_list(action)
-
-    def pop(self, filter_fun: Callable[[int, ActionGroup], bool]):
-        """Removes actions which statisfy the provided filter function from the queue and
-        adds them to recent_completed_actions."""
-        removed_items = [self.queue.pop(index) for index, item in enumerate(self.queue) if filter_fun(index, item)]
-        self.__add_to_latest_completed_list(*removed_items)
 
     def __pop_by_index(self, index):
         action = self.queue.pop(index)

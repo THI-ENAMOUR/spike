@@ -4,8 +4,9 @@ from typing import Callable
 
 class ShutdownHook:
     is_running = True
+
     on_shutdown: Callable = lambda *args: None
-    """Called the application receives a shutdown signal"""
+    """Called when the application receives a shutdown signal"""
 
 
 # Do not remove *args from function signature. It is required.

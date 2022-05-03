@@ -1,5 +1,5 @@
 from core.controller.controller import Controller
-from src.core.model.action.atomic.sound_action import SoundAction
+from core.model.action.atomic.sound_action import SoundAction
 
 
 class SoundController(Controller):

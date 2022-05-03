@@ -1,10 +1,12 @@
-from core.model.action.atomic.generic.action_execution_list import ActionExecutionList
+from typing import List
+
+from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
 from error.illegal_state_error import IllegalStateError
 
 
 class ExecutionListValidator:
-    def validate(self, actions: ActionExecutionList):
+    def validate(self, actions: List[AtomicAction]):
         """Validates an execution list. Throws error if validation error occurred."""
         action_types = set()
         for action in actions:
@@ -13,7 +15,7 @@ class ExecutionListValidator:
 
             if action.execution_method == ExecutionMethod.NO_SAME_TYPE and action_type in action_types:
                 raise IllegalStateError(f"Action type already contained in action list for action {action}")
-            elif action.execution_method == ExecutionMethod.SOLO and len(actions) > 1:
+            elif action.execution_method == ExecutionMethod.EXCLUSIVE and len(actions) > 1:
                 raise IllegalStateError(f"Action requires requires exclusive execution for action {action}")
 
             action_types.add(action_type)

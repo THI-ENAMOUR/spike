@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import abc
-
-# TODO: Cannot import directly, because of circular dependency. Better way?
-# Source: https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
 from typing import TYPE_CHECKING, List, Callable, Set
 
 from core.model.action.action import Action
@@ -12,6 +9,7 @@ from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import TimingOption
 
 if TYPE_CHECKING:
+    # Source: https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
     from core.controller.controller import Controller
 
 

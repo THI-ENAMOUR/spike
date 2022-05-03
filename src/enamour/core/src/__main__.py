@@ -1,83 +1,35 @@
 #!/usr/bin/env python3
-
 import os
-import threading
-from typing import List, Optional
 
-from api.action_api_client import ActionApiClient
-from core.action_organizer import ActionOrganizer
-from core.action_queue import ActionQueue
-from core.event_bus import event_bus
-from core.model.action.atomic.pose_action import PoseAction
-from core.model.action.group.default_action_group import DefaultActionGroup
+import rospy
+
 from util.config import Config
-from util.logger import Logger
-from util.shutdown_hook import ShutdownHook
 
-
-class Node:
-    __logger = Logger(__name__)
-
-    def __init__(self, action_queue: ActionQueue = ActionQueue()):
-        event_bus.init_node(event_bus.get_parameter("core_node_name", "enamour_core"))
-        Config.init_config()
-        self.action_queue = action_queue
-        self.action_api_client: Optional[ActionApiClient] = None
-        self.action_organizer: Optional[ActionOrganizer] = None
-        ShutdownHook.on_shutdown = self.shutdown
-
-    def start(self):
-        self.__logger.info("Start core node")
-        threads = self.__start_threads(self.action_queue)
-
-        for thread in threads:
-            # Block until every thread is done
-            thread.join()
-
-    def shutdown(self):
-        self.__logger.info("Shutting down node")
-        if self.action_api_client is not None:
-            self.action_api_client.running = False
-        if self.action_organizer is not None:
-            self.action_organizer.running = False
-
-    def __start_threads(self, queue: ActionQueue) -> List[threading.Thread]:
-        api_service_thread = threading.Thread(target=self.__start_api_client, args=(queue,))
-        action_organizer_thread = threading.Thread(target=self.__start_action_organizer, args=(queue,))
-
-        api_service_thread.start()
-        action_organizer_thread.start()
-
-        return [api_service_thread, action_organizer_thread]
-
-    def __start_api_client(self, queue: ActionQueue):
-        self.action_api_client = ActionApiClient(action_queue=queue)
-        self.action_api_client.start()
-
-    def __start_action_organizer(self, queue: ActionQueue):
-        self.action_organizer = ActionOrganizer(action_queue=queue)
-        self.action_organizer.start()
-
-
-def setup_logger():
-    logging_file = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir), "logs")
-    Logger.update_file_logger(logging_file)
-
+# The path to the base directory of the project. Used for creating the log file.
+PROJECT_BASE_PATH = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
 
 if __name__ == "__main__":
-    setup_logger()
+    rospy.init_node("enamour_core")
+    Config.init_config(PROJECT_BASE_PATH)
+
+    from core.model.action.group.action_group import ActionGroup
+    from core.action_queue import ActionQueue
+    from core.model.action.atomic.pose_action import PoseAction
 
     __queue = ActionQueue()
-    node = Node(action_queue=__queue)
+
+    from app import Application
+
+    app = Application(action_queue=__queue)
 
     __queue.push(
-        DefaultActionGroup(
+        ActionGroup(
             actions=[
                 PoseAction(start_ms=0, end_ms=2000),
-                DefaultActionGroup(
+                ActionGroup(
                     actions=[
                         PoseAction(start_ms=0, end_ms=2000),
-                        DefaultActionGroup(
+                        ActionGroup(
                             actions=[PoseAction(start_ms=4000, end_ms=4500), PoseAction(start_ms=2500, end_ms=2900)]
                         ),
                         PoseAction(start_ms=4000, end_ms=4500),
@@ -89,4 +41,4 @@ if __name__ == "__main__":
         )
     )
 
-    node.start()
+    app.start()

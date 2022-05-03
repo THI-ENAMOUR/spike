@@ -19,7 +19,7 @@ class ApiActionRequest:
 
     def to_action_group(self) -> ActionGroup:
         # TODO: Create mapping
-        return ActionGroup(actions=[SitAction()], start_time_ms=0)
+        return ActionGroup(actions=[SitAction()], start_ms=0)
 
     @staticmethod
     def from_json(data: dict):

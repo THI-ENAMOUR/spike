@@ -6,6 +6,23 @@ import types
 # Source: https://theorangeduck.com/page/synchronized-python. Modified, and utilizing RLocks instead.
 
 
+def synchronized(item):
+    """Synchronizes the annotated class, function or attribute across all threads"""
+
+    if type(item) is str:
+        decorator = __synchronized_with_attr(item)
+        return decorator(item)
+
+    if type(item) is _thread.LockType:
+        decorator = __synchronized_with(item)
+        return decorator(item)
+
+    else:
+        new_lock = threading.RLock()
+        decorator = __synchronized_with(new_lock)
+        return decorator(item)
+
+
 def __synchronized_with_attr(lock_name):
     def decorator(method):
         def synced_method(self, *args, **kws):
@@ -50,20 +67,3 @@ def __synchronized_with(lock):
             return obj
 
     return synchronized_obj
-
-
-def synchronized(item):
-    """Synchronizes the annotated class, function or attribute across all threads"""
-
-    if type(item) is str:
-        decorator = __synchronized_with_attr(item)
-        return decorator(item)
-
-    if type(item) is _thread.LockType:
-        decorator = __synchronized_with(item)
-        return decorator(item)
-
-    else:
-        new_lock = threading.RLock()
-        decorator = __synchronized_with(new_lock)
-        return decorator(item)

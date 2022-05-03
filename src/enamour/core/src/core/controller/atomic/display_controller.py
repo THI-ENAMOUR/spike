@@ -1,5 +1,5 @@
 from core.controller.controller import Controller
-from src.core.model.action.atomic.display_action import DisplayAction
+from core.model.action.atomic.display_action import DisplayAction
 
 
 class DisplayController(Controller):
