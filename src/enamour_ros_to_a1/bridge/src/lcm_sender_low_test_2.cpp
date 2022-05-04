@@ -174,81 +174,83 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         // // RecvLowROS = ToRos(RecvLowLCM);
         // printf("FR_2 position: %f\n",  state.motorState[FR_2].q);
         //
-        // if(initiated_flag){
+        if(initiated_flag){
         //   newCmd(&cmd);
         //   safe.PositionLimit(cmd);
         //   safe.PowerProtect(cmd, state, 1);
 
-        motiontime++;
+          motiontime++;
 
-        cmd.motorCmd[FR_0].tau = -0.65f;
-        cmd.motorCmd[FL_0].tau = +0.65f;
-        cmd.motorCmd[RR_0].tau = -0.65f;
-        cmd.motorCmd[RL_0].tau = +0.65f;
+          cmd.motorCmd[FR_0].tau = -0.65f;
+          cmd.motorCmd[FL_0].tau = +0.65f;
+          cmd.motorCmd[RR_0].tau = -0.65f;
+          cmd.motorCmd[RL_0].tau = +0.65f;
 
-        // printf("%d\n", motiontime);
-        // printf("%d %f %f %f\n", FR_0, RecvLowROS.motorState[FR_0].q, RecvLowROS.motorState[FR_1].q, RecvLowROS.motorState[FR_2].q);
-        // printf("%f %f \n",  RecvLowROS.motorState[FR_0].mode, RecvLowROS.motorState[FR_1].mode);
-        if( motiontime >= 0){
-            // first, get record initial position
-            // if( motiontime >= 100 && motiontime < 500){
-            if( motiontime >= 0 && motiontime < 10){
-                qInit[0] = cmd.motorState[FR_0].q;
-                qInit[1] = cmd.motorState[FR_1].q;
-                qInit[2] = cmd.motorState[FR_2].q;
-            }
-            if( motiontime >= 10 && motiontime < 400){
-                // printf("%f %f %f\n", );
-                rate_count++;
-                double rate = rate_count/200.0;                       // needs count to 200
-                Kp[0] = 5.0; Kp[1] = 5.0; Kp[2] = 5.0;
-                Kd[0] = 1.0; Kd[1] = 1.0; Kd[2] = 1.0;
+          // printf("%d\n", motiontime);
+          // printf("%d %f %f %f\n", FR_0, RecvLowROS.motorState[FR_0].q, RecvLowROS.motorState[FR_1].q, RecvLowROS.motorState[FR_2].q);
+          // printf("%f %f \n",  RecvLowROS.motorState[FR_0].mode, RecvLowROS.motorState[FR_1].mode);
+          if( motiontime >= 0){
+              // first, get record initial position
+              // if( motiontime >= 100 && motiontime < 500){
+              if( motiontime >= 0 && motiontime < 10){
+                  qInit[0] = cmd.motorState[FR_0].q;
+                  qInit[1] = cmd.motorState[FR_1].q;
+                  qInit[2] = cmd.motorState[FR_2].q;
+              }
+              if( motiontime >= 10 && motiontime < 400){
+                  // printf("%f %f %f\n", );
+                  rate_count++;
+                  double rate = rate_count/200.0;                       // needs count to 200
+                  Kp[0] = 5.0; Kp[1] = 5.0; Kp[2] = 5.0;
+                  Kd[0] = 1.0; Kd[1] = 1.0; Kd[2] = 1.0;
 
-                qDes[0] = jointLinearInterpolation(qInit[0], sin_mid_q[0], rate);
-                qDes[1] = jointLinearInterpolation(qInit[1], sin_mid_q[1], rate);
-                qDes[2] = jointLinearInterpolation(qInit[2], sin_mid_q[2], rate);
-            }
-            double sin_joint1, sin_joint2;
-            // last, do sine wave
-            if( motiontime >= 400){
-                sin_count++;
-                sin_joint1 = 0.6 * sin(3*M_PI*sin_count/1000.0);
-                sin_joint2 = -0.6 * sin(1.8*M_PI*sin_count/1000.0);
-                qDes[0] = sin_mid_q[0];
-                qDes[1] = sin_mid_q[1];
-                qDes[2] = sin_mid_q[2] + sin_joint2;
-                // qDes[2] = sin_mid_q[2];
-            }
+                  qDes[0] = jointLinearInterpolation(qInit[0], sin_mid_q[0], rate);
+                  qDes[1] = jointLinearInterpolation(qInit[1], sin_mid_q[1], rate);
+                  qDes[2] = jointLinearInterpolation(qInit[2], sin_mid_q[2], rate);
+              }
+              double sin_joint1, sin_joint2;
+              // last, do sine wave
+              if( motiontime >= 400){
+                  sin_count++;
+                  sin_joint1 = 0.6 * sin(3*M_PI*sin_count/1000.0);
+                  sin_joint2 = -0.6 * sin(1.8*M_PI*sin_count/1000.0);
+                  qDes[0] = sin_mid_q[0];
+                  qDes[1] = sin_mid_q[1];
+                  qDes[2] = sin_mid_q[2] + sin_joint2;
+                  // qDes[2] = sin_mid_q[2];
+              }
 
-            cmd.motorCmd[FR_0].q = qDes[0];
-            cmd.motorCmd[FR_0].dq = 0;
-            cmd.motorCmd[FR_0].Kp = Kp[0];
-            cmd.motorCmd[FR_0].Kd = Kd[0];
-            cmd.motorCmd[FR_0].tau = -0.65f;
+              cmd.motorCmd[FR_0].q = qDes[0];
+              cmd.motorCmd[FR_0].dq = 0;
+              cmd.motorCmd[FR_0].Kp = Kp[0];
+              cmd.motorCmd[FR_0].Kd = Kd[0];
+              cmd.motorCmd[FR_0].tau = -0.65f;
 
-            cmd.motorCmd[FR_1].q = qDes[1];
-            cmd.motorCmd[FR_1].dq = 0;
-            cmd.motorCmd[FR_1].Kp = Kp[1];
-            cmd.motorCmd[FR_1].Kd = Kd[1];
-            cmd.motorCmd[FR_1].tau = 0.0f;
+              cmd.motorCmd[FR_1].q = qDes[1];
+              cmd.motorCmd[FR_1].dq = 0;
+              cmd.motorCmd[FR_1].Kp = Kp[1];
+              cmd.motorCmd[FR_1].Kd = Kd[1];
+              cmd.motorCmd[FR_1].tau = 0.0f;
 
-            cmd.motorCmd[FR_2].q =  qDes[2];
-            cmd.motorCmd[FR_2].dq = 0;
-            cmd.motorCmd[FR_2].Kp = Kp[2];
-            cmd.motorCmd[FR_2].Kd = Kd[2];
-            cmd.motorCmd[FR_2].tau = 0.0f;
+              cmd.motorCmd[FR_2].q =  qDes[2];
+              cmd.motorCmd[FR_2].dq = 0;
+              cmd.motorCmd[FR_2].Kp = Kp[2];
+              cmd.motorCmd[FR_2].Kd = Kd[2];
+              cmd.motorCmd[FR_2].tau = 0.0f;
 
-        }
+          }
 
-        // SendLowLCM = ToLcm(SendLowROS, SendLowLCM);
-        roslcm.Send(cmd);
-        // ros::spinOnce();
-        // loop_rate.sleep();
+          // SendLowLCM = ToLcm(SendLowROS, SendLowLCM);
+          roslcm.Send(cmd);
+          // ros::spinOnce();
+          // loop_rate.sleep();
 
-        count++;
-        if(count > 10){
-            count = 10;
-            initiated_flag = true;
+          count++;
+          if(count > 10){
+              count = 10;
+              initiated_flag = true;
+
+          }
         }
     }
     return 0;
