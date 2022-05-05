@@ -11,9 +11,14 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include <unitree_legged_msgs/LowCmd.h>
 #include <unitree_legged_msgs/LowState.h>
 #include "convert.h"
-
+#include <unitree_legged_sdk/unitree_legged_sdk.h>
+#include <unitree_legged_sdk/a1_const.h>
 #include <nlohmann/json.hpp>
-#include <mutex> // std::mutex, std::lock_guard
+#include <mutex> 
+#include <fstream>
+
+
+// std::mutex, std::lock_guard
 
 using namespace UNITREE_LEGGED_SDK;
 using json = nlohmann::json;
@@ -135,7 +140,7 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     // ros::NodeHandle n;
     // ros::Rate loop_rate(500);
 
-    Safety safe;
+    //Safety safe;
     long motiontime = 0;
     int rate_count = 0;
     int sin_count = 0;
@@ -193,9 +198,9 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
               // first, get record initial position
               // if( motiontime >= 100 && motiontime < 500){
               if( motiontime >= 0 && motiontime < 10){
-                  qInit[0] = cmd.motorState[FR_0].q;
-                  qInit[1] = cmd.motorState[FR_1].q;
-                  qInit[2] = cmd.motorState[FR_2].q;
+                  qInit[0] = state.motorState[FR_0].q;
+                  qInit[1] = state.motorState[FR_1].q;
+                  qInit[2] = state.motorState[FR_2].q;
               }
               if( motiontime >= 10 && motiontime < 400){
                   // printf("%f %f %f\n", );
