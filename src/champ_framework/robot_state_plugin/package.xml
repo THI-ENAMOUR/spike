@@ -1,0 +1,37 @@
+<package>
+  <name>robot_state_plugin</name>
+  <version>0.9.17</version>
+  <description>CHAMP Setup Assistant RVIZ plugin</description>
+
+  <author email="isucan@google.com">Ioan Sucan</author>
+  <author email="dave@dav.ee">Dave Coleman</author>
+  <author email="robot.moveit@gmail.com">Sachin Chitta</author>
+
+  <maintainer email="jimenojmm@gmail.com">Juan Miguel Jimeno</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>pkg-config</buildtool_depend>
+
+  <build_depend>libogre-dev</build_depend>
+  <build_depend>qtbase5-dev</build_depend>
+  <build_depend>libqt5-opengl-dev</build_depend>
+  <build_depend>class_loader</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend version_gte="1.11.2">pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rviz</build_depend>
+
+  <run_depend>moveit_ros_planning_interface</run_depend>
+  <run_depend version_gte="1.11.2">pluginlib</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rviz</run_depend>
+
+  <test_depend>rostest</test_depend>
+
+  <export>
+    <rviz plugin="${prefix}/robot_state_rviz_plugin_description.xml"/>
+  </export>
+
+</package>

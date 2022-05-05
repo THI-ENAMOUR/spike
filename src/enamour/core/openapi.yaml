@@ -1,0 +1,74 @@
+openapi: 3.0.1
+info:
+  title: UXD Api Contract
+  version: 1.0.0
+paths:
+  /action:
+    description: The action published on the /action topic from UXD
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionRequest'
+      responses:
+        200:
+          description: (No actual responses will be sent)
+
+components:
+  schemas:
+    ActionRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "01cf8c57-6a3e-4a18-a8d1-3b28ac3d5417"
+          description: A UUID Version 4. Use uuid.uuid4() in python to generate a custom UUID.
+          nullable: false
+        clearActionQueue:
+          type: boolean
+          default: false
+          nullable: true
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+
+    Action:
+      oneOf:
+        - $ref: '#/components/schemas/SitAction'
+        - $ref: '#/components/schemas/ActionGroup'
+      discriminator:
+        propertyName: type
+        nullable: false
+        mapping:
+          sit: '#/components/schemas/SitAction'
+          group: '#/components/schemas/ActionGroup'
+
+
+    # All possible types of actions
+    ActionGroup:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          nullable: false
+          enum:
+            - group
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+    SitAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - sit
