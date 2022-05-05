@@ -1,0 +1,3 @@
+<launch>
+    <node name="intent_api_server" pkg="enamour_api" type="__main__.py"/>
+</launch>

@@ -1,0 +1,3 @@
+<launch>
+    <node name="core" pkg="enamour_core" type="__main__.py" output="screen"/>
+</launch>

@@ -1,0 +1,15 @@
+<package format="2">
+    <name>enamour_core</name>
+    <version>0.0.1</version>
+    <description>
+        Organizes the receiving and execution of robot actions.
+    </description>
+    <author>ENAMOUR Informatics</author>
+    <maintainer email="enamour@thi.de">Enamour</maintainer> <!-- Required. Put some dummy value here. -->
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>rospy</depend>
+
+</package>

@@ -1,0 +1,15 @@
+<package format="2">
+    <name>enamour_api</name>
+    <version>0.0.1</version>
+    <description>
+        Receives intent data and publishes them on a ros topic.
+    </description>
+    <author>ENAMOUR Informatics</author>
+    <maintainer email="enamour@thi.de">Enamour</maintainer> <!-- Required. Put some dummy value here. -->
+    <license>BSD</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <depend>rospy</depend>
+
+</package>

@@ -24,9 +24,9 @@ jobs:
         with:
           continue_on_error: false
           black: true
-          black_args: "--color --diff --check"
+          black_args: "--line-length=120 --color --diff --check"
           black_dir: src/enamour
           flake8: true
-          flake8_args: "--max-line-length=88 --extend-ignore=E203,E501 --select=C,E,F,W,B,B950"
+          flake8_args: "--max-line-length=120 --extend-ignore=E203,E501,F841 --select=C,E,F,W,B,B950" #Remove F841(ignore unused variables) later
           flake8_dir: src/enamour
 
