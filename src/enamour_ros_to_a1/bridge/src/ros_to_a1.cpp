@@ -90,13 +90,10 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         roslcm.Get(RecvLowLCM);
         RecvImuLCM = RecvLowLCM.imu;
 
-        // A valid LCM message should have a sequence number. 
-        // TODO: Test in real operation.
-        int32_t sequenceNumber = RecvLowLCM.SN;
-        printf("Sequence number: %d\n", sequenceNumber);
-        if (sequenceNumber != 0)
+        // Send status only when robot is powered up.
+        if (RecvLowLCM.SN != 0)
         {
-            RecvImuROS = LcmToRos(RecvImuLCM, sequenceNumber);
+            RecvImuROS = LcmToRos(RecvImuLCM);
             RecvStateROS = LcmToRos(RecvLowLCM);
             imu_pub.publish(RecvImuROS);
             joint_state_pub.publish(RecvStateROS);
