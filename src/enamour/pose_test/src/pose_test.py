@@ -98,14 +98,16 @@ if __name__ == '__main__':
     roll_left = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=-0.3, start=6.0, end=12.0)   
     yaw_right2 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=12.0, end=20.0)   
     yaw_left2 = Pose_cmd(x=0, y=0, z=0, yaw=0.2, pitch=0.2, roll=0, start=20.0, end=28.0)  
-    yaw_right3 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=28.0, end=36.0)   
+    yaw_right3 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=28.0, end=36.0)
+    reset = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=0, start=36.0, end=42.0)      
 
     #action_group = Action_Group(poses={yaw_right, yaw_left, sit})
-    action_group = Action_Group(poses={roll_right,roll_left,yaw_right2,yaw_left2,yaw_right3})
+    action_group = Action_Group(poses={roll_right,roll_left,yaw_right2,yaw_left2,yaw_right3,reset})
 
     action_group.progress(loop_rate)
     desired_pose = action_group.get_current_pose()
     while desired_pose is not None:
+        input("Press button")
         make_pose(final_pose=desired_pose, action_group_elapsed=action_group.elapsed, loop_rate=loop_rate)
         action_group.progress(loop_rate)
         time.sleep(loop_rate)
