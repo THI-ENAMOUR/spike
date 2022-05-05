@@ -32,7 +32,7 @@ void Custom::LCMRecv()
     if(mylcm.lowCmdLCMHandler.isrunning){
         pthread_mutex_lock(&mylcm.lowCmdLCMHandler.countMut);
         mylcm.lowCmdLCMHandler.counter++;
-        if(mylcm.lowCmdLCMHandler.counter > 10){
+        if(mylcm.lowCmdLCMHandler.counter > 20){
             printf("counter: %d, error: %d\n",mylcm.lowCmdLCMHandler.counter, ++error);
         }
         if(mylcm.lowCmdLCMHandler.counter > 1000){
@@ -49,6 +49,18 @@ void Custom::RobotControl()
     udp.GetRecv(state);
     mylcm.Send(state);
     mylcm.Get(cmd);
+    auto motor = cmd.motorCmd[0];
+    printf("motor FL_0 - q: %f \n",motor.q);
+    printf("motor FL_0 - kd: %f \n",motor.Kd);
+    printf("motor FL_0 - kp: %f \n",motor.Kp);
+    motor = cmd.motorCmd[1];
+    printf("motor FL_1 - q: %f \n",motor.q);
+    printf("motor FL_1 - kd: %f \n",motor.Kd);
+    printf("motor FL_1 - kp: %f \n",motor.Kp);
+    motor = cmd.motorCmd[2];
+    printf("motor FL_2 - q: %f \n",motor.q);
+    printf("motor FL_2 - kd: %f \n",motor.Kd);
+    printf("motor FL_2 - kp: %f \n",motor.Kp);
     udp.SetSend(cmd);
 }
 
