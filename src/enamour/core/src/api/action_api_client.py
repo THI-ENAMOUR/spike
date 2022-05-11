@@ -1,5 +1,5 @@
 import json
-from enamour.core.src.core.model.state import State
+from core.model.state import State
 
 import rospy
 from std_msgs.msg import String
