@@ -11,7 +11,7 @@ class State:
 
     @staticmethod
     def update(action_queue):
-        action_queue.lock_queue_for_exectution(func = State.set_attributs)
+        action_queue.lock_queue_for_execution(func = State.set_attributes)
     
     @staticmethod
     def set_attributes(action_queue):
@@ -22,4 +22,5 @@ class State:
     
     @staticmethod
     def to_json():
-        return json.dumps(this.__dict__)
+        #return json.dumps(OBJECT)
+        pass

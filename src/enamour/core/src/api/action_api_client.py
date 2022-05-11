@@ -45,5 +45,4 @@ class ActionApiClient:
     def send_robot_state(self):
         State.update(self.action_queue);
         json = State.to_json();
-        print(json)
         ActionApiClient.publisher.publish(json)
