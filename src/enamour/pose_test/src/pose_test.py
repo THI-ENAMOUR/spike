@@ -17,7 +17,7 @@ last_y = 0.0
 last_z = 0.5
 
 class Pose_cmd:
-    def __init__(self, x:float, y:float, z:float, yaw:float, pitch:float, roll:float, start:float, end:float) -> None:
+    def __init__(self, x, y, z, yaw, pitch, roll, start, end):
         self.x = x
         self.y = y
         self.z = z
@@ -28,7 +28,7 @@ class Pose_cmd:
         self.end = end
 
 class Action_Group:
-    def __init__(self, poses) -> None:
+    def __init__(self, poses):
         self.elapsed = 0.0
         self.poses = poses
     
@@ -43,7 +43,7 @@ class Action_Group:
                     return pose
 
 
-def make_pose(final_pose:Pose_cmd, action_group_elapsed:float, loop_rate) -> None:
+def make_pose(final_pose, action_group_elapsed, loop_rate):
     global last_roll, last_pitch, last_yaw
 
     start_time = final_pose.start
