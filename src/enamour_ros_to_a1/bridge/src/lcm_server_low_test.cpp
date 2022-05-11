@@ -49,19 +49,22 @@ void Custom::RobotControl()
     udp.GetRecv(state);
     mylcm.Send(state);
     mylcm.Get(cmd);
-    auto motor = cmd.motorCmd[0];
-    printf("motor FL_0 - q: %f \n",motor.q);
-    printf("motor FL_0 - kd: %f \n",motor.Kd);
-    printf("motor FL_0 - kp: %f \n",motor.Kp);
-    motor = cmd.motorCmd[1];
-    printf("motor FL_1 - q: %f \n",motor.q);
-    printf("motor FL_1 - kd: %f \n",motor.Kd);
-    printf("motor FL_1 - kp: %f \n",motor.Kp);
-    motor = cmd.motorCmd[2];
-    printf("motor FL_2 - q: %f \n",motor.q);
-    printf("motor FL_2 - kd: %f \n",motor.Kd);
-    printf("motor FL_2 - kp: %f \n",motor.Kp);
-    udp.SetSend(cmd);
+
+    if ((cmd.motorCmd[0].q != 0 || cmd.motorCmd[0].Kd != 0 || cmd.motorCmd[0].Kp != 0) || (cmd.motorCmd[1].q != 0 || cmd.motorCmd[1].Kd != 0 || cmd.motorCmd[1].Kp != 0) || (cmd.motorCmd[2].q != 0 || cmd.motorCmd[2].Kd != 0 || cmd.motorCmd[2].Kp != 0)) {
+        auto motor = cmd.motorCmd[0];
+        printf("motor FL_0 - q: %f \n",motor.q);
+        printf("motor FL_0 - kd: %f \n",motor.Kd);
+        printf("motor FL_0 - kp: %f \n",motor.Kp);
+        motor = cmd.motorCmd[1];
+        printf("motor FL_1 - q: %f \n",motor.q);
+        printf("motor FL_1 - kd: %f \n",motor.Kd);
+        printf("motor FL_1 - kp: %f \n",motor.Kp);
+        motor = cmd.motorCmd[2];
+        printf("motor FL_2 - q: %f \n",motor.q);
+        printf("motor FL_2 - kd: %f \n",motor.Kd);
+        printf("motor FL_2 - kp: %f \n",motor.Kp);
+        udp.SetSend(cmd);
+    }
 }
 
 int main(void) 
