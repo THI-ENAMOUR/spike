@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 black --line-length 120 $PROJECT_DIR/src/enamour
 

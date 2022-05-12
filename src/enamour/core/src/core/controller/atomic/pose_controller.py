@@ -7,10 +7,10 @@ from error.illegal_state_error import IllegalStateError
 class PoseController(Controller):
     """Controller for moving the robot body in the provided position."""
 
-    def execute_action(self, action: "PoseAction"):
+    def execute_action(self, action):
 
         if not isinstance(action, PoseAction):
-            raise IllegalStateError(f"This controller does not support the action {action}")
+            raise IllegalStateError("This controller does not support the action " + str(action))
 
         if action.timing_option == StartTime:
             # TODO Jump instantly to position by publishing desired position
@@ -19,4 +19,8 @@ class PoseController(Controller):
             # TODO Interpolate the pose based on the parent_duration, current location (TODO), and desired end position
             pass
         else:
-            raise NotImplementedError(f"Timing option {action.timing_option} for action {action.id} not implemented")
+            raise NotImplementedError(
+                "Timing option {timing} for action {id} not implemented".format(
+                    timing=action.timing_option, id=action.id
+                )
+            )

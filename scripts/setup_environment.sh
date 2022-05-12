@@ -15,7 +15,7 @@ grep -qxF "$environment_file" ~/.bashrc || echo $environment_file >> ~/.bashrc
 export PATH="~/.local/bin:$PATH"
 
 #MAKE ROS PACKAGED AVAILABLE TO BASH
-source /opt/ros/noetic/setup.bash
+source /opt/ros/$ROS_DISTRO/setup.bash
 source $PROJECT_DIR/devel/setup.bash
 
 #ENVIRONMENT VARIABLES NEEDED FOR UNITREE COMPONENTS
@@ -26,10 +26,3 @@ export LD_LIBRARY_PATH=$GAZEBO_PLUGIN_PATH:${LD_LIBRARY_PATH} #TODO: See if stil
 export UNITREE_SDK_VERSION="3_2" #TODO: Remove usage of this variable in unitree_legged_real
 export UNITREE_LEGGED_SDK_PATH="$PROJECT_INCLUDE_DIR/unitree_legged_sdk"
 export UNITREE_PLATFORM="amd64"
-
-
-
-
-
-
-

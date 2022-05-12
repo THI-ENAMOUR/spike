@@ -1,7 +1,3 @@
-from typing import Optional
-
-from core.action_queue import ActionQueue
-from core.model.action.group.action_group import ActionGroup
 from error.application_error import ApplicationError
 from error.handler.error_handler import ErrorHandler
 from error.illegal_state_error import IllegalStateError
@@ -13,18 +9,18 @@ class ActionOrganizerErrorHandler(ErrorHandler):
 
     __logger = Logger(__name__)
 
-    def __init__(self, action_queue: ActionQueue):
+    def __init__(self, action_queue):
         self.action_queue = action_queue
 
-    def handle(self, error: BaseException, **kwargs):
+    def handle(self, error, **kwargs):
         try:
             action = kwargs["action"]
         except ValueError:
             raise IllegalStateError(
-                f"No action provided for action organizer error handler. Cause of invocation: {error}"
+                "No action provided for action organizer error handler. Cause of invocation: " + str(error)
             )
 
-        self.__logger.error(f"Error occurred in action organizer with message: {error}")
+        self.__logger.error("Error occurred in action organizer with message: " + str(error))
 
         if isinstance(error, ApplicationError):
             if error.is_critical:
@@ -32,6 +28,6 @@ class ActionOrganizerErrorHandler(ErrorHandler):
         else:
             self.__delete_action_from_queue(action)
 
-    def __delete_action_from_queue(self, action: Optional[ActionGroup]):
+    def __delete_action_from_queue(self, action):
         if action is not None:
             self.action_queue.pop_on_error(action)
