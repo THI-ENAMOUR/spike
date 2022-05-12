@@ -4,23 +4,22 @@ from core.action_queue import ActionQueue
 from core.controller.controller_organizer import ControllerOrganizer
 from core.model.common.time_stamp import TimeStamp
 from error.handler.action_organizer_error_handler import ActionOrganizerErrorHandler
-from error.handler.error_handler import ErrorHandler
 from error.illegal_state_error import IllegalStateError
 from util.config import Config
 from util.logger import Logger
 from util.synchronized import synchronized
 
 
-class ActionOrganizer:
+class ActionOrganizer(object):
     """Organizes the selection and execution of an ActionQueue"""
 
     __logger = Logger(__name__)
 
     def __init__(
         self,
-        controller_organizer: ControllerOrganizer = ControllerOrganizer(),
-        action_queue: ActionQueue = ActionQueue(),
-        error_handler: ErrorHandler = None,
+        controller_organizer=ControllerOrganizer(),
+        action_queue=ActionQueue(),
+        error_handler=None,
     ):
         self.controller_organizer = controller_organizer
         self.action_queue = action_queue
@@ -69,6 +68,8 @@ class ActionOrganizer:
 
             current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
 
-            self.__logger.info(f"-- End of time stamp of queued action: {current_action_group.time} -----------------")
+            self.__logger.info(
+                "-- End of time stamp of queued action: {time} -----------------".format(time=current_action_group.time)
+            )
         except (BaseException,) as error:
             self.error_handler.handle(error, action=current_action_group)

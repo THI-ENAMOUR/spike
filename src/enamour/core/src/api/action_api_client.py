@@ -4,7 +4,6 @@ import rospy
 from std_msgs.msg import String
 
 from api.model.api_action_request import ApiActionRequest
-from core.action_queue import ActionQueue
 from error.handler.action_api_error_handler import ActionApiErrorHandler
 from util.logger import Logger
 
@@ -14,9 +13,7 @@ class ActionApiClient:
 
     __logger = Logger(__name__)
 
-    def __init__(
-        self, action_queue: ActionQueue, action_api_error_handler: ActionApiErrorHandler = ActionApiErrorHandler()
-    ):
+    def __init__(self, action_queue, action_api_error_handler=ActionApiErrorHandler()):
         self.action_queue = action_queue
         self.action_api_error_handler = action_api_error_handler
         self.running = False

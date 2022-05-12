@@ -9,11 +9,13 @@ class ApiActionType(Enum):
     GROUP = "group"
 
 
-class ApiAction(metaclass=abc.ABCMeta):
-    type: ApiActionType
+class ApiAction(object):
+    __metaclass__ = abc.ABCMeta
+
+    type = None
 
     @staticmethod
-    def from_json(data: dict):
+    def from_json(data):
         # TODO: Implement correctly and in a nice, readable way including error handling
 
         parse_action = {
@@ -30,12 +32,12 @@ class ApiAction(metaclass=abc.ABCMeta):
 class ApiActionGroup(ApiAction):
     type = ApiActionType.GROUP
 
-    def __init__(self, actions: "list[ApiAction]" = None):
+    def __init__(self, actions=None):
         self.actions = actions if actions is not None else []
 
     @staticmethod
-    def from_json(data: dict):
-        actions: "list[ApiAction]" = []
+    def from_json(data):
+        actions = []
         for action in data["actions"]:
             actions.append(ApiAction.from_json(action))
 
@@ -46,5 +48,5 @@ class ApiSitAction(ApiAction):
     type = ApiActionType.SIT
 
     @staticmethod
-    def from_json(data: dict):
+    def from_json(data):
         return ApiSitAction()

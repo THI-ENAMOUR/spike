@@ -1,26 +1,21 @@
 import abc
-from typing import TYPE_CHECKING, Callable
 
 from core.model.common.time_stamp import TimeStamp
 from error.illegal_argument_error import IllegalArgumentError
 
-if TYPE_CHECKING:
-    from core.model.action.action import Action, ActionList
 
-
-class TimingOption(metaclass=abc.ABCMeta):
+class TimingOption(object):
     """Determines in what way the action is selected/timed within an action group."""
 
+    __metaclass__ = abc.ABCMeta
+
     @abc.abstractmethod
-    def in_time_frame(self, action: "Action", time: TimeStamp) -> bool:
+    def in_time_frame(self, action, time):
         """Returns true if the timing option is within a certain time stamp."""
         raise NotImplementedError
 
     @staticmethod
-    def sort(
-        actions: "ActionList",
-        sort_function: Callable[["Action"], TimeStamp] = lambda x: x.timing_option.get_start_time(),
-    ):
+    def sort(actions, sort_function=lambda x: x.timing_option.get_start_time()):
         """In-place and stable sorts actions by their start date"""
         actions.sort(key=sort_function)
 
@@ -31,11 +26,10 @@ class TimingOption(metaclass=abc.ABCMeta):
 
 
 class StartTime(TimingOption):
-    def __init__(self, start_ms: int):
-        super().__init__()
+    def __init__(self, start_ms):
         self.start_time = TimeStamp(start_ms)
 
-    def in_time_frame(self, action: "Action", time: TimeStamp = None) -> bool:
+    def in_time_frame(self, action, time=None):
         """Returns true if the start_time < time. The start time is exclusive.
         If both of them are zero returns true."""
         return not action.completed and (self.start_time < time or (self.start_time.is_zero() and time.is_zero()))
@@ -44,7 +38,9 @@ class StartTime(TimingOption):
         return self.start_time
 
     def __str__(self):
-        return f"{self.__class__.__name__}(start: {self.start_time}ns)"
+        return "{class_name}(start: {start_time}ns)".format(
+            class_name=self.__class__.__name__, start_time=self.start_time
+        )
 
     def __eq__(self, other):
         # "other is StartTime" allows an enum-like equality check: TimingOptions.StartTime == self return true
@@ -55,14 +51,17 @@ class StartTime(TimingOption):
 
 
 class Duration(TimingOption):
-    def __init__(self, start_ms: int, end_ms: int):
-        super().__init__()
+    def __init__(self, start_ms, end_ms):
         if start_ms > end_ms:
-            raise IllegalArgumentError(f"Start time {start_ms} should be smaller than end time {end_ms}")
+            raise IllegalArgumentError(
+                "Start time {start_ms} should be smaller than end time {end_ms}".format(
+                    start_ms=start_ms, end_ms=end_ms
+                )
+            )
         self.start_time = TimeStamp(ms=start_ms)
         self.end_time = TimeStamp(ms=end_ms)
 
-    def in_time_frame(self, action: "Action", time: TimeStamp = None) -> bool:
+    def in_time_frame(self, action, time=None):
         """Returns true if the start_time < time <= end_time. The start time is exclusive.
         If the start_time and time are zero returns true"""
         return not action.completed and (
@@ -74,7 +73,9 @@ class Duration(TimingOption):
         return self.start_time
 
     def __str__(self):
-        return f"{self.__class__.__name__}(start: {self.start_time}ns, end: {self.end_time}ns)"
+        return "{class_name}(start: {start_time}ns, end: {end_time}ns)".format(
+            class_name=self.__class__.__name__, start_time=self.start_time, end_time=self.end_time
+        )
 
     def __eq__(self, other):
         # "other is Duration" allows an enum-like equality check: TimingOptions.Duration == self return true

@@ -1,4 +1,3 @@
-from core.model.action.action import Action
 from core.model.action.timing_option import Duration
 
 
@@ -7,7 +6,7 @@ from core.model.action.timing_option import Duration
 # Actions can be completed before they get selected, by the controller themselves, or after they got executed.
 
 
-def check_completion_before_selection(action: Action) -> bool:
+def check_completion_before_selection(action):
     from core.model.action.group.action_group import ActionGroup
 
     return (
@@ -17,7 +16,7 @@ def check_completion_before_selection(action: Action) -> bool:
     )
 
 
-def check_completion_after_execution(action: Action) -> bool:
+def check_completion_after_execution(action):
     from core.model.action.group.action_group import ActionGroup
 
     # Currently, we finish actions all actions instantly if they are not durations.
