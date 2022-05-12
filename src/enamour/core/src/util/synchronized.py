@@ -1,4 +1,4 @@
-import _thread
+import thread
 import threading
 import types
 
@@ -13,7 +13,7 @@ def synchronized(item):
         decorator = __synchronized_with_attr(item)
         return decorator(item)
 
-    if type(item) is _thread.LockType:
+    if type(item) is thread.LockType:
         decorator = __synchronized_with(item)
         return decorator(item)
 

@@ -8,11 +8,16 @@ from util.config import Config
 def setup_log_dir(log_location):
     try:
         os.makedirs(log_location)
-    except FileExistsError:
+    except OSError:
         pass
 
 
-class Logger:
+class InfoLogLevelFilter(logging.Filter):
+    def filter(self, record):
+        return record.levelno <= logging.INFO
+
+
+class Logger(object):
     """Provides functions to print logs to the console and log files"""
 
     formatter = logging.Formatter(fmt="%(levelname)s [%(name)s]: %(message)s")
@@ -33,7 +38,7 @@ class Logger:
         info_console_handler = logging.StreamHandler(sys.stdout)
         info_console_handler.setLevel(logging.DEBUG)
         info_console_handler.formatter = Logger.formatter
-        info_console_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+        info_console_handler.addFilter(InfoLogLevelFilter())
         error_console_handler = logging.StreamHandler()
         error_console_handler.setLevel(logging.WARNING)
         error_console_handler.formatter = Logger.formatter
