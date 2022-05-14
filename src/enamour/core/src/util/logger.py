@@ -24,11 +24,19 @@ class Logger(object):
 
     # File logger configuration
     log_location = Config.log_location
-    setup_log_dir(log_location)
     file_name = "core.log"
-    file_handler = logging.FileHandler(os.path.join(log_location, file_name), mode="w")
+    file_handler = logging.FileHandler(file_name, mode="w")
     file_handler.setLevel(logging.DEBUG)
     file_handler.formatter = formatter
+
+    @staticmethod
+    def setup_file_logger(dir=None):
+        file = os.path.join(dir, Logger.file_name) if dir is not None else Logger.file_name
+        if dir is not None:
+            setup_log_dir(dir)
+        Logger.file_handler = logging.FileHandler(file, mode="w")
+        Logger.file_handler.setLevel(logging.DEBUG)
+        Logger.file_handler.formatter = Logger.formatter
 
     def __init__(self, name, log_level=logging.INFO):
         self.name = name

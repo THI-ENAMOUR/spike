@@ -30,7 +30,14 @@ class ActionApiClient:
             self.__logger.info("Received a new action request")
             action_request_json = json.loads(action.data)
             action_request = ApiActionRequest.from_json(action_request_json)
-            action_group = action_request.to_action_group()
-            self.action_queue.push(action_group)
+            self.apply_action_request(action_request)
         except (BaseException,) as error:
             self.action_api_error_handler.handle(error)
+
+    def apply_action_request(self, action_request):
+        action_group = action_request.to_action_group()
+
+        if action_request.clear_action_queue:
+            self.action_queue.pop_all_actions()
+
+        self.action_queue.push(action_group)

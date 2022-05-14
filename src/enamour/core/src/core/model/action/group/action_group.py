@@ -1,4 +1,5 @@
 import abc
+import uuid
 from enum import Enum
 
 from core.completion_checker import check_completion_before_selection
@@ -24,6 +25,7 @@ class ActionGroup(Action):
 
     def __init__(
         self,
+        id=None,
         actions=None,
         start_ms=0,
         timing_option=None,
@@ -32,7 +34,9 @@ class ActionGroup(Action):
         if timing_option is None:
             timing_option = StartTime(start_ms=start_ms)
 
-        super(ActionGroup, self).__init__(timing_option, execution_method=execution_method)
+        id = id if id is not None else uuid.uuid4()
+
+        super(ActionGroup, self).__init__(id=id, timing_option=timing_option, execution_method=execution_method)
 
         actions = actions if actions is not None else []
         for action in actions:
