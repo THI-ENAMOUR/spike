@@ -27,7 +27,7 @@ class TimingOption(object):
 
 class StartTime(TimingOption):
     def __init__(self, start_ms):
-        self.start_time = TimeStamp(start_ms)
+        self.start_time = TimeStamp.from_ms(start_ms)
 
     def in_time_frame(self, action, time=None):
         """Returns true if the start_time < time. The start time is exclusive.
@@ -58,8 +58,8 @@ class Duration(TimingOption):
                     start_ms=start_ms, end_ms=end_ms
                 )
             )
-        self.start_time = TimeStamp(ms=start_ms)
-        self.end_time = TimeStamp(ms=end_ms)
+        self.start_time = TimeStamp.from_ms(start_ms)
+        self.end_time = TimeStamp.from_ms(end_ms)
 
     def in_time_frame(self, action, time=None):
         """Returns true if the start_time < time <= end_time. The start time is exclusive.

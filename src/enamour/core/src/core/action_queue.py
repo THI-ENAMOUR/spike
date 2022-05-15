@@ -69,6 +69,10 @@ class ActionQueue(object):
         action = self.queue.pop(index)
         self.__add_to_latest_completed_list(action)
 
+    def pop_all_actions(self):
+        while len(self.queue) > 0:
+            self.__pop_by_index(0)
+
     def __add_to_latest_completed_list(self, *actions):
         if self.latest_completed_actions_list_size > 0:
             for action in actions:

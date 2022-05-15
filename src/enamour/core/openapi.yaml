@@ -26,7 +26,7 @@ components:
           example: "01cf8c57-6a3e-4a18-a8d1-3b28ac3d5417"
           description: A UUID Version 4. Use uuid.uuid4() in python to generate a custom UUID.
           nullable: false
-        clearActionQueue:
+        clear_action_queue:
           type: boolean
           default: false
           nullable: true
@@ -38,13 +38,25 @@ components:
     Action:
       oneOf:
         - $ref: '#/components/schemas/SitAction'
+        - $ref: '#/components/schemas/SoundAction'
+        - $ref: '#/components/schemas/DisplayAction'
+        - $ref: '#/components/schemas/NavigationAction'
+        - $ref: '#/components/schemas/PoseAction'
         - $ref: '#/components/schemas/ActionGroup'
       discriminator:
         propertyName: type
         nullable: false
         mapping:
           sit: '#/components/schemas/SitAction'
+          sound: '#/components/schemas/SoundAction'
+          display: '#/components/schemas/DisplayAction'
+          navigation: '#/components/schemas/NavigationAction'
+          pose: '#/components/schemas/PoseAction'
           group: '#/components/schemas/ActionGroup'
+      properties:
+        start_time:
+          type: number
+          nullable: false
 
 
     # All possible types of actions
@@ -62,6 +74,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Action'
+
     SitAction:
       type: object
       required:
@@ -72,3 +85,59 @@ components:
           type: string
           enum:
             - sit
+    SoundAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - sound
+    DisplayAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - display
+    NavigationAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - navigation
+    PoseAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - pose
+        x:
+          nullable: true
+        y:
+          nullable: true
+        z:
+          nullable: true
+        ax:
+          nullable: true
+        ay:
+          nullable: true
+        az:
+          nullable: true
+        end_time:
+          nullable: true
+          type: number
+

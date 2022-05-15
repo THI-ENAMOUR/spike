@@ -10,13 +10,13 @@ class Config(object):
     loop_rate = None
     log_location = None
 
-    def __init__(self, loop_rate):
-        Config.loop_rate = loop_rate
-
     @staticmethod
-    def init_config(base_path):
+    def init_config(base_path="."):
         Config.loop_rate = Config.get_parameter("loop_rate", 10)
         Config.log_location = Config.get_parameter("log_dir", os.path.join(base_path, "logs"))
+        from util.logger import Logger
+
+        Logger.setup_file_logger(Config.log_location)
 
     @staticmethod
     def get_parameter(name, fallback):
