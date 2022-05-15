@@ -9,8 +9,8 @@ class Action(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, timing_option, execution_method, parent=None):
-        self.id = uuid.uuid4()
+    def __init__(self, timing_option, execution_method, parent=None, id=None):
+        self.id = id if id is not None else uuid.uuid4()
         self.completed = False
         self.timing_option = timing_option
         self.execution_method = execution_method
