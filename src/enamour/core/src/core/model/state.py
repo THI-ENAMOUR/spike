@@ -22,4 +22,13 @@ class State:
     
     @staticmethod
     def to_json():
-        return json.dumps(State.__dict__)
+        current_action = State.action_queue
+        if State.current_action == None: current_action = ''
+
+        myJSON = {
+            'current_action': State.action_queue,
+            'action_queue': State.action_queue,
+            'latest_completed_actions': State.latest_completed_actions,
+            'latest_error_actions': State.latest_error_actions,
+        }
+        return json.dumps(myJSON)
