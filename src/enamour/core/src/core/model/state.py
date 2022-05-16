@@ -22,5 +22,4 @@ class State:
     
     @staticmethod
     def to_json():
-        #return json.dumps(OBJECT)
-        pass
+        return json.dumps(State.__dict__)

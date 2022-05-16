@@ -43,6 +43,6 @@ class ActionApiClient:
             self.action_api_error_handler.handle(error)
     
     def send_robot_state(self):
-        State.update(self.action_queue);
-        json = State.to_json();
+        State.update(self.action_queue)
+        json = State.to_json()
         ActionApiClient.publisher.publish(json)
