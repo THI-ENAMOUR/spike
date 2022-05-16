@@ -22,9 +22,6 @@ class State:
     
     @staticmethod
     def to_json():
-        current_action = State.action_queue
-        if State.current_action == None: current_action = ''
-
         myJSON = {
             'current_action': State.action_queue,
             'action_queue': State.action_queue,
