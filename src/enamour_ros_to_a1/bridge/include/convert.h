@@ -80,6 +80,7 @@ UNITREE_LEGGED_SDK::LowCmd RosToLcm(trajectory_msgs::JointTrajectory &ros_joint_
         auto iterator = std::find(joint_names.begin(), joint_names.end(), ros_joint_trajectory.joint_names[i]);
         if (iterator == joint_names.end())
         {
+            printf("%s \n", ros_joint_trajectory.joint_names[i].c_str());
             ROS_ERROR("Joint trajectory names are wrong. Please check the simulation settings or edit the convert.h in the ros-to-a1 package");
             exit(-1);
         }
@@ -98,23 +99,27 @@ UNITREE_LEGGED_SDK::LowCmd RosToLcm(trajectory_msgs::JointTrajectory &ros_joint_
         int joint_element = i % 3;
 
         // Set values for kd (velocity stiffness) and kp (position stiffness) of each joint.
+        // If the values are too low, the robot does not move. If they are too high, the robot shuts down.
         if (joint_element == 0)
         {
             // kd and kp for hip
-            joint_kp = 70.0;
-            joint_kd = 3.0;
+            // Tested Values: Kp: 35 - 50; Kd: 1 - 5;
+            joint_kp = 50.0;
+            joint_kd = 1.0;
         }
         else if (joint_element == 1)
         {
             // kd and kp for thigh
-            joint_kp = 180.0;
-            joint_kd = 8.0;
+            // Tested Values: Kp: 35 - 50; Kd: 1 - 5;
+            joint_kp = 50.0;
+            joint_kd = 1.0;
         }
         else if (joint_element == 2)
         {
             // kd and kp for calf
-            joint_kp = 300.0;
-            joint_kd = 15.0;
+            // Tested Values: Kp: 35 - 50; Kd: 1 - 5;
+            joint_kp = 50.0;
+            joint_kd = 1.0;
         }
 
         low_cmd.motorCmd[joint_index].Kp = joint_kp;
