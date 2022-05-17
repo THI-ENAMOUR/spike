@@ -90,14 +90,10 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         roslcm.Get(RecvLowLCM);
         RecvImuLCM = RecvLowLCM.imu;
 
-        // Send status only when robot is powered up.
-        if (RecvLowLCM.SN != 0)
-        {
-            RecvImuROS = LcmToRos(RecvImuLCM);
-            RecvStateROS = LcmToRos(RecvLowLCM);
-            imu_pub.publish(RecvImuROS);
-            joint_state_pub.publish(RecvStateROS);
-        }
+        RecvImuROS = LcmToRos(RecvImuLCM);
+        RecvStateROS = LcmToRos(RecvLowLCM);
+        imu_pub.publish(RecvImuROS);
+        joint_state_pub.publish(RecvStateROS);
 
         ros::spinOnce();
         loop_rate.sleep();
@@ -115,7 +111,6 @@ int main(int argc, char *argv[])
     rname = UNITREE_LEGGED_SDK::LeggedType::A1;
     // UNITREE_LEGGED_SDK::Control control(rname, UNITREE_LEGGED_SDK::LOWLEVEL);
     // UNITREE_LEGGED_SDK::InitEnvironment();
-
     UNITREE_LEGGED_SDK::LCM roslcm(LOWLEVEL);
     mainHelper<trajectory_msgs::JointTrajectory, UNITREE_LEGGED_SDK::LowState, UNITREE_LEGGED_SDK::LCM>(argc, argv, roslcm);
 }

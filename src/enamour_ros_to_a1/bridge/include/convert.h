@@ -52,7 +52,7 @@ sensor_msgs::JointState LcmToRos(UNITREE_LEGGED_SDK::LowState &lcm_low_state)
 
     joint_state.name = joint_names;
 
-    joint_state.position[12] = {0};
+    joint_state.position.resize(12);
 
     // Add motor state
     for (int i = 0; i < 12; ++i)
