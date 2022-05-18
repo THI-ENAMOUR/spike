@@ -3,8 +3,10 @@ import rospy
 from geometry_msgs.msg import Pose
 import time
 from tf.transformations import quaternion_from_euler
+from unitree_legged_msgs.msg import HighCmd
 
 body_pose_publisher = rospy.Publisher('body_pose', Pose, queue_size=10)
+high_cmd_publisher = rospy.Publisher('high_command', HighCmd, queue_size=10)
 rospy.init_node('pose_test')
 
 elapsed = 0.0
@@ -54,6 +56,8 @@ def make_pose(final_pose, action_group_elapsed, loop_rate):
     if duration == 0:
         return
 
+    high_cmd = HighCmd()
+
     pose_msg = Pose()
     x = final_pose.x
     y = final_pose.y
@@ -79,14 +83,74 @@ def make_pose(final_pose, action_group_elapsed, loop_rate):
     pose_msg.orientation.y = quaternion[1]
     pose_msg.orientation.z = quaternion[2]
     pose_msg.orientation.w = quaternion[3]
-    body_pose_publisher.publish(pose_msg)
+    #body_pose_publisher.publish(pose_msg)
+    high_cmd.euler[0] = y_roll
+    high_cmd.euler[1] = y_pitch
+    high_cmd.euler[2] = y_yaw
+    high_cmd_publisher.publish(high_cmd)
     
     last_yaw = y_yaw
     last_pitch = y_pitch
     last_roll = y_roll
 
+def test_high_cmd():
+    high_cmd = HighCmd()
+
+    high_cmd.mode = 0
+    # 0. idle, default stand  
+    # 1. force stand (controlled by dBodyHeight + ypr)
+    # 2. target velocity walking (controlled by velocity + yawSpeed)
+    # 3. target position walking (controlled by position + ypr[0])
+    # 4. path mode walking (reserve for future release)
+    # 5. position stand down. 
+    # 6. position stand up 
+    # 7. damping mode 
+    # 8. recovery stand
+    # 9. backflip
+    # 10. jumpYaw
+    # 11. straightHand
+    # 12. dance1
+    # 13. dance2
+    # 14. two leg stand
+
+    high_cmd.gaitType = 0
+    # 0.idle  1.trot  2.trot running  3.climb stair
+
+    high_cmd.speedLevel = 0
+    # 0. default low speed. 1. medium speed 2. high speed. during walking, only respond MODE 3
+
+    high_cmd.footRaiseHeight = 0.08
+    # (unit: m, default: 0.08m), foot up height while walking
+    
+    high_cmd.bodyHeight = 0.28
+    # (unit: m, default: 0.28m),
+
+    high_cmd.postion[0] = 0.0
+    high_cmd.postion[1] = 0.0
+    # (unit: m), desired position in inertial frame
+
+    high_cmd.euler[0] = 0.0     # roll
+    high_cmd.euler[1] = 0.0     # pitch
+    high_cmd.euler[2] = 0.0     # yaw
+    # (unit: rad), roll pitch yaw in stand mode
+
+    high_cmd.velocity[0] = 0.0
+    high_cmd.velocity[1] = 0.0
+    # (unit: m/s), forwardSpeed, sideSpeed in body frame
+
+    high_cmd.yawSpeed = 0.0
+    # (unit: rad/s), rotateSpeed in body frame
+
+    high_cmd_publisher.publish(high_cmd)
+
 if __name__ == '__main__':
-    loop_rate = 0.1
+    loop_rate = 0.001
+
+    #while 1:
+    #    test_high_cmd()
+    #   time.sleep(loop_rate)
+
+    
     start = time.time()
     yaw_right = Pose_cmd(x=0, y=0, z=0, yaw=-0.3, pitch=0, roll=0, start=0.0, end=6.0)   
     yaw_left = Pose_cmd(x=0, y=0, z=0, yaw=0.3, pitch=0, roll=0, start=6.0, end=12.0)   
@@ -107,9 +171,10 @@ if __name__ == '__main__':
     action_group.progress(loop_rate)
     desired_pose = action_group.get_current_pose()
     while desired_pose is not None:
-        input("Press button")
+        #input("Press button")
         make_pose(final_pose=desired_pose, action_group_elapsed=action_group.elapsed, loop_rate=loop_rate)
         action_group.progress(loop_rate)
         time.sleep(loop_rate)
         desired_pose = action_group.get_current_pose()
+    
         

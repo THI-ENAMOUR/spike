@@ -8,6 +8,7 @@ project(pose_test)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  unitree_legged_msgs
   geometry_msgs
   rospy
 )
@@ -115,9 +116,17 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
+    include
+    ${Boost_INCLUDE_DIR}
+    ${catkin_INCLUDE_DIRS}
 )
+
+include_directories($ENV{UNITREE_LEGGED_SDK_PATH}/include)
+link_directories($ENV{UNITREE_LEGGED_SDK_PATH}/lib)
+string(CONCAT LEGGED_SDK_NAME libunitree_legged_sdk_$ENV{UNITREE_PLATFORM}.so)
+set(EXTRA_LIBS ${LEGGED_SDK_NAME} lcm)
+
+set(CMAKE_CXX_FLAGS "-O3")
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

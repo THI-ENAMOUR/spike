@@ -20,6 +20,32 @@ void* update_loop(void* param)
     }
 }
 
+
+template <typename TCmd, typename TLCM>
+class RosCommandHandler
+{
+public:
+    RosCommandHandler(TLCM &roslcm) : roslcm(roslcm)
+    {
+    }
+    void handleRosCommand(const unitree_legged_msgs::HighCmd &msg);
+    UNITREE_LEGGED_SDK::HighCmd SendHighLCM;
+    TLCM roslcm;
+    unitree_legged_msgs::HighCmd SendHighROS;
+};
+
+template <typename TCmd, typename TLCM>
+void RosCommandHandler<TCmd, TLCM>::handleRosCommand(const unitree_legged_msgs::HighCmd &msg)
+{
+    SendHighROS = msg;
+    ROS_INFO("High Command received");
+    SendHighLCM = ToLcm(SendHighROS, SendHighLCM);
+    printf("High_cmd roll: %f\n", SendHighLCM.euler[0]);
+    printf("High_cmd pitch: %f\n", SendHighLCM.euler[1]);
+    printf("High_cmd yaw: %f\n", SendHighLCM.euler[2]);
+    roslcm.Send(SendHighLCM);
+}
+
 template<typename TCmd, typename TState, typename TLCM>
 int mainHelper(int argc, char *argv[], TLCM &roslcm)
 {
@@ -33,10 +59,16 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
 
     // SetLevel(HIGHLEVEL);
     long motiontime = 0;
-    TCmd SendHighLCM = {0};
     TState RecvHighLCM = {0};
     unitree_legged_msgs::HighCmd SendHighROS;
     unitree_legged_msgs::HighState RecvHighROS;
+
+    RosCommandHandler<TCmd, TLCM> rcm{roslcm};
+    ros::Subscriber sub = n.subscribe(
+        "/high_command",
+        1000,
+        &RosCommandHandler<TCmd, TLCM>::handleRosCommand,
+        &rcm);
 
     roslcm.SubscribeState();
 
@@ -44,11 +76,12 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     pthread_create(&tid, NULL, update_loop<TLCM>, &roslcm);
 
     while (ros::ok()){
-        motiontime = motiontime+2;
+
+        //motiontime = motiontime+2;
         roslcm.Get(RecvHighLCM);
         RecvHighROS = ToRos(RecvHighLCM);
 
-        SendHighROS.mode = 0;      
+        /*SendHighROS.mode = 0;      
         SendHighROS.gaitType = 0;
         SendHighROS.speedLevel = 0;
         SendHighROS.footRaiseHeight = 0;
@@ -127,10 +160,8 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         }
         if(motiontime>24000 ){
             SendHighROS.mode = 1;
-        }
+        }*/
 
-        SendHighLCM = ToLcm(SendHighROS, SendHighLCM);
-        roslcm.Send(SendHighLCM);
         ros::spinOnce();
         loop_rate.sleep(); 
     }
