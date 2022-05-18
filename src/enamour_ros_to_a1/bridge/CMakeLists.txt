@@ -173,6 +173,10 @@ add_executable(test_server src/lcm_server_low_test.cpp)
 target_link_libraries(test_server ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(test_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(walk_high src/walk_high.cpp)
+target_link_libraries(walk_high ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(walk_high ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 add_executable(lcm_server_high $ENV{UNITREE_LEGGED_SDK_PATH}/examples/lcm_server_high.cpp)
 target_link_libraries(lcm_server_high ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(lcm_server_high ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

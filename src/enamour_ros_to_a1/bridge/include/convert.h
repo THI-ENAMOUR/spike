@@ -10,6 +10,8 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 #include <unitree_legged_msgs/LowState.h>
 #include <unitree_legged_msgs/MotorCmd.h>
 #include <unitree_legged_msgs/MotorState.h>
+#include <unitree_legged_msgs/HighCmd.h>
+#include <unitree_legged_msgs/HighState.h>
 #include <unitree_legged_msgs/IMU.h>
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "sensor_msgs/Imu.h"
@@ -133,6 +135,115 @@ UNITREE_LEGGED_SDK::LowCmd RosToLcm(trajectory_msgs::JointTrajectory &ros_joint_
     low_cmd.levelFlag = UNITREE_LEGGED_SDK::LOWLEVEL;
 
     return low_cmd;
+}
+
+unitree_legged_msgs::IMU ToRos(const UNITREE_LEGGED_SDK::IMU &lcm)
+{
+    unitree_legged_msgs::IMU ros;
+    ros.quaternion[0] = lcm.quaternion[0];
+    ros.quaternion[1] = lcm.quaternion[1];
+    ros.quaternion[2] = lcm.quaternion[2];
+    ros.quaternion[3] = lcm.quaternion[3];
+    ros.gyroscope[0] = lcm.gyroscope[0];
+    ros.gyroscope[1] = lcm.gyroscope[1];
+    ros.gyroscope[2] = lcm.gyroscope[2];
+    ros.accelerometer[0] = lcm.accelerometer[0];
+    ros.accelerometer[1] = lcm.accelerometer[1];
+    ros.accelerometer[2] = lcm.accelerometer[2];
+    ros.temperature = lcm.temperature;
+    return ros;
+}
+
+unitree_legged_msgs::Cartesian ToRos(const UNITREE_LEGGED_SDK::Cartesian &lcm)
+{
+    unitree_legged_msgs::Cartesian ros;
+    ros.x = lcm.x;
+    ros.y = lcm.y;
+    ros.z = lcm.z;
+    return ros;
+}
+
+unitree_legged_msgs::HighState ToRos(UNITREE_LEGGED_SDK::HighState &lcm)
+{
+    unitree_legged_msgs::HighState ros;
+    ros.levelFlag = lcm.levelFlag;
+    ros.commVersion = lcm.commVersion;
+    ros.robotID = lcm.robotID;
+    ros.SN = lcm.SN;
+    ros.bandWidth = lcm.bandWidth;
+    ros.mode = lcm.mode;
+    ros.progress = lcm.progress;
+    ros.imu = ToRos(lcm.imu);
+    ros.gaitType = lcm.gaitType;
+    ros.footRaiseHeight = lcm.footRaiseHeight;
+    ros.bodyHeight = lcm.bodyHeight;
+    ros.yawSpeed = lcm.yawSpeed;
+    ros.reserve = lcm.reserve;
+    ros.crc = lcm.crc;
+
+    for (int i(0); i < 3; ++i)
+    {
+        ros.position[i] = lcm.position[i];
+        ros.velocity[i] = lcm.velocity[i];
+    }
+
+    for (int i(0); i < 4; ++i)
+    {
+        ros.footPosition2Body[i] = ToRos(lcm.footPosition2Body[i]);
+        ros.footSpeed2Body[i] = ToRos(lcm.footSpeed2Body[i]);
+        ros.footForce[i] = lcm.footForce[i];
+        ros.footForceEst[i] = lcm.footForceEst[i];
+    }
+
+    // for(int i(0); i<20; ++i){
+    //     ros.temperature[i] = lcm.temperature[i];
+    // }
+
+    for (int i(0); i < 40; ++i)
+    {
+        ros.wirelessRemote[i] = lcm.wirelessRemote[i];
+    }
+
+    return ros;
+}
+
+UNITREE_LEGGED_SDK::HighCmd ToLcm(unitree_legged_msgs::HighCmd& ros, UNITREE_LEGGED_SDK::HighCmd lcmType)
+{
+    UNITREE_LEGGED_SDK::HighCmd lcm;
+    lcm.levelFlag = ros.levelFlag;
+    lcm.commVersion = ros.commVersion;
+    lcm.robotID = ros.robotID;
+    lcm.SN = ros.SN;
+    lcm.bandWidth = ros.bandWidth;
+    lcm.mode = ros.mode;
+    lcm.gaitType = ros.gaitType;
+    lcm.speedLevel = ros.speedLevel;
+    lcm.footRaiseHeight = ros.footRaiseHeight;
+    lcm.bodyHeight = ros.bodyHeight;
+    lcm.yawSpeed = ros.yawSpeed;
+    lcm.reserve = ros.reserve;
+    lcm.crc = ros.crc;
+
+    for(int i(0); i<2; ++i){
+        lcm.postion[i] = ros.postion[i];
+        lcm.velocity[i] = ros.velocity[i];
+    }
+
+    for(int i(0); i<3; ++i){
+        lcm.euler[i] = ros.euler[i];
+    }
+
+    for(int i = 0; i<4; i++){
+        lcm.led[i].r = ros.led[i].r;
+        lcm.led[i].g = ros.led[i].g;
+        lcm.led[i].b = ros.led[i].b;
+    }
+
+    for(int i = 0; i<40; i++){
+        lcm.wirelessRemote[i] = ros.wirelessRemote[i];
+    }
+
+    return lcm;
 }
 
 #endif // _CONVERT_H_
