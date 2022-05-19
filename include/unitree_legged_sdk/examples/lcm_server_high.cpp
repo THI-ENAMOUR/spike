@@ -1,6 +1,7 @@
-/*****************************************************************
- Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
-******************************************************************/
+/************************************************************************
+Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
+Use of this source code is governed by the MPL-2.0 license, see LICENSE.
+************************************************************************/
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <math.h>
@@ -10,9 +11,7 @@ using namespace UNITREE_LEGGED_SDK;
 class Custom
 {
 public:
-    Custom(uint8_t level): 
-    udp(8090, "192.168.123.161", 8082, sizeof(HighCmd), sizeof(HighState)), 
-    mylcm(level){}
+    Custom(uint8_t level): udp(level), mylcm(level){}
     void UDPRecv(){
         udp.Recv();
     }

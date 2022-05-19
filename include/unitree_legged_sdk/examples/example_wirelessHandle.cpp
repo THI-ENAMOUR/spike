@@ -4,6 +4,7 @@ Use of this source code is governed by the MPL-2.0 license, see LICENSE.
 ************************************************************************/
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
+#include "unitree_legged_sdk/unitree_joystick.h"
 #include <math.h>
 #include <iostream>
 #include <unistd.h>
@@ -24,6 +25,7 @@ public:
     UDP udp;
     LowCmd cmd = {0};
     LowState state = {0};
+    xRockerBtnDataStruct _keyData;
     int motiontime = 0;
     float dt = 0.002;     // 0.001~0.01
 };
@@ -42,26 +44,14 @@ void Custom::RobotControl()
 {
     motiontime++;
     udp.GetRecv(state);
-    // printf("%d\n", motiontime);
-    // gravity compensation
-    cmd.motorCmd[FR_0].tau = -0.65f;
-    cmd.motorCmd[FL_0].tau = +0.65f;
-    cmd.motorCmd[RR_0].tau = -0.65f;
-    cmd.motorCmd[RL_0].tau = +0.65f;
 
-    if( motiontime >= 500){
-        float torque = (0 - state.motorState[FR_1].q)*10.0f + (0 - state.motorState[FR_1].dq)*1.0f;
-        if(torque > 5.0f) torque = 5.0f;
-        if(torque < -5.0f) torque = -5.0f;
+    memcpy(&_keyData, state.wirelessRemote, 40);
 
-        cmd.motorCmd[FR_1].q = PosStopF;
-        cmd.motorCmd[FR_1].dq = VelStopF;
-        cmd.motorCmd[FR_1].Kp = 0;
-        cmd.motorCmd[FR_1].Kd = 0;
-        cmd.motorCmd[FR_1].tau = torque;
+    if((int)_keyData.btn.components.A == 1){
+        std::cout << "The key A is pressed, and the value of lx is " << _keyData.lx << std::endl;
     }
-    safe.PowerProtect(cmd, state, 1);
 
+    safe.PowerProtect(cmd, state, 1);
     udp.SetSend(cmd);
 }
 

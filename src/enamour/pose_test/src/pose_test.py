@@ -84,9 +84,10 @@ def make_pose(final_pose, action_group_elapsed, loop_rate):
     pose_msg.orientation.z = quaternion[2]
     pose_msg.orientation.w = quaternion[3]
     #body_pose_publisher.publish(pose_msg)
-    high_cmd.euler[0] = y_roll
-    high_cmd.euler[1] = y_pitch
-    high_cmd.euler[2] = y_yaw
+    high_cmd.roll = y_roll
+    high_cmd.pitch = y_pitch
+    high_cmd.yaw = y_yaw
+    high_cmd.mode = 1 # 1. force stand (controlled by dBodyHeight + ypr)
     high_cmd_publisher.publish(high_cmd)
     
     last_yaw = y_yaw
@@ -96,7 +97,7 @@ def make_pose(final_pose, action_group_elapsed, loop_rate):
 def test_high_cmd():
     high_cmd = HighCmd()
 
-    high_cmd.mode = 0
+    high_cmd.mode = 1
     # 0. idle, default stand  
     # 1. force stand (controlled by dBodyHeight + ypr)
     # 2. target velocity walking (controlled by velocity + yawSpeed)
@@ -113,60 +114,59 @@ def test_high_cmd():
     # 13. dance2
     # 14. two leg stand
 
-    high_cmd.gaitType = 0
+    #high_cmd.gaitType = 0
     # 0.idle  1.trot  2.trot running  3.climb stair
 
-    high_cmd.speedLevel = 0
+    #high_cmd.speedLevel = 0
     # 0. default low speed. 1. medium speed 2. high speed. during walking, only respond MODE 3
 
-    high_cmd.footRaiseHeight = 0.08
+    #high_cmd.footRaiseHeight = 0.08
     # (unit: m, default: 0.08m), foot up height while walking
     
-    high_cmd.bodyHeight = 0.28
+    #high_cmd.bodyHeight = 0.28
     # (unit: m, default: 0.28m),
 
-    high_cmd.postion[0] = 0.0
-    high_cmd.postion[1] = 0.0
+    #high_cmd.postion[0] = 0.0
+    #high_cmd.postion[1] = 0.0
     # (unit: m), desired position in inertial frame
 
-    high_cmd.euler[0] = 0.0     # roll
-    high_cmd.euler[1] = 0.0     # pitch
-    high_cmd.euler[2] = 0.0     # yaw
+    #high_cmd.euler[0] = 0.0     # roll
+    high_cmd.pitch = 0.01     # pitch
+    #high_cmd.euler[2] = 0.0     # yaw
     # (unit: rad), roll pitch yaw in stand mode
 
-    high_cmd.velocity[0] = 0.0
-    high_cmd.velocity[1] = 0.0
+    #high_cmd.velocity[0] = 0.0
+    #high_cmd.velocity[1] = 0.0
     # (unit: m/s), forwardSpeed, sideSpeed in body frame
 
-    high_cmd.yawSpeed = 0.0
+    #high_cmd.yawSpeed = 0.0
     # (unit: rad/s), rotateSpeed in body frame
 
     high_cmd_publisher.publish(high_cmd)
 
 if __name__ == '__main__':
-    loop_rate = 0.001
+    loop_rate = 0.0005
 
     #while 1:
-    #    test_high_cmd()
+    #   test_high_cmd()
     #   time.sleep(loop_rate)
 
-    
     start = time.time()
-    yaw_right = Pose_cmd(x=0, y=0, z=0, yaw=-0.3, pitch=0, roll=0, start=0.0, end=6.0)   
-    yaw_left = Pose_cmd(x=0, y=0, z=0, yaw=0.3, pitch=0, roll=0, start=6.0, end=12.0)   
-    sit = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=-0.3, roll=0, start=12.0, end=20.0)    
-
-    action_group = Action_Group(poses={yaw_right, yaw_left, sit})
-
-    roll_right = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=0.3, start=0.0, end=6.0)   
-    roll_left = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=-0.3, start=6.0, end=12.0)   
-    yaw_right2 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=12.0, end=20.0)   
-    yaw_left2 = Pose_cmd(x=0, y=0, z=0, yaw=0.2, pitch=0.2, roll=0, start=20.0, end=28.0)  
-    yaw_right3 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=28.0, end=36.0)
-    reset = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=0, start=36.0, end=42.0)      
+    #yaw_right = Pose_cmd(x=0, y=0, z=0, yaw=-0.3, pitch=0, roll=0, start=0.0, end=6.0)   
+    #yaw_left = Pose_cmd(x=0, y=0, z=0, yaw=0.3, pitch=0, roll=0, start=6.0, end=12.0)   
+    #sit = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=-0.3, roll=0, start=12.0, end=20.0)    
 
     #action_group = Action_Group(poses={yaw_right, yaw_left, sit})
-    action_group = Action_Group(poses={roll_right,roll_left,yaw_right2,yaw_left2,yaw_right3,reset})
+
+    roll_right = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=0.7, start=0.0, end=1.5)   
+    roll_left = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=-0.7, start=1.5, end=3)   
+    #yaw_right2 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=12.0, end=20.0)   
+    #yaw_left2 = Pose_cmd(x=0, y=0, z=0, yaw=0.2, pitch=0.2, roll=0, start=20.0, end=28.0)  
+    #yaw_right3 = Pose_cmd(x=0, y=0, z=0, yaw=-0.2, pitch=0.2, roll=0, start=28.0, end=36.0)
+    #reset = Pose_cmd(x=0, y=0, z=0, yaw=0, pitch=0, roll=0, start=36.0, end=42.0)      
+
+    #action_group = Action_Group(poses={yaw_right, yaw_left, sit})
+    action_group = Action_Group(poses={roll_right,roll_left}) #,yaw_right2,yaw_left2,yaw_right3,reset})
 
     action_group.progress(loop_rate)
     desired_pose = action_group.get_current_pose()
@@ -176,5 +176,6 @@ if __name__ == '__main__':
         action_group.progress(loop_rate)
         time.sleep(loop_rate)
         desired_pose = action_group.get_current_pose()
+    
     
         

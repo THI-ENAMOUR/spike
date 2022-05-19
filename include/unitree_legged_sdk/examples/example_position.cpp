@@ -1,6 +1,7 @@
-/*****************************************************************
- Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
-******************************************************************/
+/************************************************************************
+Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
+Use of this source code is governed by the MPL-2.0 license, see LICENSE.
+************************************************************************/
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <math.h>
@@ -59,7 +60,8 @@ void Custom::RobotControl()
 {
     motiontime++;
     udp.GetRecv(state);
-    printf("%d  %f   %f\n", motiontime, state.motorState[FL_1].q, motiontime, state.motorState[FL_2].q);
+    // printf("%d  %f\n", motiontime, state.motorState[FR_2].q);
+    printf("%d  %f\n", motiontime, state.imu.quaternion[2]);
 
     // gravity compensation
     cmd.motorCmd[FR_0].tau = -0.65f;
@@ -72,9 +74,9 @@ void Custom::RobotControl()
         // first, get record initial position
         // if( motiontime >= 100 && motiontime < 500){
         if( motiontime >= 0 && motiontime < 10){
-            qInit[0] = state.motorState[FL_0].q;
-            qInit[1] = state.motorState[FL_1].q;
-            qInit[2] = state.motorState[FL_2].q;
+            qInit[0] = state.motorState[FR_0].q;
+            qInit[1] = state.motorState[FR_1].q;
+            qInit[2] = state.motorState[FR_2].q;
         }
         // second, move to the origin point of a sine movement with Kp Kd
         // if( motiontime >= 500 && motiontime < 1500){
@@ -83,12 +85,6 @@ void Custom::RobotControl()
             double rate = rate_count/200.0;                       // needs count to 200
             Kp[0] = 5.0; Kp[1] = 5.0; Kp[2] = 5.0; 
             Kd[0] = 1.0; Kd[1] = 1.0; Kd[2] = 1.0;
-            // Kp[0] = 45.0; Kp[1] = 45.0; Kp[2] = 45.0; 
-            // Kd[0] = 3.0; Kd[1] = 3.0; Kd[2] = 3.0;
-            // Kp[0] = 4.5; Kp[1] = 4.5; Kp[2] = 4.5; 
-            // Kd[0] = 0.3; Kd[1] = 0.3; Kd[2] = 0.3;
-            // Kp[0] = 10; Kp[1] = 10; Kp[2] = 10; 
-            // Kd[0] = 0.4; Kd[1] = 0.4; Kd[2] = 0.4;
             
             qDes[0] = jointLinearInterpolation(qInit[0], sin_mid_q[0], rate);
             qDes[1] = jointLinearInterpolation(qInit[1], sin_mid_q[1], rate);
@@ -96,48 +92,42 @@ void Custom::RobotControl()
         }
         double sin_joint1, sin_joint2;
         // last, do sine wave
-        float freq_Hz = 1;
-        // float freq_Hz = 5;
-        float freq_rad = freq_Hz * 2* M_PI;
-        float t = dt*sin_count;
         if( motiontime >= 400){
             sin_count++;
-            // sin_joint1 = 0.6 * sin(3*M_PI*sin_count/1000.0);
-            // sin_joint2 = -0.9 * sin(3*M_PI*sin_count/1000.0);
-            sin_joint1 = 0.6 * sin(t*freq_rad);
-            sin_joint2 = -0.9 * sin(t*freq_rad);
+            sin_joint1 = 0.6 * sin(3*M_PI*sin_count/1000.0);
+            sin_joint2 = -0.6 * sin(1.8*M_PI*sin_count/1000.0);
             qDes[0] = sin_mid_q[0];
-            qDes[1] = sin_mid_q[1] + sin_joint1;
+            qDes[1] = sin_mid_q[1];
             qDes[2] = sin_mid_q[2] + sin_joint2;
             // qDes[2] = sin_mid_q[2];
         }
 
-        cmd.motorCmd[FL_0].q = qDes[0];
-        cmd.motorCmd[FL_0].dq = 0;
-        cmd.motorCmd[FL_0].Kp = Kp[0];
-        cmd.motorCmd[FL_0].Kd = Kd[0];
-        cmd.motorCmd[FL_0].tau = -0.65f;
+        cmd.motorCmd[FR_0].q = qDes[0];
+        cmd.motorCmd[FR_0].dq = 0;
+        cmd.motorCmd[FR_0].Kp = Kp[0];
+        cmd.motorCmd[FR_0].Kd = Kd[0];
+        cmd.motorCmd[FR_0].tau = -0.65f;
 
-        cmd.motorCmd[FL_1].q = qDes[1];
-        cmd.motorCmd[FL_1].dq = 0;
-        cmd.motorCmd[FL_1].Kp = Kp[1];
-        cmd.motorCmd[FL_1].Kd = Kd[1];
-        cmd.motorCmd[FL_1].tau = 0.0f;
+        cmd.motorCmd[FR_1].q = qDes[1];
+        cmd.motorCmd[FR_1].dq = 0;
+        cmd.motorCmd[FR_1].Kp = Kp[1];
+        cmd.motorCmd[FR_1].Kd = Kd[1];
+        cmd.motorCmd[FR_1].tau = 0.0f;
 
-        cmd.motorCmd[FL_2].q =  qDes[2];
-        cmd.motorCmd[FL_2].dq = 0;
-        cmd.motorCmd[FL_2].Kp = Kp[2];
-        cmd.motorCmd[FL_2].Kd = Kd[2];
-        // cmd.motorCmd[FL_2].tau = 0.0f;
-        cmd.motorCmd[FL_2].tau = 2 * sin(t*freq_rad);
+        cmd.motorCmd[FR_2].q =  qDes[2];
+        cmd.motorCmd[FR_2].dq = 0;
+        cmd.motorCmd[FR_2].Kp = Kp[2];
+        cmd.motorCmd[FR_2].Kd = Kd[2];
+        cmd.motorCmd[FR_2].tau = 0.0f;
 
     }
 
-    // if(motiontime > 10){
-    //     // safe.PositionLimit(cmd);
-    //     safe.PowerProtect(cmd, state, 1);
-    //     // safe.PositionProtect(cmd, state, 0.087);
-    // }
+    if(motiontime > 10){
+        safe.PositionLimit(cmd);
+        safe.PowerProtect(cmd, state, 1);
+        // You can uncomment it for position protection
+        // safe.PositionProtect(cmd, state, 0.087);
+    }
 
     udp.SetSend(cmd);
 
