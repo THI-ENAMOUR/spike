@@ -7,5 +7,5 @@ class ActionApiErrorHandler(ErrorHandler):
 
     __logger = Logger(__name__)
 
-    def handle(self, error: BaseException, **kwargs):
-        self.__logger.error(f"Error occurred in action api service with message: {error}")
+    def handle(self, error, **kwargs):
+        self.__logger.error("Error occurred in action api service with message: " + str(error))

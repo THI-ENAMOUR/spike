@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2.7
 import os
 
 import rospy
@@ -25,8 +25,9 @@ if __name__ == "__main__":
     __queue.push(
         ActionGroup(
             actions=[
-                PoseAction(start_ms=0, end_ms=2000),
+                PoseAction(start_ms=100, end_ms=1000),
                 ActionGroup(
+                    start_ms=0,
                     actions=[
                         PoseAction(start_ms=0, end_ms=2000),
                         ActionGroup(
@@ -34,9 +35,9 @@ if __name__ == "__main__":
                         ),
                         PoseAction(start_ms=4000, end_ms=4500),
                         PoseAction(start_ms=2500, end_ms=2900),
-                    ]
+                    ],
                 ),
-                PoseAction(start_ms=2001, end_ms=5000),
+                PoseAction(start_ms=-100, end_ms=100),
             ]
         )
     )

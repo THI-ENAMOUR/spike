@@ -1,7 +1,7 @@
-class Vector3:
+class Vector3(object):
     """Represents a three-dimensional vector with x, y and z."""
 
-    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+    def __init__(self, x=0, y=0, z=0):
         self.x = x
         self.y = y
         self.z = z

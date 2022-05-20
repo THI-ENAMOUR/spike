@@ -1,23 +1,11 @@
-from typing import TYPE_CHECKING
-
-from core.controller.controller import Controller
 from core.model.action.action_type import ActionType
 from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
-from core.model.action.timing_option import TimingOption, StartTime, Duration
-
-if TYPE_CHECKING:
-    from core.model.action.group.action_group import ActionGroup
+from core.model.action.timing_option import StartTime, Duration
 
 
 class NoOpAction(AtomicAction):
-    def __init__(
-        self,
-        start_time_ms=0,
-        end_time_ms=None,
-        timing_option: TimingOption = None,
-        parent: "ActionGroup" = None,
-    ):
+    def __init__(self, start_time_ms=0, end_time_ms=None, timing_option=None, parent=None):
 
         if timing_option is None:
             if end_time_ms is None:
@@ -31,7 +19,7 @@ class NoOpAction(AtomicAction):
 
         self.parent = parent
 
-    def get_controller(self) -> Controller:
+    def get_controller(self):
         # Local import to break cyclic import chain
         from core.controller.controller_organizer import ControllerOrganizer
 

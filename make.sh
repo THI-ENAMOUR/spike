@@ -1,4 +1,4 @@
-source /opt/ros/noetic/setup.bash
+source /opt/ros/melodic/setup.bash
 
 catkin_make
 

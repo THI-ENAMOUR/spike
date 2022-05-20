@@ -1,11 +1,11 @@
 import abc
 
-from core.model.action.atomic.atomic_action import AtomicAction
 
-
-class Controller(metaclass=abc.ABCMeta):
+class Controller(object):
     """Controls the execution of a specific AtomicAction"""
 
+    __metaclass__ = abc.ABCMeta
+
     @abc.abstractmethod
-    def execute_action(self, action: AtomicAction):
+    def execute_action(self, action):
         raise NotImplementedError
