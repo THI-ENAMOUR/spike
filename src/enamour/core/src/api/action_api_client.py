@@ -4,12 +4,15 @@ import rospy
 from std_msgs.msg import String
 
 from api.model.api_action_request import ApiActionRequest
+from core.model.state import State
 from error.handler.action_api_error_handler import ActionApiErrorHandler
 from util.logger import Logger
 
 
 class ActionApiClient:
     """Creates a communication channel for exchanging actions and the current state"""
+
+    robot_state_publisher = rospy.Publisher("/robot_state", String, queue_size=10)
 
     __logger = Logger(__name__)
 
@@ -23,6 +26,7 @@ class ActionApiClient:
         rospy.Subscriber("action", String, self.receive_action)
         while not rospy.is_shutdown() and self.running:
             # Build our own ros spin command, in order to shut down the server if self.running is false
+            self.send_robot_state()
             rospy.rostime.wallsleep(0.5)
 
     def receive_action(self, action):
@@ -41,3 +45,8 @@ class ActionApiClient:
             self.action_queue.pop_all_actions()
 
         self.action_queue.push(action_group)
+
+    def send_robot_state(self):
+        State.update(self.action_queue)
+        state_json = State.to_json()
+        ActionApiClient.robot_state_publisher.publish(state_json)
