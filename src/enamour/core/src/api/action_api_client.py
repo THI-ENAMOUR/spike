@@ -1,16 +1,18 @@
 import json
 
 import rospy
-from api.model.api_action_request import ApiActionRequest
-from error.handler.action_api_error_handler import ActionApiErrorHandler
 from std_msgs.msg import String
+
+from api.model.api_action_request import ApiActionRequest
+from core.model.state import State
+from error.handler.action_api_error_handler import ActionApiErrorHandler
 from util.logger import Logger
 
 
 class ActionApiClient:
     """Creates a communication channel for exchanging actions and the current state"""
 
-    publisher = rospy.Publisher('/robot_state', String, queue_size=10)
+    robot_state_publisher = rospy.Publisher("/robot_state", String, queue_size=10)
 
     __logger = Logger(__name__)
 
@@ -46,5 +48,5 @@ class ActionApiClient:
 
     def send_robot_state(self):
         State.update(self.action_queue)
-        json = State.to_json()
-        ActionApiClient.publisher.publish(json)
+        state_json = State.to_json()
+        ActionApiClient.robot_state_publisher.publish(state_json)
