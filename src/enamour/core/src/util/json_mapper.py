@@ -1,3 +1,5 @@
+import json
+import uuid
 from uuid import UUID
 
 from error.deserialization_error import DeserializationError
@@ -29,3 +31,26 @@ def to_UUID(key):
         return UUID(key, version=4)
     except ValueError:
         raise DeserializationError(key + " is not an valid uuid version 4")
+
+
+def to_json(data):
+    return json.dumps(data, default=to_serializable_dict)
+
+
+def to_serializable_dict(data):
+    if hasattr(data, "__dict__"):
+        deserializable_dict = data.__dict__
+        for key, value in deserializable_dict.iteritems():
+            if isinstance(value, list):
+                new_value = []
+                for item in value:
+                    new_value.append(to_serializable_dict(item))
+                deserializable_dict[key] = new_value
+            elif isinstance(value, uuid.UUID):
+                deserializable_dict[key] = str(value)
+        return deserializable_dict
+    elif data is None:
+        # Just return 'None' so json.dumps changes it to 'null'
+        return None
+    else:
+        return str(data)
