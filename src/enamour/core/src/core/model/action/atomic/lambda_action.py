@@ -2,6 +2,7 @@ from core.model.action.action_type import ActionType
 from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import StartTime
+from error.illegal_argument_error import IllegalArgumentError
 
 
 class LambdaAction(AtomicAction):
@@ -12,6 +13,9 @@ class LambdaAction(AtomicAction):
             timing_option=timing_option,
             execution_method=ExecutionMethod.MULTIPLE,
         )
+
+        if not callable(function):
+            raise IllegalArgumentError("Provided function for lambda action {id} is not callable".format(id=self.id))
         self.function = function
 
     def get_controller(self):

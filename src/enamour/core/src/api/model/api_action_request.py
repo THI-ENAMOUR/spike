@@ -24,9 +24,8 @@ class ApiActionRequest:
 
     @staticmethod
     def from_json(data):
-        # TODO: Implement correctly and in a nice, readable way including error handling
         id = get_default(data, "id", uuid.uuid4())
-        id = to_UUID(id)
+        id = id if isinstance(id, uuid.UUID) else to_UUID(id)
         clear_action_queue = get_default(data, "clear_action_queue", False)
         actions_json = get_default(data, "actions", [])
 
