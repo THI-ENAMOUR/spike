@@ -10,6 +10,7 @@ build/
 .vscode
 
 logs/
+.cache/
 
 .log
 .DS_Store 
