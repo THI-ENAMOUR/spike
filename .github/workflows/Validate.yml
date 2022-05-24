@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   test:
     name: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     steps:
       - name: Check out Git repository
@@ -19,6 +19,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install -y python-pytest
+          sudo pip install --upgrade enum34
+          sudo apt-get install -y python-rospy
+          
 
       - name: Run tests
         run: |
