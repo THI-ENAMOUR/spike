@@ -85,7 +85,7 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
         //motiontime = motiontime+2;
         roslcm.Get(RecvHighLCM);
         RecvHighROS = ToRos(RecvHighLCM);
-        highState_pub.publish(RecvHighRos);
+        highState_pub.publish(RecvHighROS);
 
         /*SendHighROS.mode = 0;      
         SendHighROS.gaitType = 0;
