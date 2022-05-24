@@ -7,6 +7,7 @@
 #include <unitree_legged_msgs/HighState.h>
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include "convert.h"
+#include "std_msgs/String.h"
 
 using namespace UNITREE_LEGGED_SDK;
 
@@ -75,11 +76,16 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     pthread_t tid;
     pthread_create(&tid, NULL, update_loop<TLCM>, &roslcm);
 
+    ros::init(argc, argv, "talker");
+    ros::NodeHandle n;
+    ros::Publisher highState_pub = n.advertise<std_msgs::String>("/high_state", 10);
+
     while (ros::ok()){
 
         //motiontime = motiontime+2;
         roslcm.Get(RecvHighLCM);
         RecvHighROS = ToRos(RecvHighLCM);
+        highState_pub.publish(RecvHighRos);
 
         /*SendHighROS.mode = 0;      
         SendHighROS.gaitType = 0;
