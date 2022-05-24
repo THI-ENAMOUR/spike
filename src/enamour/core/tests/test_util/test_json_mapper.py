@@ -2,8 +2,8 @@ import datetime
 import unittest
 import uuid
 
-from tests.app_test import AppTestCases
 from error.deserialization_error import DeserializationError
+from tests.app_test import AppTestCases
 from util.json_mapper import to_UUID, to_json, get_default, get
 
 
@@ -69,9 +69,8 @@ class TestJsonMapper(AppTestCases.AppTest):
         expected = data["key"]
         self.assertEqual(expected, actual)
 
-        self.assertThrown(lambda: get(data, "invalid"), error_type=DeserializationError)
-
-        self.assertThrown(lambda: get(data, "key", float), error_type=DeserializationError)
+        self.assertRaises(DeserializationError, get, data, "invalid")
+        self.assertRaises(DeserializationError, get, data, "key", float)
 
 
 if __name__ == "__main__":

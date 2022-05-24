@@ -162,10 +162,13 @@ components:
             - pose
         roll:
           nullable: true
+          default: 0
         pitch:
           nullable: true
+          default: 0
         yaw:
           nullable: true
+          default: 0
 
     DisplayResponse:
       type: object

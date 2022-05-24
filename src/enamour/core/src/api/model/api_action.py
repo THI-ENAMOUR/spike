@@ -35,8 +35,6 @@ class ApiAction(object):
 
     @staticmethod
     def from_json(data):
-        # TODO: Implement correctly and in a nice, readable way including error handling
-
         type = get(data, "type")
         parse_action = {
             ApiActionGroup.type.value: lambda x: ApiActionGroup.from_json(x),
@@ -164,16 +162,22 @@ class ApiNoOpAction(ApiAction):
 class ApiPoseAction(ApiAction):
     type = ApiActionType.POSE
 
-    def __init__(self, start_ms):
+    def __init__(self, start_ms, roll, pitch, yaw):
         super(ApiPoseAction, self).__init__(start_ms=start_ms)
+        self.roll = roll
+        self.pitch = pitch
+        self.yaw = yaw
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        return ApiPoseAction(start_ms=start_ms)
+        roll = get_default(data, "roll", default=0)
+        pitch = get_default(data, "pitch", default=0)
+        yaw = get_default(data, "yaw", default=0)
+        return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
 
     def to_action_group(self):
-        return PoseAction(start_ms=self.start_ms)
+        return PoseAction(start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw)
 
 
 class ApiStabilizationAction(ApiAction):

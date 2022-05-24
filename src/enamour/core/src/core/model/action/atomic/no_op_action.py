@@ -8,10 +8,10 @@ class NoOpAction(AtomicAction):
     def __init__(self, start_ms=0, end_ms=None, timing_option=None, parent=None):
 
         if timing_option is None:
-            if end_ms is None:
-                timing_option = StartTime(start_ms=start_ms)
-            else:
+            if end_ms is not None:
                 timing_option = Duration(start_ms=start_ms, end_ms=end_ms)
+            else:
+                timing_option = StartTime(start_ms=start_ms)
 
         super(NoOpAction, self).__init__(
             action_type=ActionType.NO_OP_ACTION, timing_option=timing_option, execution_method=ExecutionMethod.MULTIPLE
