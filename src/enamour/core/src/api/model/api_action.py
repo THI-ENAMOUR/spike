@@ -106,7 +106,7 @@ class ApiSoundAction(ApiAction):
         return ApiSoundAction(start_time=start_time)
 
     def to_action_group(self):
-        return SoundAction(start_ms=self.start_time)
+        return SoundAction(start_ms=self.start_time, sound_name="Default")
 
 
 class ApiDisplayAction(ApiAction):
@@ -121,7 +121,7 @@ class ApiDisplayAction(ApiAction):
         return ApiDisplayAction(start_time=start_time)
 
     def to_action_group(self):
-        return DisplayAction(start_ms=self.start_time)
+        return DisplayAction(start_ms=self.start_time, display_name="Default")
 
 
 class ApiNavigationAction(ApiAction):
