@@ -3,12 +3,14 @@ __pycache__/
 venv/
 
 .git/
+.cache/
 devel/
 build/
 .settings
 .vscode
 
 logs/
+.cache/
 
 .log
 .DS_Store 

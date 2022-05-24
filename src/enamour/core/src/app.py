@@ -35,7 +35,7 @@ class Application(object):
             self.action_organizer.running = False
 
     def __start_threads(self, queue):
-        """Start a thread for each dependant module to increase performance"""
+        """Start a thread for each dependant test to increase performance"""
 
         api_service_thread = threading.Thread(target=self.__start_api_client, args=(queue,))
         action_organizer_thread = threading.Thread(target=self.__start_action_organizer, args=(queue,))
