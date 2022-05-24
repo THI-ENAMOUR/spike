@@ -13,6 +13,8 @@ def get(data, key, expected_type=None):
         if expected_type is not None and type(value) is not expected_type:
             raise DeserializationError(key + " is not of the correct type")
 
+        # Ignore unknown type 'unicode' in code linter with the comment 'noqa: F821'
+        value = value if not isinstance(value, unicode) else str(value)  # noqa: F821
         return value
     except KeyError:
         raise DeserializationError(key + " not found in json")
@@ -21,6 +23,8 @@ def get(data, key, expected_type=None):
 def get_default(data, key, default):
     try:
         value = get(data, key)
+        value = value if not isinstance(value, unicode) else str(value)  # noqa: F821
+
         return value if not None else default
     except DeserializationError:
         return default

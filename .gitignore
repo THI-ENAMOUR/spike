@@ -3,6 +3,7 @@ __pycache__/
 venv/
 
 .git/
+.cache/
 devel/
 build/
 .settings
