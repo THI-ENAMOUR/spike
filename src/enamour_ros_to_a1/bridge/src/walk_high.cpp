@@ -76,8 +76,6 @@ int mainHelper(int argc, char *argv[], TLCM &roslcm)
     pthread_t tid;
     pthread_create(&tid, NULL, update_loop<TLCM>, &roslcm);
 
-    ros::init(argc, argv, "talker");
-    ros::NodeHandle n;
     ros::Publisher highState_pub = n.advertise<std_msgs::String>("/high_state", 10);
 
     while (ros::ok()){
