@@ -1,6 +1,7 @@
-/*****************************************************************
- Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
-******************************************************************/
+/************************************************************************
+Copyright (c) 2020, Unitree Robotics.Co.Ltd. All rights reserved.
+Use of this source code is governed by the MPL-2.0 license, see LICENSE.
+************************************************************************/
 
 #include "unitree_legged_sdk/unitree_legged_sdk.h"
 #include <math.h>
@@ -25,7 +26,6 @@ public:
     LowState state = {0};
     int motiontime = 0;
     float dt = 0.002;     // 0.001~0.01
-    int sin_count = 0;
 };
 
 void Custom::UDPRecv()
@@ -49,24 +49,16 @@ void Custom::RobotControl()
     cmd.motorCmd[RR_0].tau = -0.65f;
     cmd.motorCmd[RL_0].tau = +0.65f;
 
-    // float freq_Hz = 1;
-    float freq_Hz = 2;
-    // float freq_Hz = 5;
-    float freq_rad = freq_Hz * 2* M_PI;
-    float t = dt*sin_count;
-
     if( motiontime >= 500){
-        sin_count++;
-        // float torque = (0 - state.motorState[FR_1].q)*10.0f + (0 - state.motorState[FR_1].dq)*1.0f;
-        float torque = 2 * sin(t*freq_rad);
+        float torque = (0 - state.motorState[FR_1].q)*10.0f + (0 - state.motorState[FR_1].dq)*1.0f;
         if(torque > 5.0f) torque = 5.0f;
         if(torque < -5.0f) torque = -5.0f;
 
-        cmd.motorCmd[FR_2].q = PosStopF;
-        cmd.motorCmd[FR_2].dq = VelStopF;
-        cmd.motorCmd[FR_2].Kp = 0;
-        cmd.motorCmd[FR_2].Kd = 0;
-        cmd.motorCmd[FR_2].tau = torque;
+        cmd.motorCmd[FR_1].q = PosStopF;
+        cmd.motorCmd[FR_1].dq = VelStopF;
+        cmd.motorCmd[FR_1].Kp = 0;
+        cmd.motorCmd[FR_1].Kd = 0;
+        cmd.motorCmd[FR_1].tau = torque;
     }
     safe.PowerProtect(cmd, state, 1);
 
