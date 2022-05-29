@@ -61,15 +61,17 @@ class ActionOrganizer(object):
                     # Current action is completed so no action will be performed, therefore run this method again to
                     # receive the next action in the queue.
                     self.execute_action()
+                    return
                 else:
                     raise IllegalStateError("No next action returned even tho action group is not completed")
 
             self.controller_organizer.execute_actions(next_actions)
 
-            current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
-
             self.__logger.info(
                 "-- End of time stamp of queued action: {time} -----------------".format(time=current_action_group.time)
             )
+
+            current_action_group.update_parent_time_of_executed_actions(self.loop_rate.sleep_dur)
+
         except (BaseException,) as error:
             self.error_handler.handle(error, action=current_action_group)
