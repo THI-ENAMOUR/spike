@@ -25,7 +25,7 @@ if __name__ == "__main__":
     __queue.push(
         ActionGroup(
             actions=[
-                PoseAction(start_ms=0, end_ms=1000, x=10, y=5, z=8, ax=10, ay=10, az=10),
+                PoseAction(start_ms=0, end_ms=1000, roll=3, pitch=4, yaw=-2),
 
             ]
         )

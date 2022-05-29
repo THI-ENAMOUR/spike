@@ -46,9 +46,9 @@ class PoseController(Controller):
             pass
         elif action.timing_option == Duration:
 
-            a_goal_roll = action.linear.x  # fuellen der Variable mit der Ziel Kordinate
-            a_goal_pitch = action.linear.z  # fuellen der Variable mit der Ziel Kordinate
-            a_goal_yaw = action.linear.y  # fuellen der Variable mit der Ziel Kordinate
+            a_goal_roll = action.roll  # fuellen der Variable mit der Ziel Kordinate
+            a_goal_pitch = action.yaw  # fuellen der Variable mit der Ziel Kordinate
+            a_goal_yaw = action.pitch  # fuellen der Variable mit der Ziel Kordinate
 
             a_measured_roll = self.getCurrentHighState()['roll']
             a_measured_pitch = self.getCurrentHighState()['pitch']
@@ -88,7 +88,7 @@ class PoseController(Controller):
                     publish_yaw = self.m_yaw * action.get_parent_time().to_ms() + self.t_yaw
 
                     # 3. publish highCmd
-                    high_cmd = HighCmd(euler=[publish_roll,publish_pitch,publish_yaw])  # erstellen der Nachricht
+                    high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)  # erstellen der Nachricht
                     PoseController.high_cmd_publisher.publish(high_cmd)  # publishen der Nachricht
 
                     # 3.1 TODO Temporary since we do not have the highStates yet
