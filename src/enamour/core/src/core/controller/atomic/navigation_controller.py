@@ -34,16 +34,23 @@ class NavigationController(Controller):
             while not rospy.is_shutdown() and action.timing_option.in_time_frame():
                 velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
-                logger.info(vel_msg)
+                logger.info(highCmd)
                 rate.sleep()
 
         elif action.timing_option == Duration:
             # Publishes messages in the topic while in the given duration
-            while not rospy.is_shutdown() and action.timing_option.in_time_frame():
+            #while not rospy.is_shutdown() and action.timing_option.in_time_frame():
+             #   velocity_publisher.publish(highCmd)
+             #   logger.info(vel_msg)
+             #   logger.info(vel_msg)
+             #   rate.sleep()
+            if not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()):
                 velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
-                logger.info(vel_msg)
-                rate.sleep()
+                logger.info(highCmd)
+            
+            else:
+                action.complete()
 
         else:
             raise NotImplementedError(
@@ -78,7 +85,7 @@ class NavigationController(Controller):
 
         # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional 
         # value of -0.4 m/s (max rightward speed) and 0.4 m/s (max leftward speed)
-        sideSpeed = self.propToHighCMD(0.4,0.4,twist.linear.y)
+        sideSpeed = self.propToHighCMD(0.4, 0.4, twist.linear.y)
         
         # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional 
         # value of -120 deg/s / -2.0944 rad/s (max rightward speed) and 
