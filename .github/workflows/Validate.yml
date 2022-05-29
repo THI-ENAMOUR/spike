@@ -1,8 +1,32 @@
-name: Lint
+name: Validate
 
 on: [push, pull_request]
 
 jobs:
+  test:
+    name: test
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '2.x'
+
+      - name: Install dependencies
+        run: |
+          sudo apt install -y python-pytest
+          sudo pip install --upgrade enum34
+          sudo apt-get install -y python-rospy
+          
+
+      - name: Run tests
+        run: |
+          pytest src/enamour/
+
   lint:
     name: lint
     runs-on: ubuntu-latest
@@ -17,7 +41,8 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install black flake8
+        run: |
+          pip install black flake8
 
       - name: Run linters
         uses: wearerequired/lint-action@v1

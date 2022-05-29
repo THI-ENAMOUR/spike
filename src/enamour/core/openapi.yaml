@@ -14,6 +14,28 @@ paths:
       responses:
         200:
           description: (No actual responses will be sent)
+  /display:
+    description: The display action that should be displayed
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisplayResponse'
+      responses:
+        200:
+          description: (No actual responses will be sent)
+  /sound:
+    description: The sound action that should be played
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoundResponse'
+      responses:
+        200:
+          description: (No actual responses will be sent)
 
 components:
   schemas:
@@ -26,7 +48,7 @@ components:
           example: "01cf8c57-6a3e-4a18-a8d1-3b28ac3d5417"
           description: A UUID Version 4. Use uuid.uuid4() in python to generate a custom UUID.
           nullable: false
-        clearActionQueue:
+        clear_action_queue:
           type: boolean
           default: false
           nullable: true
@@ -38,13 +60,30 @@ components:
     Action:
       oneOf:
         - $ref: '#/components/schemas/SitAction'
+        - $ref: '#/components/schemas/SoundAction'
+        - $ref: '#/components/schemas/DisplayAction'
+        - $ref: '#/components/schemas/NavigationAction'
+        - $ref: '#/components/schemas/PoseAction'
         - $ref: '#/components/schemas/ActionGroup'
       discriminator:
         propertyName: type
         nullable: false
         mapping:
           sit: '#/components/schemas/SitAction'
+          sound: '#/components/schemas/SoundAction'
+          display: '#/components/schemas/DisplayAction'
+          navigation: '#/components/schemas/NavigationAction'
+          pose: '#/components/schemas/PoseAction'
           group: '#/components/schemas/ActionGroup'
+      properties:
+        start_ms:
+          type: number
+          nullable: false
+          description: "Start time of action within an action group in milliseconds"
+        end_ms:
+          type: number
+          nullable: true
+          description: "End time of action within an action group in milliseconds"
 
 
     # All possible types of actions
@@ -62,6 +101,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Action'
+
     SitAction:
       type: object
       required:
@@ -72,3 +112,86 @@ components:
           type: string
           enum:
             - sit
+    SoundAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - sound
+        name:
+          type: string
+          nullable: false
+          example: "bark"
+    DisplayAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - display
+        name:
+          type: string
+          nullable: false
+          example: "happy"
+    NavigationAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - navigation
+    PoseAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - pose
+        roll:
+          nullable: true
+          default: 0
+        pitch:
+          nullable: true
+          default: 0
+        yaw:
+          nullable: true
+          default: 0
+
+    DisplayResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+          example: "happy"
+        duration_ms:
+          type: number
+          nullable: true
+          example: 1000
+          description: "Duration of the action in milliseconds if end time was specified"
+
+    SoundResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+          example: "bark"
+        duration_ms:
+          type: number
+          nullable: true
+          example: 1000
+          description: "Duration of the action in milliseconds if end time was specified"

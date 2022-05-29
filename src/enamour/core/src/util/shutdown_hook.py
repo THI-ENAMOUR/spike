@@ -1,12 +1,13 @@
 import signal
-from typing import Callable
 
 
-class ShutdownHook:
+class ShutdownHook(object):
     is_running = True
 
-    on_shutdown: Callable = lambda *args: None
-    """Called when the application receives a shutdown signal"""
+    @staticmethod
+    def on_shutdown(*args):
+        """Called when the application receives a shutdown signal"""
+        pass
 
 
 # Do not remove *args from function signature. It is required.
