@@ -3,16 +3,9 @@ from std_msgs.msg import String
 
 from core.controller.controller import Controller
 from core.model.action.atomic.sound_action import SoundAction
-from core.model.action.timing_option import Duration
 from error.illegal_state_error import IllegalStateError
 from util.json_mapper import to_json
 from util.logger import Logger
-
-
-class SoundActionMessage(object):
-    def __init__(self, name, duration=None):
-        self.name = name
-        self.duration = duration
 
 
 class SoundController(Controller):
@@ -26,11 +19,7 @@ class SoundController(Controller):
             raise IllegalStateError("This controller does not support the action " + str(action))
         SoundController.__logger.debug("executing display action " + str(action))
 
-        duration = None
-        if isinstance(action.timing_option, Duration):
-            duration = action.timing_option.duration_in_ms()
-
-        sound_json = to_json(SoundActionMessage(name=action.name, duration=duration))
+        sound_json = to_json(action.data)
 
         SoundController.publisher.publish(sound_json)
         action.complete()
