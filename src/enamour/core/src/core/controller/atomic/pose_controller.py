@@ -8,12 +8,15 @@ from geometry_msgs.msg import Pose
 from tf.transformations import euler_from_quaternion
 import logging
 
-
+a_measured_roll = 0.0
+a_measured_pitch = 0.0
+a_measured_yaw = 0.0
 
 class PoseController(Controller):
     def __init__(self):
-        self.highStateSub = rospy.Subscriber('high_state', HighState, self.updateHighState)
         self.high_cmd_publisher = rospy.Publisher('high_command', HighCmd, queue_size=10)
+        self.highStateSub = rospy.Subscriber('high_state', HighState, self.updateHighState)
+
 
     """Controller for moving the robot body in the provided position."""
 
@@ -27,9 +30,7 @@ class PoseController(Controller):
 
     time_prev = -1.0
 
-    a_measured_roll = 0.0
-    a_measured_pitch = 0.0
-    a_measured_yaw = 0.0
+
 
     t_roll = 0.0
     t_pitch = 0.0
@@ -42,6 +43,7 @@ class PoseController(Controller):
     times_executed = 0
 
     def updateHighState(self, highState):
+        global a_measured_roll, a_measured_pitch, a_measured_yaw
         w = highState.imu.quaternion[0]
         x = highState.imu.quaternion[1]
         y = highState.imu.quaternion[2]
@@ -59,12 +61,13 @@ class PoseController(Controller):
         print("roll received: " + str(roll))
         print("pitch received: " + str(pitch))
         print("yaw received: " + str(yaw))
-        self.a_measured_roll = roll
-        self.a_measured_pitch = pitch
-        self.a_measured_yaw = yaw
+        a_measured_roll = roll
+        a_measured_pitch = pitch
+        a_measured_yaw = yaw
 
 
     def execute_action(self, action):
+        global a_measured_roll, a_measured_pitch, a_measured_yaw
         if not isinstance(action, PoseAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
@@ -81,34 +84,34 @@ class PoseController(Controller):
             #a_measured_pitch = self.getCurrentHighState()['pitch']
             #a_measured_yaw = self.getCurrentHighState()['yaw']
 
-            #print("calculated" + str(self.a_measured_roll))
+            print("received roll" + str(a_measured_roll))
 
-            if not (action.get_parent_time() > action.timing_option.end_time or self.a_measured_roll >= a_goal_roll and
-                    self.a_measured_yaw >= a_goal_yaw and self.a_measured_pitch >= a_goal_pitch):
+            if not (action.get_parent_time() > action.timing_option.end_time or a_measured_roll >= a_goal_roll and
+                    a_measured_yaw >= a_goal_yaw and a_measured_pitch >= a_goal_pitch):
                 self.times_executed = self.times_executed+1
                 if self.time_prev == -1:
                     # 1st iteration -> set up the first linear equations, do not publish
-                    self.m_pitch = (a_goal_pitch - self.a_measured_pitch) /\
+                    self.m_pitch = (a_goal_pitch - a_measured_pitch) /\
                                    (action.timing_option.end_time.to_ms() - action.get_parent_time().to_ms())
-                    self.t_pitch = self.a_measured_pitch - (self.m_pitch * action.get_parent_time().to_ms())
+                    self.t_pitch = a_measured_pitch - (self.m_pitch * action.get_parent_time().to_ms())
 
-                    self.m_roll = (a_goal_roll - self.a_measured_roll) /\
+                    self.m_roll = (a_goal_roll - a_measured_roll) /\
                                   (action.timing_option.end_time.to_ms() - action.get_parent_time().to_ms())
-                    self.t_roll = self.a_measured_roll - (self.m_roll * action.get_parent_time()).to_ms()
+                    self.t_roll = a_measured_roll - (self.m_roll * action.get_parent_time()).to_ms()
 
-                    self.m_yaw = (a_goal_yaw - self.a_measured_yaw) /\
+                    self.m_yaw = (a_goal_yaw - a_measured_yaw) /\
                                  (action.timing_option.end_time.to_ms() - action.get_parent_time().to_ms())
-                    self.t_yaw = self.a_measured_yaw - (self.m_yaw * action.get_parent_time().to_ms())
+                    self.t_yaw = a_measured_yaw - (self.m_yaw * action.get_parent_time().to_ms())
                 else:
                     # 1. correct slope and y-intercept from previous tick with a_measured_*
-                    self.m_pitch = (a_goal_pitch - self.a_measured_pitch) / (action.timing_option.end_time.to_ms() - self.time_prev)
-                    self.t_pitch = self.a_measured_pitch - (self.m_pitch * self.time_prev)
+                    self.m_pitch = (a_goal_pitch - a_measured_pitch) / (action.timing_option.end_time.to_ms() - self.time_prev)
+                    self.t_pitch = a_measured_pitch - (self.m_pitch * self.time_prev)
 
-                    self.m_roll = (a_goal_roll - self.a_measured_roll) / (action.timing_option.end_time.to_ms() - self.time_prev)
-                    self.t_roll = self.a_measured_roll - (self.m_roll * self.time_prev)
+                    self.m_roll = (a_goal_roll - a_measured_roll) / (action.timing_option.end_time.to_ms() - self.time_prev)
+                    self.t_roll = a_measured_roll - (self.m_roll * self.time_prev)
 
-                    self.m_yaw = (a_goal_yaw - self.a_measured_yaw) / (action.timing_option.end_time.to_ms() - self.time_prev)
-                    self.t_yaw = self.a_measured_yaw - (self.m_yaw * self.time_prev)
+                    self.m_yaw = (a_goal_yaw - a_measured_yaw) / (action.timing_option.end_time.to_ms() - self.time_prev)
+                    self.t_yaw = a_measured_yaw - (self.m_yaw * self.time_prev)
 
                     # 2. calculate angle of current time with corrected linear equation
                     publish_pitch = self.m_pitch * action.get_parent_time().to_ms() + self.t_pitch
