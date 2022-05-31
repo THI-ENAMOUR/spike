@@ -5,8 +5,8 @@ from error.illegal_state_error import IllegalStateError
 from util.logger import Logger
 import rospy
 from geometry_msgs.msg import Twist
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal #for move_base
-import actionlib #for move_base
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal  # for move_base
+import actionlib  # for move_base
 from tf.transformations import quaternion_from_euler
 import numpy as np
 from unitree_legged_msgs.msg import HighCmd
@@ -17,59 +17,57 @@ class NavigationController(Controller):
     """Controller for making the robot walk to the provided position."""
 
     def execute_action(self, action):
-        
+
         if not isinstance(action, NavigationAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
-        
         print("test")
 
-        self.vel_msg = Twist() # declared as global variable because it's not an attribute of the controller, but it has to be edited inside different functions
-
-        
-
-        
-
-        
+        self.vel_msg = (
+            Twist()
+        )  # declared as global variable because it's not an attribute of the controller, but it has to be edited inside different functions
 
         logger = Logger("cmd_vel")
-        velocity_publisher = rospy.Publisher('/high_command', HighCmd, queue_size=10)
+        velocity_publisher = rospy.Publisher("/high_command", HighCmd, queue_size=10)
         rate = rospy.Rate(10)
 
-        
-
         # For cmd_vel messages have to be of type Twist, Twist will have the attributes of the provided action
-        #vel_msg = Twist()
-        #vel_msg.linear.x = action.linear.x
-        #vel_msg.linear.y = action.linear.y
-        #vel_msg.linear.z = action.linear.z
-        #vel_msg.angular.x = action.angular.x
-        #vel_msg.angular.y = action.angular.y
-        #vel_msg.angular.z = action.angular.z
-        #highCmd = self.velCmdToHighCmd(vel_msg)
+        # vel_msg = Twist()
+        # vel_msg.linear.x = action.linear.x
+        # vel_msg.linear.y = action.linear.y
+        # vel_msg.linear.z = action.linear.z
+        # vel_msg.angular.x = action.angular.x
+        # vel_msg.angular.y = action.angular.y
+        # vel_msg.angular.z = action.angular.z
+        # highCmd = self.velCmdToHighCmd(vel_msg)
 
         if action.timing_option == StartTime:
             print("Start time loop")
             # Publishes messages in the topic after the start time was hit
-            rospy.Subscriber('/cmd_vel', Twist, self.callback, callback_args=self.vel_msg)
+            rospy.Subscriber("/cmd_vel", Twist, self.callback, callback_args=self.vel_msg)
 
             goal = MoveBaseGoal()
-            goal.target_pose.header.frame_id = "base_link" # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
+            goal.target_pose.header.frame_id = "base_link"  # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
             goal.target_pose.header.stamp = rospy.Time.now()
             goal.target_pose.pose.position.x = action.linear.x
             goal.target_pose.pose.position.y = action.linear.y
-       
-            q_rot = quaternion_from_euler(0, 0, np.radians(action.angular.z)) # transforms degree to euler and then to quaternions
-            goal.target_pose.pose.orientation.x = q_rot[0] # uses qx-quaternion
-            goal.target_pose.pose.orientation.y = q_rot[1] # uses qy-quaternion
-            goal.target_pose.pose.orientation.z = q_rot[2] # uses qz-quaternion
-            goal.target_pose.pose.orientation.w = q_rot[3] # uses qw-quaternion
 
-            
+            q_rot = quaternion_from_euler(
+                0, 0, np.radians(action.angular.z)
+            )  # transforms degree to euler and then to quaternions
+            goal.target_pose.pose.orientation.x = q_rot[0]  # uses qx-quaternion
+            goal.target_pose.pose.orientation.y = q_rot[1]  # uses qy-quaternion
+            goal.target_pose.pose.orientation.z = q_rot[2]  # uses qz-quaternion
+            goal.target_pose.pose.orientation.w = q_rot[3]  # uses qw-quaternion
+
             move_base_thread = threading.Thread(target=thread_function, args=(goal,))
             move_base_thread.start()
 
-            while not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()) and move_base_thread.is_alive():
+            while (
+                not rospy.is_shutdown()
+                and action.in_time_frame(action.get_parent_time())
+                and move_base_thread.is_alive()
+            ):
                 print(self.vel_msg)
                 highCmd = self.velCmdToHighCmd(self.vel_msg)
                 velocity_publisher.publish(highCmd)
@@ -79,11 +77,11 @@ class NavigationController(Controller):
 
         elif action.timing_option == Duration:
             # Publishes messages in the topic while in the given duration
-            #while not rospy.is_shutdown() and action.timing_option.in_time_frame():
-             #   velocity_publisher.publish(highCmd)
-             #   logger.info(vel_msg)
-             #   logger.info(vel_msg)
-             #   rate.sleep()
+            # while not rospy.is_shutdown() and action.timing_option.in_time_frame():
+            #   velocity_publisher.publish(highCmd)
+            #   logger.info(vel_msg)
+            #   logger.info(vel_msg)
+            #   rate.sleep()
 
             vel_msg = Twist()
             vel_msg.linear.x = action.linear.x
@@ -95,7 +93,7 @@ class NavigationController(Controller):
                 velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
                 logger.info(highCmd)
-            
+
             else:
                 action.complete()
 
@@ -105,43 +103,43 @@ class NavigationController(Controller):
                     timing=action.timing_option, id=action.id
                 )
             )
-        
+
     # Convert velocity to proportional HighCmd value
     def propToHighCMD(self, max_back_right_speed, max_forward_left_speed, value):
         newValue = 0.0
-        if (value < 0):
+        if value < 0:
             newValue = value / max_back_right_speed
-            if (newValue < -1):
+            if newValue < -1:
                 # Set max backward or right speed
                 newValue = -1.0
         else:
-            newValue =  value / max_forward_left_speed
-            if (newValue > 1):
+            newValue = value / max_forward_left_speed
+            if newValue > 1:
                 # Set max forward or left speed
                 newValue = 1.0
 
         return newValue
-      
+
     # Convert velocity command (Twist message) to Unitree HighCMD
     def velCmdToHighCmd(self, twist):
 
-        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional 
+        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional
         # value of -0.7 m/s (max backward speed) and 1 m/s (max forward speed)
-        forwardSpeed = self.propToHighCMD(0.7, 1.0, twist.linear.x) 
+        forwardSpeed = self.propToHighCMD(0.7, 1.0, twist.linear.x)
 
-
-        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional 
+        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional
         # value of -0.4 m/s (max rightward speed) and 0.4 m/s (max leftward speed)
         sideSpeed = self.propToHighCMD(0.4, 0.4, twist.linear.y)
-        
-        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional 
-        # value of -120 deg/s / -2.0944 rad/s (max rightward speed) and 
+
+        # HighCmd value speed between -1 and 1. Value corresponds to a linear proportional
+        # value of -120 deg/s / -2.0944 rad/s (max rightward speed) and
         # 120 deg/s / 2.0944 rad/s (max leftward speed)
         rotateSpeed = self.propToHighCMD(2.0944, 2.0944, twist.angular.z)
 
         highCmd = HighCmd()
-        highCmd.levelFlag = 0x00;   # HIGHLEVEL 
-        highCmd.mode = 2            # Walking mode
+        highCmd.levelFlag = 0x00
+        # HIGHLEVEL
+        highCmd.mode = 2  # Walking mode
         highCmd.forwardSpeed = forwardSpeed
         highCmd.sideSpeed = sideSpeed
         highCmd.rotateSpeed = rotateSpeed
@@ -153,9 +151,10 @@ class NavigationController(Controller):
         vel_msg.linear.y = msg.linear.y
         vel_msg.angular.z = msg.angular.z
 
+
 def thread_function(goal):
     print("Sending command to action server")
-    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+    client = actionlib.SimpleActionClient("move_base", MoveBaseAction)
     client.wait_for_server()
     client.send_goal(goal)
     wait = client.wait_for_result()
@@ -165,4 +164,3 @@ def thread_function(goal):
         rospy.signal_shutdown("Action server not available")
     else:
         return client.get_result()
-            
