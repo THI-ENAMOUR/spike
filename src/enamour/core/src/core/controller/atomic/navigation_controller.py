@@ -5,7 +5,13 @@ from error.illegal_state_error import IllegalStateError
 from util.logger import Logger
 import rospy
 from geometry_msgs.msg import Twist
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal #for move_base
+import actionlib #for move_base
+from tf.transformations import quaternion_from_euler
+import numpy as np
 from unitree_legged_msgs.msg import HighCmd
+import threading
+
 
 class NavigationController(Controller):
     """Controller for making the robot walk to the provided position."""
@@ -15,25 +21,59 @@ class NavigationController(Controller):
         if not isinstance(action, NavigationAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
+        
+        print("test")
+
+        self.vel_msg = Twist() # declared as global variable because it's not an attribute of the controller, but it has to be edited inside different functions
+
+        
+
+        
+
+        
+
         logger = Logger("cmd_vel")
         velocity_publisher = rospy.Publisher('/high_command', HighCmd, queue_size=10)
-        rate = rospy.Rate(1000)
+        rate = rospy.Rate(10)
+
+        
 
         # For cmd_vel messages have to be of type Twist, Twist will have the attributes of the provided action
-        vel_msg = Twist()
-        vel_msg.linear.x = action.linear.x
-        vel_msg.linear.y = action.linear.y
-        vel_msg.linear.z = action.linear.z
-        vel_msg.angular.x = action.angular.x
-        vel_msg.angular.y = action.angular.y
-        vel_msg.angular.z = action.angular.z
-        highCmd = self.velCmdToHighCmd(vel_msg)
+        #vel_msg = Twist()
+        #vel_msg.linear.x = action.linear.x
+        #vel_msg.linear.y = action.linear.y
+        #vel_msg.linear.z = action.linear.z
+        #vel_msg.angular.x = action.angular.x
+        #vel_msg.angular.y = action.angular.y
+        #vel_msg.angular.z = action.angular.z
+        #highCmd = self.velCmdToHighCmd(vel_msg)
 
         if action.timing_option == StartTime:
+            print("Start time loop")
             # Publishes messages in the topic after the start time was hit
-            while not rospy.is_shutdown() and action.timing_option.in_time_frame():
+            rospy.Subscriber('/cmd_vel', Twist, self.callback, callback_args=self.vel_msg)
+
+            goal = MoveBaseGoal()
+            goal.target_pose.header.frame_id = "base_link" # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
+            goal.target_pose.header.stamp = rospy.Time.now()
+            goal.target_pose.pose.position.x = action.linear.x
+            goal.target_pose.pose.position.y = action.linear.y
+       
+            q_rot = quaternion_from_euler(0, 0, np.radians(action.angular.z)) # transforms degree to euler and then to quaternions
+            goal.target_pose.pose.orientation.x = q_rot[0] # uses qx-quaternion
+            goal.target_pose.pose.orientation.y = q_rot[1] # uses qy-quaternion
+            goal.target_pose.pose.orientation.z = q_rot[2] # uses qz-quaternion
+            goal.target_pose.pose.orientation.w = q_rot[3] # uses qw-quaternion
+
+            
+            move_base_thread = threading.Thread(target=thread_function, args=(goal,))
+            move_base_thread.start()
+
+            while not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()) and move_base_thread.is_alive():
+                print(self.vel_msg)
+                highCmd = self.velCmdToHighCmd(self.vel_msg)
                 velocity_publisher.publish(highCmd)
-                logger.info(vel_msg)
+                logger.info(self.vel_msg)
                 logger.info(highCmd)
                 rate.sleep()
 
@@ -44,6 +84,13 @@ class NavigationController(Controller):
              #   logger.info(vel_msg)
              #   logger.info(vel_msg)
              #   rate.sleep()
+
+            vel_msg = Twist()
+            vel_msg.linear.x = action.linear.x
+            vel_msg.linear.y = action.linear.y
+            vel_msg.angular.z = np.radians(action.angular.z)
+            highCmd = self.velCmdToHighCmd(vel_msg)
+
             if not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()):
                 velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
@@ -100,3 +147,22 @@ class NavigationController(Controller):
         highCmd.rotateSpeed = rotateSpeed
 
         return highCmd
+
+    def callback(self, msg, vel_msg):
+        vel_msg.linear.x = msg.linear.x
+        vel_msg.linear.y = msg.linear.y
+        vel_msg.angular.z = msg.angular.z
+
+def thread_function(goal):
+    print("Sending command to action server")
+    client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+    client.wait_for_server()
+    client.send_goal(goal)
+    wait = client.wait_for_result()
+    print("Action server received results")
+    if not wait:
+        rospy.logerr("Action server not available")
+        rospy.signal_shutdown("Action server not available")
+    else:
+        return client.get_result()
+            
