@@ -25,21 +25,11 @@ class NavigationController(Controller):
 
         self.vel_msg = (
             Twist()
-        )  # declared as global variable because it's not an attribute of the controller, but it has to be edited inside different functions
+        )  
 
         logger = Logger("cmd_vel")
         velocity_publisher = rospy.Publisher("/high_command", HighCmd, queue_size=10)
         rate = rospy.Rate(10)
-
-        # For cmd_vel messages have to be of type Twist, Twist will have the attributes of the provided action
-        # vel_msg = Twist()
-        # vel_msg.linear.x = action.linear.x
-        # vel_msg.linear.y = action.linear.y
-        # vel_msg.linear.z = action.linear.z
-        # vel_msg.angular.x = action.angular.x
-        # vel_msg.angular.y = action.angular.y
-        # vel_msg.angular.z = action.angular.z
-        # highCmd = self.velCmdToHighCmd(vel_msg)
 
         if action.timing_option == StartTime:
             print("Start time loop")
@@ -49,11 +39,11 @@ class NavigationController(Controller):
             goal = MoveBaseGoal()
             goal.target_pose.header.frame_id = "base_link"  # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
             goal.target_pose.header.stamp = rospy.Time.now()
-            goal.target_pose.pose.position.x = action.linear.x
-            goal.target_pose.pose.position.y = action.linear.y
+            goal.target_pose.pose.position.x = action.x
+            goal.target_pose.pose.position.y = action.y
 
             q_rot = quaternion_from_euler(
-                0, 0, np.radians(action.angular.z)
+                0, 0, action.yaw
             )  # transforms degree to euler and then to quaternions
             goal.target_pose.pose.orientation.x = q_rot[0]  # uses qx-quaternion
             goal.target_pose.pose.orientation.y = q_rot[1]  # uses qy-quaternion
@@ -84,9 +74,9 @@ class NavigationController(Controller):
             #   rate.sleep()
 
             vel_msg = Twist()
-            vel_msg.linear.x = action.linear.x
-            vel_msg.linear.y = action.linear.y
-            vel_msg.angular.z = np.radians(action.angular.z)
+            vel_msg.linear.x = action.x
+            vel_msg.linear.y = action.y
+            vel_msg.angular.z = action.yaw
             highCmd = self.velCmdToHighCmd(vel_msg)
 
             if not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()):
@@ -95,6 +85,12 @@ class NavigationController(Controller):
                 logger.info(highCmd)
 
             else:
+                vel_msg.linear.x = 0    # publish command with 0 values to stop the robot
+                vel_msg.linear.y = 0
+                vel_msg.angular.z = 0
+                velocity_publisher.publish(highCmd)
+                logger.info(vel_msg)
+                logger.info(highCmd)
                 action.complete()
 
         else:
