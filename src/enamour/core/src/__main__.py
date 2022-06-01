@@ -26,7 +26,17 @@ if __name__ == "__main__":
     __queue.push(
         ActionGroup(
             actions=[
-                NavigationAction(start_ms=100, end_ms=None, x=0.0, y=0, yaw=1.5),
+                NavigationAction(start_ms=0, end_ms=None, x=1.0, y=0,yaw=0),
+                # NavigationAction(start_ms=100, end_ms=None, x=-1.0, y=0, az=0),
+            ]
+        )
+    )
+
+    __queue.push(
+        ActionGroup(
+            actions=[
+                NavigationAction(start_ms=1000, end_ms=None, x=0.0, y=0, yaw=1.5),
+                NavigationAction(start_ms=2000, end_ms=None, x=0.0, y=0, yaw=-1.5),
             ]
         )
     )

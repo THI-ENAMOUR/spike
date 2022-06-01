@@ -29,7 +29,7 @@ class NavigationController(Controller):
 
         logger = Logger("cmd_vel")
         velocity_publisher = rospy.Publisher("/high_command", HighCmd, queue_size=10)
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(500)
 
         if action.timing_option == StartTime:
             print("Start time loop")
@@ -133,9 +133,10 @@ class NavigationController(Controller):
         rotateSpeed = self.propToHighCMD(2.0944, 2.0944, twist.angular.z)
 
         highCmd = HighCmd()
-        highCmd.levelFlag = 0x00
         # HIGHLEVEL
-        highCmd.mode = 2  # Walking mode
+        highCmd.levelFlag = 0x00
+        # Standing mode
+        highCmd.mode = 1
         highCmd.forwardSpeed = forwardSpeed
         highCmd.sideSpeed = sideSpeed
         highCmd.rotateSpeed = rotateSpeed
