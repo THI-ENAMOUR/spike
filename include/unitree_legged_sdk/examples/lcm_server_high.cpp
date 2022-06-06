@@ -34,7 +34,7 @@ void Custom::LCMRecv()
         mylcm.highCmdLCMHandler.counter++;
         if(mylcm.highCmdLCMHandler.counter > 10){
             printf("Error! LCM Time out.\n");
-            exit(-1);              // can be commented out
+           // exit(-1);              // can be commented out
         }
         pthread_mutex_unlock(&mylcm.highCmdLCMHandler.countMut);
     }

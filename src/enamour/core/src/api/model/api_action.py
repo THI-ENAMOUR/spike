@@ -10,6 +10,7 @@ from core.model.action.atomic.stabilization_action import StabilizationAction
 from core.model.action.group.action_group import ActionGroup
 from core.model.action.group.sit_action import SitAction
 from error.deserialization_error import DeserializationError
+from util.degree_converter import degree_to_radiant
 from util.json_mapper import get, get_default
 
 
@@ -96,52 +97,60 @@ class ApiSitAction(ApiAction):
 class ApiSoundAction(ApiAction):
     type = ApiActionType.SOUND
 
-    def __init__(self, start_ms, end_ms, name):
-        self.name = name
+    def __init__(self, start_ms, end_ms, data):
         super(ApiSoundAction, self).__init__(start_ms=start_ms, end_ms=end_ms)
+        self.data = data
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
         end_ms = get_default(data, "end_ms", default=None)
-        name = get(data, "name", expected_type=unicode)  # noqa: F821
-        return ApiSoundAction(start_ms=start_ms, end_ms=end_ms, name=name)
+        sound_data = get_default(data, "data", default={})
+        return ApiSoundAction(start_ms=start_ms, end_ms=end_ms, data=sound_data)
 
     def to_action_group(self):
-        return SoundAction(start_ms=self.start_ms, end_ms=self.end_ms, name=self.name)
+        return SoundAction(start_ms=self.start_ms, end_ms=self.end_ms, data=self.data)
 
 
 class ApiDisplayAction(ApiAction):
     type = ApiActionType.DISPLAY
 
-    def __init__(self, start_ms, end_ms, name):
-        self.name = name
+    def __init__(self, start_ms, end_ms, data):
         super(ApiDisplayAction, self).__init__(start_ms=start_ms, end_ms=end_ms)
+        self.data = data
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
         end_ms = get_default(data, "end_ms", default=None)
-        name = get(data, "name", expected_type=unicode)  # noqa: F821
-        return ApiDisplayAction(start_ms=start_ms, end_ms=end_ms, name=name)
+        display_data = get_default(data, "data", default={})
+        return ApiDisplayAction(start_ms=start_ms, end_ms=end_ms, data=display_data)
 
     def to_action_group(self):
-        return DisplayAction(start_ms=self.start_ms, end_ms=self.end_ms, name=self.name)
+        return DisplayAction(start_ms=self.start_ms, end_ms=self.end_ms, data=self.data)
 
 
 class ApiNavigationAction(ApiAction):
     type = ApiActionType.NAVIGATION
 
-    def __init__(self, start_ms):
+    def __init__(self, start_ms, x, y, yaw):
         super(ApiNavigationAction, self).__init__(start_ms=start_ms)
+
+        self.x = x
+        self.y = y
+        self.yaw = yaw
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        return ApiNavigationAction(start_ms=start_ms)
+        x = get_default(data, "x", default=0)
+        y = get_default(data, "y", default=0)
+        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
+
+        return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw)
 
     def to_action_group(self):
-        return NavigationAction(start_ms=self.start_ms)
+        return NavigationAction(start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw)
 
 
 class ApiNoOpAction(ApiAction):
@@ -171,9 +180,9 @@ class ApiPoseAction(ApiAction):
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        roll = get_default(data, "roll", default=0)
-        pitch = get_default(data, "pitch", default=0)
-        yaw = get_default(data, "yaw", default=0)
+        roll = degree_to_radiant(get_default(data, "roll", default=0))
+        pitch = degree_to_radiant(get_default(data, "pitch", default=0))
+        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
         return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
 
     def to_action_group(self):

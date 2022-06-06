@@ -17,22 +17,12 @@ paths:
   /display:
     description: The display action that should be displayed
     post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DisplayResponse'
       responses:
         200:
           description: (No actual responses will be sent)
   /sound:
     description: The sound action that should be played
     post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SoundResponse'
       responses:
         200:
           description: (No actual responses will be sent)
@@ -122,10 +112,9 @@ components:
           type: string
           enum:
             - sound
-        name:
-          type: string
-          nullable: false
-          example: "bark"
+        data:
+          type: object
+          additionalProperties: true
     DisplayAction:
       type: object
       required:
@@ -136,10 +125,9 @@ components:
           type: string
           enum:
             - display
-        name:
-          type: string
-          nullable: false
-          example: "happy"
+        data:
+          type: object
+          additionalProperties: true
     NavigationAction:
       type: object
       required:
@@ -150,6 +138,16 @@ components:
           type: string
           enum:
             - navigation
+        x:
+          nullable: true
+          default: 0
+        y:
+          nullable: true
+          default: 0
+        yaw:
+          nullable: true
+          default: 0
+
     PoseAction:
       type: object
       required:
@@ -169,29 +167,3 @@ components:
         yaw:
           nullable: true
           default: 0
-
-    DisplayResponse:
-      type: object
-      properties:
-        name:
-          type: string
-          nullable: false
-          example: "happy"
-        duration_ms:
-          type: number
-          nullable: true
-          example: 1000
-          description: "Duration of the action in milliseconds if end time was specified"
-
-    SoundResponse:
-      type: object
-      properties:
-        name:
-          type: string
-          nullable: false
-          example: "bark"
-        duration_ms:
-          type: number
-          nullable: true
-          example: 1000
-          description: "Duration of the action in milliseconds if end time was specified"
