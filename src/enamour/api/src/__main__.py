@@ -11,6 +11,15 @@ from api_error import ApiError
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(200, "ok")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "access-control-allow-origin")
+        self.end_headers()
+
     def do_POST(self):
         if self.path == "/intent":
             print("Received intent post request")
@@ -47,9 +56,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def publish_intent(intent):
-    json_string = json.dumps(intent)
-    print("Publishing intent: " + str(json_string))
-    pub.publish(json_string)
+    print("Publishing intent: " + str(intent))
+    pub.publish(intent)
 
 
 API_PORT = 5000

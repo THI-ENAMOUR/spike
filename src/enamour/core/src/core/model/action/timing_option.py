@@ -72,6 +72,9 @@ class Duration(TimingOption):
     def get_start_time(self):
         return self.start_time
 
+    def duration_in_ms(self):
+        return self.end_time.to_ms() - self.start_time.to_ms()
+
     def __str__(self):
         return "{class_name}(start: {start_time}ns, end: {end_time}ns)".format(
             class_name=self.__class__.__name__, start_time=self.start_time, end_time=self.end_time

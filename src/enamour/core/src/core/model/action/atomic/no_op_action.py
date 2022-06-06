@@ -5,13 +5,13 @@ from core.model.action.timing_option import StartTime, Duration
 
 
 class NoOpAction(AtomicAction):
-    def __init__(self, start_time_ms=0, end_time_ms=None, timing_option=None, parent=None):
+    def __init__(self, start_ms=0, end_ms=None, timing_option=None, parent=None):
 
         if timing_option is None:
-            if end_time_ms is None:
-                timing_option = StartTime(start_ms=start_time_ms)
+            if end_ms is not None:
+                timing_option = Duration(start_ms=start_ms, end_ms=end_ms)
             else:
-                timing_option = Duration(start_ms=start_time_ms, end_ms=end_time_ms)
+                timing_option = StartTime(start_ms=start_ms)
 
         super(NoOpAction, self).__init__(
             action_type=ActionType.NO_OP_ACTION, timing_option=timing_option, execution_method=ExecutionMethod.MULTIPLE

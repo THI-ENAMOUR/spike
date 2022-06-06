@@ -97,37 +97,37 @@ class ApiSitAction(ApiAction):
 class ApiSoundAction(ApiAction):
     type = ApiActionType.SOUND
 
-    def __init__(self, start_ms, end_ms, name):
-        self.name = name
+    def __init__(self, start_ms, end_ms, data):
         super(ApiSoundAction, self).__init__(start_ms=start_ms, end_ms=end_ms)
+        self.data = data
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
         end_ms = get_default(data, "end_ms", default=None)
-        name = get(data, "name", expected_type=unicode)  # noqa: F821
-        return ApiSoundAction(start_ms=start_ms, end_ms=end_ms, name=name)
+        sound_data = get_default(data, "data", default={})
+        return ApiSoundAction(start_ms=start_ms, end_ms=end_ms, data=sound_data)
 
     def to_action_group(self):
-        return SoundAction(start_ms=self.start_ms, end_ms=self.end_ms, name=self.name)
+        return SoundAction(start_ms=self.start_ms, end_ms=self.end_ms, data=self.data)
 
 
 class ApiDisplayAction(ApiAction):
     type = ApiActionType.DISPLAY
 
-    def __init__(self, start_ms, end_ms, name):
-        self.name = name
+    def __init__(self, start_ms, end_ms, data):
         super(ApiDisplayAction, self).__init__(start_ms=start_ms, end_ms=end_ms)
+        self.data = data
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
         end_ms = get_default(data, "end_ms", default=None)
-        name = get(data, "name", expected_type=unicode)  # noqa: F821
-        return ApiDisplayAction(start_ms=start_ms, end_ms=end_ms, name=name)
+        display_data = get_default(data, "data", default={})
+        return ApiDisplayAction(start_ms=start_ms, end_ms=end_ms, data=display_data)
 
     def to_action_group(self):
-        return DisplayAction(start_ms=self.start_ms, end_ms=self.end_ms, name=self.name)
+        return DisplayAction(start_ms=self.start_ms, end_ms=self.end_ms, data=self.data)
 
 
 class ApiNavigationAction(ApiAction):
