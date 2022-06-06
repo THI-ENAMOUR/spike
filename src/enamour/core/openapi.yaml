@@ -14,6 +14,18 @@ paths:
       responses:
         200:
           description: (No actual responses will be sent)
+  /display:
+    description: The display action that should be displayed
+    post:
+      responses:
+        200:
+          description: (No actual responses will be sent)
+  /sound:
+    description: The sound action that should be played
+    post:
+      responses:
+        200:
+          description: (No actual responses will be sent)
 
 components:
   schemas:
@@ -54,9 +66,14 @@ components:
           pose: '#/components/schemas/PoseAction'
           group: '#/components/schemas/ActionGroup'
       properties:
-        start_time:
+        start_ms:
           type: number
           nullable: false
+          description: "Start time of action within an action group in milliseconds"
+        end_ms:
+          type: number
+          nullable: true
+          description: "End time of action within an action group in milliseconds"
 
 
     # All possible types of actions
@@ -95,6 +112,9 @@ components:
           type: string
           enum:
             - sound
+        data:
+          type: object
+          additionalProperties: true
     DisplayAction:
       type: object
       required:
@@ -105,6 +125,9 @@ components:
           type: string
           enum:
             - display
+        data:
+          type: object
+          additionalProperties: true
     NavigationAction:
       type: object
       required:
@@ -115,6 +138,16 @@ components:
           type: string
           enum:
             - navigation
+        x:
+          nullable: true
+          default: 0
+        y:
+          nullable: true
+          default: 0
+        yaw:
+          nullable: true
+          default: 0
+
     PoseAction:
       type: object
       required:
@@ -125,19 +158,12 @@ components:
           type: string
           enum:
             - pose
-        x:
+        roll:
           nullable: true
-        y:
+          default: 0
+        pitch:
           nullable: true
-        z:
+          default: 0
+        yaw:
           nullable: true
-        ax:
-          nullable: true
-        ay:
-          nullable: true
-        az:
-          nullable: true
-        end_time:
-          nullable: true
-          type: number
-
+          default: 0

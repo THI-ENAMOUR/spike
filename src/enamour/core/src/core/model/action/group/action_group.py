@@ -86,7 +86,7 @@ class ActionGroup(Action):
 
         if self.is_execution_list_empty():
             # Add NoOpAction to execution list since no action is being executed at the current time stamp
-            self.__execution_list = [NoOpAction(start_time_ms=self.time.to_ms(), parent=self)]
+            self.__execution_list = [NoOpAction(start_ms=self.time.to_ms(), parent=self)]
 
         if len(self.actions) == 0:
             # If no actions are in the action list anymore, this means the execution of this action group is compled

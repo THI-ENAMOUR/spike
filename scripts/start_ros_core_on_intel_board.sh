@@ -1,0 +1,4 @@
+export ROS_IP=192.168.123.161
+export ROS_HOSTNAME=192.168.123.161
+
+roscore

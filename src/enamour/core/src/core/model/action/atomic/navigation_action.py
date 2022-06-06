@@ -13,8 +13,6 @@ class NavigationAction(AtomicAction):
             else:
                 timing_option = Duration(start_ms=start_ms, end_ms=end_ms)
 
-        # Zeile darunter ist einfach mal auskommentiert, falls man die wieder brauchen wuerde (ich denke mal, dass wir eien Duration brauchen werden, wenn wir cmd_vel verwenden)
-        # timing_option = timing_option if timing_option is not None else StartTime(start_ms=start_ms)
         super(NavigationAction, self).__init__(
             action_type=ActionType.BODY_MOVEMENT_ACTION,
             timing_option=timing_option,
