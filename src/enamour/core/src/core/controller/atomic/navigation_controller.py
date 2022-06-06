@@ -21,8 +21,6 @@ class NavigationController(Controller):
         if not isinstance(action, NavigationAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
-        print("test")
-
         self.vel_msg = (
             Twist()
         )  
@@ -32,7 +30,7 @@ class NavigationController(Controller):
         rate = rospy.Rate(500)
 
         if action.timing_option == StartTime:
-            print("Start time loop")
+            #print("Start time loop")
             # Publishes messages in the topic after the start time was hit
             rospy.Subscriber("/cmd_vel", Twist, self.callback, callback_args=self.vel_msg)
 
@@ -88,10 +86,16 @@ class NavigationController(Controller):
                 vel_msg.linear.x = 0    # publish command with 0 values to stop the robot
                 vel_msg.linear.y = 0
                 vel_msg.angular.z = 0
-                velocity_publisher.publish(highCmd)
+                highCmd = self.velCmdToHighCmd(vel_msg)
+                i = 0
+                while i < 5:
+                    velocity_publisher.publish(highCmd)
+                    i = i + 1
                 logger.info(vel_msg)
                 logger.info(highCmd)
                 action.complete()
+                
+            
 
         else:
             raise NotImplementedError(
