@@ -10,6 +10,8 @@ project(ros_to_a1)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   unitree_legged_msgs
+  tf
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -153,6 +155,10 @@ set(CMAKE_CXX_FLAGS "-O3")
 add_executable(ros_to_a1_high_mode src/ros_to_a1_high_mode.cpp)
 target_link_libraries(ros_to_a1_high_mode ${EXTRA_LIBS} ${catkin_LIBRARIES})
 add_dependencies(ros_to_a1_high_mode ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(tf_test src/tf_test.cpp)
+target_link_libraries(tf_test ${EXTRA_LIBS} ${catkin_LIBRARIES})
+add_dependencies(tf_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_executable(lcm_server_high $ENV{UNITREE_LEGGED_SDK_PATH}/examples/lcm_server_high.cpp)
 target_link_libraries(lcm_server_high ${EXTRA_LIBS} ${catkin_LIBRARIES})
