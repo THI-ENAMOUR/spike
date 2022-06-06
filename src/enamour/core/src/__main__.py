@@ -25,9 +25,23 @@ if __name__ == "__main__":
     __queue.push(
         ActionGroup(
             actions=[
+<<<<<<< HEAD
                 #pitch is yaw
                 PoseAction(start_ms=0, end_ms=5000, roll=0, pitch=0.3, yaw=0),
 
+=======
+                PoseAction(start_ms=0, end_ms=2000, roll=0, pitch=0.2, yaw=0.5),
+		PoseAction(start_ms=2000, end_ms=3000, roll=0, pitch=0, yaw=0.5),
+		PoseAction(start_ms=3000, end_ms=5000, roll=0, pitch=-0.2, yaw=0.5),
+		PoseAction(start_ms=5000, end_ms=6000, roll=0, pitch=0, yaw=0),
+		PoseAction(start_ms=6000, end_ms=9000, roll=0, pitch=0.2, yaw=-0.5),
+		PoseAction(start_ms=9000, end_ms=10000, roll=0, pitch=0, yaw=-0.5),
+                PoseAction(start_ms=10000, end_ms=12000, roll=0, pitch=-0.2, yaw=-0.5),
+
+		#PoseAction(start_ms=0, end_ms=5000, roll=0, pitch=-0.5, yaw=0),
+		#PoseAction(start_ms=5000, end_ms=10000, roll=0, pitch=0.5, yaw=0),
+		#PoseAction(start_ms=15000, end_ms=20000, roll=0, pitch=0, yaw=0),
+>>>>>>> d41ebb842d76a3b387663ad9d811c997af3d6a8e
             ]
         )
     )

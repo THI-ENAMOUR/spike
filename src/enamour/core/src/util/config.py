@@ -12,7 +12,7 @@ class Config(object):
 
     @staticmethod
     def init_config(base_path="."):
-        Config.loop_rate = Config.get_parameter("loop_rate", 10)
+        Config.loop_rate = Config.get_parameter("loop_rate", 700)
         Config.log_location = Config.get_parameter("log_dir", os.path.join(base_path, "logs"))
         from util.logger import Logger
 
