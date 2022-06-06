@@ -143,8 +143,8 @@ class ApiNavigationAction(ApiAction):
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        x = degree_to_radiant(get_default(data, "x", default=0))
-        y = degree_to_radiant(get_default(data, "y", default=0))
+        x = get_default(data, "x", default=0)
+        y = get_default(data, "y", default=0)
         yaw = degree_to_radiant(get_default(data, "yaw", default=0))
 
         return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw)
