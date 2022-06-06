@@ -7,7 +7,7 @@
 
     <group ns="$(arg robot_name)">
         <!-- Map server -->
-        <arg name="map_file" default="$(find a1_config)/maps/map.yaml"/>
+        <arg name="map_file" default="$(find a1_config)/maps/blank_map.yaml"/>
         <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)" >
             <param name="frame_id" value="$(arg frame_prefix)map" />
         </node>
