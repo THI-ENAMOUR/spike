@@ -10,6 +10,7 @@ from core.model.action.atomic.stabilization_action import StabilizationAction
 from core.model.action.group.action_group import ActionGroup
 from core.model.action.group.sit_action import SitAction
 from error.deserialization_error import DeserializationError
+from util.degree_converter import degree_to_radiant
 from util.json_mapper import get, get_default
 
 
@@ -132,16 +133,24 @@ class ApiDisplayAction(ApiAction):
 class ApiNavigationAction(ApiAction):
     type = ApiActionType.NAVIGATION
 
-    def __init__(self, start_ms):
+    def __init__(self, start_ms, x, y, yaw):
         super(ApiNavigationAction, self).__init__(start_ms=start_ms)
+
+        self.x = x
+        self.y = y
+        self.yaw = yaw
 
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        return ApiNavigationAction(start_ms=start_ms)
+        x = get_default(data, "x", default=0)
+        y = get_default(data, "y", default=0)
+        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
+
+        return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw)
 
     def to_action_group(self):
-        return NavigationAction(start_ms=self.start_ms)
+        return NavigationAction(start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw)
 
 
 class ApiNoOpAction(ApiAction):
@@ -171,9 +180,9 @@ class ApiPoseAction(ApiAction):
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        roll = get_default(data, "roll", default=0)
-        pitch = get_default(data, "pitch", default=0)
-        yaw = get_default(data, "yaw", default=0)
+        roll = degree_to_radiant(get_default(data, "roll", default=0))
+        pitch = degree_to_radiant(get_default(data, "pitch", default=0))
+        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
         return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
 
     def to_action_group(self):

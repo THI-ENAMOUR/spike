@@ -12,7 +12,7 @@ build/
 logs/
 .cache/
 
-.log
+*.log
 .DS_Store 
 .idea
 .catkin_workspace

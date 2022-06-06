@@ -138,6 +138,16 @@ components:
           type: string
           enum:
             - navigation
+        x:
+          nullable: true
+          default: 0
+        y:
+          nullable: true
+          default: 0
+        yaw:
+          nullable: true
+          default: 0
+
     PoseAction:
       type: object
       required:
