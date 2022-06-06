@@ -3,13 +3,29 @@ from core.controller.controller import Controller
 from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
-from unitree_legged_msgs.msg import HighCmd
+from unitree_legged_msgs.msg import HighCmd, HighState
+from geometry_msgs.msg import Pose
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
+import actionlib
+from geometry_msgs.msg import Pose
 
+import logging
+
+a_measured_roll = 0.0
+a_measured_pitch = 0.0
+a_measured_yaw = 0.0
 
 class PoseController(Controller):
+    def __init__(self):
+        self.high_cmd_publisher = rospy.Publisher('high_command', HighCmd, queue_size=10)
+        self.body_pose_publisher = rospy.Publisher('body_pose', Pose, queue_size=10)
+        self.highStateSub = rospy.Subscriber('high_state', HighState, self.updateHighState)
+
+
     """Controller for moving the robot body in the provided position."""
 
-    high_cmd_publisher = rospy.Publisher('high_command', HighCmd, queue_size=10)
+
+
     # note: 'a_' := angle
     #       't_' := y-intercept
     #       'm_' := slope
@@ -18,9 +34,7 @@ class PoseController(Controller):
 
     time_prev = -1.0
 
-    a_last_roll = 0.0
-    a_last_pitch = 0.0
-    a_last_yaw = 0.0
+
 
     t_roll = 0.0
     t_pitch = 0.0
@@ -32,12 +46,35 @@ class PoseController(Controller):
 
     times_executed = 0
 
-    def getCurrentHighState(self):
-        # TODO
-        return {'roll': self.a_last_roll, 'pitch': self.a_last_pitch, 'yaw': self.a_last_yaw}
+    def updateHighState(self, highState):
+        global a_measured_roll, a_measured_pitch, a_measured_yaw
+        w = highState.imu.quaternion[0]
+        x = highState.imu.quaternion[1]
+        y = highState.imu.quaternion[2]
+        z = highState.imu.quaternion[3]
+        quaternionen = (
+            x,
+            y,
+            z,
+            w
+        )
+        euler = euler_from_quaternion(quaternionen)
+        roll = euler[0]
+        pitch = euler[0]
+        yaw = euler[0]
+        print("roll received: " + str(roll))
+        print("pitch received: " + str(pitch))
+        print("yaw received: " + str(yaw))
+        a_measured_roll = roll
+        a_measured_pitch = pitch
+        a_measured_yaw = yaw
+
+
+
 
     def execute_action(self, action):
-
+        galzebo = True
+        global a_measured_roll, a_measured_pitch, a_measured_yaw
         if not isinstance(action, PoseAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
@@ -50,10 +87,11 @@ class PoseController(Controller):
             a_goal_pitch = action.yaw  # fuellen der Variable mit der Ziel Kordinate
             a_goal_yaw = action.pitch  # fuellen der Variable mit der Ziel Kordinate
 
-            a_measured_roll = self.getCurrentHighState()['roll']
-            a_measured_pitch = self.getCurrentHighState()['pitch']
-            a_measured_yaw = self.getCurrentHighState()['yaw']
+            #a_measured_roll = self.getCurrentHighState()['roll']
+            #a_measured_pitch = self.getCurrentHighState()['pitch']
+            #a_measured_yaw = self.getCurrentHighState()['yaw']
 
+            print("received roll" + str(a_measured_roll))
 
             if not (action.get_parent_time() > action.timing_option.end_time or a_measured_roll >= a_goal_roll and
                     a_measured_yaw >= a_goal_yaw and a_measured_pitch >= a_goal_pitch):
@@ -86,15 +124,23 @@ class PoseController(Controller):
                     publish_pitch = self.m_pitch * action.get_parent_time().to_ms() + self.t_pitch
                     publish_roll = self.m_roll * action.get_parent_time().to_ms() + self.t_roll
                     publish_yaw = self.m_yaw * action.get_parent_time().to_ms() + self.t_yaw
-
+                    if not galzebo:
                     # 3. publish highCmd
-                    high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)  # erstellen der Nachricht
-                    PoseController.high_cmd_publisher.publish(high_cmd)  # publishen der Nachricht
+                      high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)
+                      self.high_cmd_publisher.publish(high_cmd)
+                    elif galzebo:
+                      pose_cmd = Pose()
+                      quaternion = quaternion_from_euler(publish_roll, publish_pitch, publish_yaw)
+                      pose_cmd.orientation.x = quaternion[0]
+                      pose_cmd.orientation.y = quaternion[1]
+                      pose_cmd.orientation.z = quaternion[2]
+                      pose_cmd.orientation.w = quaternion[3]
 
+                      self.body_pose_publisher.publish(pose_cmd)
                     # 3.1 TODO Temporary since we do not have the highStates yet
-                    self.a_last_pitch = publish_pitch
-                    self.a_last_roll = publish_roll
-                    self.a_last_yaw = publish_yaw
+                    #self.a_measured_pitch = publish_pitch
+                    #self.a_measured_roll = publish_roll
+                    #self.a_measured_yaw = publish_yaw
 
                 # 4. update previous tick
                 self.time_prev = action.get_parent_time().to_ms()
