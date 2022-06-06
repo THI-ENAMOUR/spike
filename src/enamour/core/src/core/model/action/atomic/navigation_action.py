@@ -6,7 +6,7 @@ from core.model.common.vector3 import Vector3
 
 
 class NavigationAction(AtomicAction):
-    def __init__(self, start_ms, end_ms, x, y, az, timing_option=None):
+    def __init__(self, start_ms, end_ms, x, y, yaw, timing_option=None):
 
         if timing_option is None:
             if end_ms is None:
@@ -22,8 +22,9 @@ class NavigationAction(AtomicAction):
             execution_method=ExecutionMethod.NO_SAME_TYPE,
         )
 
-        self.linear = Vector3(x, y, 0)
-        self.angular = Vector3(0, 0, az)
+        self.x = x
+        self.y = y
+        self.yaw = yaw
 
     def get_controller(self):
         # Local import to break cyclic import chain
