@@ -37,7 +37,7 @@ class NavigationController(Controller):
             rospy.Subscriber("/cmd_vel", Twist, self.callback, callback_args=self.vel_msg)
 
             goal = MoveBaseGoal()
-            goal.target_pose.header.frame_id = "base_link"  # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
+            goal.target_pose.header.frame_id = "base_footprint"  # We are only gonna use navigation based on base_link (so the navigation coordinates will be according to the robots current position)
             goal.target_pose.header.stamp = rospy.Time.now()
             goal.target_pose.pose.position.x = action.x
             goal.target_pose.pose.position.y = action.y
