@@ -5,18 +5,12 @@ from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
 from unitree_legged_msgs.msg import HighCmd, HighState
 from geometry_msgs.msg import Pose
-<<<<<<< HEAD
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import actionlib
 from geometry_msgs.msg import Pose
 
 import logging
 
-=======
-from tf.transformations import euler_from_quaternion
-import logging
-
->>>>>>> d41ebb842d76a3b387663ad9d811c997af3d6a8e
 a_measured_roll = 0.0
 a_measured_pitch = 0.0
 a_measured_yaw = 0.0
@@ -24,10 +18,7 @@ a_measured_yaw = 0.0
 class PoseController(Controller):
     def __init__(self):
         self.high_cmd_publisher = rospy.Publisher('high_command', HighCmd, queue_size=10)
-<<<<<<< HEAD
         self.body_pose_publisher = rospy.Publisher('body_pose', Pose, queue_size=10)
-=======
->>>>>>> d41ebb842d76a3b387663ad9d811c997af3d6a8e
         self.highStateSub = rospy.Subscriber('high_state', HighState, self.updateHighState)
 
 
@@ -77,18 +68,13 @@ class PoseController(Controller):
         a_measured_roll = roll
         a_measured_pitch = pitch
         a_measured_yaw = yaw
-<<<<<<< HEAD
+
 
 
 
 
     def execute_action(self, action):
         galzebo = True
-=======
-
-
-    def execute_action(self, action):
->>>>>>> d41ebb842d76a3b387663ad9d811c997af3d6a8e
         global a_measured_roll, a_measured_pitch, a_measured_yaw
         if not isinstance(action, PoseAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
@@ -140,24 +126,19 @@ class PoseController(Controller):
                     publish_roll = self.m_roll * action.get_parent_time().to_ms() + self.t_roll
                     publish_yaw = self.m_yaw * action.get_parent_time().to_ms() + self.t_yaw
                     if not galzebo:
-                    # 3. publish highCmd
-<<<<<<< HEAD
-                      high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)
-                      self.high_cmd_publisher.publish(high_cmd)
+                        # 3. publish highCmd
+                        high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)
+                        self.high_cmd_publisher.publish(high_cmd)
                     elif galzebo:
-                      pose_cmd = Pose()
-                      quaternion = quaternion_from_euler(publish_roll, publish_pitch, publish_yaw)
-                      pose_cmd.orientation.x = quaternion[0]
-                      pose_cmd.orientation.y = quaternion[1]
-                      pose_cmd.orientation.z = quaternion[2]
-                      pose_cmd.orientation.w = quaternion[3]
+                        pose_cmd = Pose()
+                        quaternion = quaternion_from_euler(publish_roll, publish_pitch, publish_yaw)
+                        pose_cmd.orientation.x = quaternion[0]
+                        pose_cmd.orientation.y = quaternion[1]
+                        pose_cmd.orientation.z = quaternion[2]
+                        pose_cmd.orientation.w = quaternion[3]
 
-                      self.body_pose_publisher.publish(pose_cmd)
-=======
-                    high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)  # erstellen der Nachricht
-                    self.high_cmd_publisher.publish(high_cmd)  # publishen der Nachricht
+                        self.body_pose_publisher.publish(pose_cmd)
 
->>>>>>> d41ebb842d76a3b387663ad9d811c997af3d6a8e
                     # 3.1 TODO Temporary since we do not have the highStates yet
                     #self.a_measured_pitch = publish_pitch
                     #self.a_measured_roll = publish_roll
