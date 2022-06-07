@@ -3,6 +3,7 @@ project(enamour_core)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  tf2_ros
 )
 
 
