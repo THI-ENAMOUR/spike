@@ -11,6 +11,10 @@ Build the project with catkin_make or the make.sh script and then execute:
 
 - `roslaunch enamour_core bringup.launch`
 
+If the robot is connected to the system, you need to set the variable `hardware_connected` to true:
+
+- `roslaunch enamour_core bringup.launch hardware_connected:=true`
+
 ## Api Documentation
 
 The [Api documentation](openapi.yaml) is written in the openapi v3 format. To view the api specification open a viewer

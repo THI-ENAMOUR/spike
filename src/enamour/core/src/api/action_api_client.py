@@ -50,3 +50,8 @@ class ActionApiClient:
         State.update(self.action_queue)
         state_json = State.to_json()
         ActionApiClient.robot_state_publisher.publish(state_json)
+
+
+class Data:
+    def __init__(self, data):
+        self.data = data

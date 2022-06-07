@@ -1,8 +1,9 @@
+import math
+
 from core.model.action.action_type import ActionType
 from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import StartTime, Duration
-
 from error.illegal_argument_error import IllegalArgumentError
 
 
@@ -28,9 +29,12 @@ class PoseAction(AtomicAction):
         PoseAction.validate_angle(yaw, "yaw")
         self.yaw = yaw
 
+    MAX_ANGLE = math.pi * 2
+    MIN_ANGLE = -MAX_ANGLE
+
     @staticmethod
     def validate_angle(angle, name):
-        if angle != 0:
+        if angle < PoseAction.MIN_ANGLE or angle > PoseAction.MAX_ANGLE:
             raise IllegalArgumentError("Angle {name} does not have valid value: {value}".format(name=name, value=angle))
 
     def get_controller(self):

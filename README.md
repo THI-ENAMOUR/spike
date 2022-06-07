@@ -56,3 +56,4 @@ This framework is utilized ontop of ROS in order to reduce boiler plate and help
 
 ### Simulation
 For simulation mainly [Gazebo](https://gazebosim.org/) and [RVIZ](https://wiki.ros.org/rviz) are used.
+
