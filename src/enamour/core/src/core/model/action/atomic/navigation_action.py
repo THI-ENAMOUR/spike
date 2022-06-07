@@ -2,7 +2,6 @@ from core.model.action.action_type import ActionType
 from core.model.action.atomic.atomic_action import AtomicAction
 from core.model.action.execution_method import ExecutionMethod
 from core.model.action.timing_option import StartTime, Duration
-from core.model.common.vector3 import Vector3
 
 
 class NavigationAction(AtomicAction):

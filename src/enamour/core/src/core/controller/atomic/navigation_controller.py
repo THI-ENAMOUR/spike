@@ -8,7 +8,6 @@ from geometry_msgs.msg import Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal  # for move_base
 import actionlib  # for move_base
 from tf.transformations import quaternion_from_euler
-import numpy as np
 from unitree_legged_msgs.msg import HighCmd
 import threading
 
@@ -21,16 +20,14 @@ class NavigationController(Controller):
         if not isinstance(action, NavigationAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
-        self.vel_msg = (
-            Twist()
-        )  
+        self.vel_msg = Twist()
 
         logger = Logger("cmd_vel")
         velocity_publisher = rospy.Publisher("/high_command", HighCmd, queue_size=10)
         rate = rospy.Rate(500)
 
         if action.timing_option == StartTime:
-            #print("Start time loop")
+            # print("Start time loop")
             # Publishes messages in the topic after the start time was hit
             rospy.Subscriber("/cmd_vel", Twist, self.callback, callback_args=self.vel_msg)
 
@@ -40,9 +37,7 @@ class NavigationController(Controller):
             goal.target_pose.pose.position.x = action.x
             goal.target_pose.pose.position.y = action.y
 
-            q_rot = quaternion_from_euler(
-                0, 0, action.yaw
-            )  # transforms degree to euler and then to quaternions
+            q_rot = quaternion_from_euler(0, 0, action.yaw)  # transforms degree to euler and then to quaternions
             goal.target_pose.pose.orientation.x = q_rot[0]  # uses qx-quaternion
             goal.target_pose.pose.orientation.y = q_rot[1]  # uses qy-quaternion
             goal.target_pose.pose.orientation.z = q_rot[2]  # uses qz-quaternion
@@ -83,7 +78,7 @@ class NavigationController(Controller):
                 logger.info(highCmd)
 
             else:
-                vel_msg.linear.x = 0    # publish command with 0 values to stop the robot
+                vel_msg.linear.x = 0  # publish command with 0 values to stop the robot
                 vel_msg.linear.y = 0
                 vel_msg.angular.z = 0
                 highCmd = self.velCmdToHighCmd(vel_msg)
@@ -94,8 +89,6 @@ class NavigationController(Controller):
                 logger.info(vel_msg)
                 logger.info(highCmd)
                 action.complete()
-                
-            
 
         else:
             raise NotImplementedError(
