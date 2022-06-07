@@ -15,6 +15,7 @@ if __name__ == "__main__":
     from core.model.action.group.action_group import ActionGroup
     from core.action_queue import ActionQueue
     from core.model.action.atomic.pose_action import PoseAction
+    from core.model.action.atomic.navigation_action import NavigationAction
 
     __queue = ActionQueue()
 
@@ -25,19 +26,17 @@ if __name__ == "__main__":
     __queue.push(
         ActionGroup(
             actions=[
-                PoseAction(start_ms=100, end_ms=1000),
-                ActionGroup(
-                    start_ms=0,
-                    actions=[
-                        PoseAction(start_ms=0, end_ms=2000),
-                        ActionGroup(
-                            actions=[PoseAction(start_ms=4000, end_ms=4500), PoseAction(start_ms=2500, end_ms=2900)]
-                        ),
-                        PoseAction(start_ms=4000, end_ms=4500),
-                        PoseAction(start_ms=2500, end_ms=2900),
-                    ],
-                ),
-                PoseAction(start_ms=-100, end_ms=100),
+                NavigationAction(start_ms=0, end_ms=None, x=1.0, y=0, yaw=0),
+                # NavigationAction(start_ms=100, end_ms=None, x=-1.0, y=0, az=0),
+            ]
+        )
+    )
+
+    __queue.push(
+        ActionGroup(
+            actions=[
+                NavigationAction(start_ms=1000, end_ms=1200, x=0.0, y=0, yaw=1.5),
+                NavigationAction(start_ms=2000, end_ms=2200, x=0.0, y=0, yaw=-1.5),
             ]
         )
     )

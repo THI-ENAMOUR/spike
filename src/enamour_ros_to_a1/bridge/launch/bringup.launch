@@ -1,0 +1,18 @@
+<launch>
+
+    <!-- Set true if real robot publish current position -->
+    <arg name="hardware_connected" default="true"/>
+
+    <!-- tf-Transformation (Transform Robot position to coordinate frame) -->
+    <node name="tf_Transformation" pkg="ros_to_a1" type="tf_transform.py" args="$(arg hardware_connected)" output="screen"/>
+
+    <!-- Send default odometry frame) -->
+    <node name="odom_map_broadcaster" pkg="tf" type="static_transform_publisher"  args="0 0 0 0 0 0 1 /map /odom 100" />
+    
+    <!-- Mapping ROS message to A1 command -->
+    <node name="ros_to_a1_high_mode" pkg="ros_to_a1" type="ros_to_a1_high_mode" output="screen" if="$(arg hardware_connected)" />
+    
+    <!-- LCM-Server (High Mode) -->
+    <node name="lcm_server_high" pkg="ros_to_a1" type="lcm_server_high" output="screen" if="$(arg hardware_connected)"/>
+
+</launch>

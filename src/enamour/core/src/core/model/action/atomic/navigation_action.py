@@ -6,6 +6,7 @@ from core.model.action.timing_option import StartTime, Duration
 
 class NavigationAction(AtomicAction):
     def __init__(self, start_ms, end_ms, x, y, yaw, timing_option=None):
+
         if timing_option is None:
             if end_ms is None:
                 timing_option = StartTime(start_ms=start_ms)
