@@ -1,3 +1,6 @@
 <launch>
-    <node name="core" pkg="enamour_core" type="__main__.py" output="screen"/>
+    <arg name="hardware_connected" default="false"/>
+    <param name="hardware_connected" type="bool" value="$(arg hardware_connected)"/>
+    <node name="core" pkg="enamour_core" type="__main__.py" output="screen"
+          args="hardware_connected=$(arg hardware_connected)"/>
 </launch>
