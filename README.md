@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ENAMOUR Informatics Project
 
 The ENAMOUR project of the Technische Hochschule Ingolstadt focuses on controlling a robot with voice commands while it simulates the typical behaviour and emotions of a robot dog. For this purpose this repository contains the source code for controlling a A1 UNITREE robot. It receives data from other teams of this project and moves the robot accordingly. 
@@ -56,3 +57,8 @@ This framework is utilized ontop of ROS in order to reduce boiler plate and help
 
 ### Simulation
 For simulation mainly [Gazebo](https://gazebosim.org/) and [RVIZ](https://wiki.ros.org/rviz) are used.
+=======
+### Running a test node
+- Start the simulation with `roslaunch champ_config gazebo.launch` and `roslaunch champ_config slam.launch rviz:=true`
+- Run a node `rosrun move_base_test move_base_test.py` or `rosrun cmd_vel_test cmd_vel_test.py` or `rosrun body_pose_test body_pose_test.py`
+>>>>>>> origin/feature/pose-interpolation

@@ -65,8 +65,7 @@ class Duration(TimingOption):
         """Returns true if the start_time < time <= end_time. The start time is exclusive.
         If the start_time and time are zero returns true"""
         return not action.completed and (
-            (self.start_time < time and self.start_time <= self.end_time)
-            or (self.start_time.is_zero() and time.is_zero())
+            (self.start_time < time and time <= self.end_time) or (self.start_time.is_zero() and time.is_zero())
         )
 
     def get_start_time(self):
