@@ -1,0 +1,3 @@
+<launch>
+    <node name="head_controller" pkg="enamour_head" type="__main__"/>
+</launch>
