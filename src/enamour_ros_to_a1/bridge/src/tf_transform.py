@@ -7,6 +7,7 @@ from unitree_legged_msgs.msg import HighState
 from geometry_msgs.msg import Twist, TransformStamped
 from tf.transformations import quaternion_from_euler
 import math
+import sys
 
 # Get position updates from robot
 def postion_update(state, position):
@@ -18,8 +19,10 @@ def postion_update(state, position):
     position.imu.quaternion[3] = state.imu.quaternion[3]
     position.imu.quaternion[0] = state.imu.quaternion[0]
 
+
 # Test position updates without robot
-def postion_update_Vel(vel, position):
+# Calculate from velocity and direction
+def postion_update_vel(vel, position):
 
     # Calc next postion from m/s (timestep 200 ms)
     delta_x = (vel.linear.x * math.cos(position.rotateSpeed) - vel.linear.y * math.sin(position.rotateSpeed)) * 0.2;
@@ -36,7 +39,8 @@ def postion_update_Vel(vel, position):
     position.imu.quaternion[2] = odom_quat[1]
     position.imu.quaternion[3] = odom_quat[2]
     position.imu.quaternion[0] = odom_quat[3] 
-    
+
+
 # Send new postion updates form robot to move_base (tf-topic)
 def send_position(state):
     seq = 0
@@ -60,26 +64,14 @@ def send_position(state):
         postion.transform.rotation.y = state.imu.quaternion[2]
         postion.transform.rotation.z = state.imu.quaternion[3]
         postion.transform.rotation.w = state.imu.quaternion[0] or 1.0 # set w to 1 if calc quaternion is 0
-
-        # Odometry frame
-        odometry = TransformStamped()
-        odometry.header.seq = seq
-        odometry.header.stamp = now
-        odometry.header.frame_id = "map"
-        odometry.child_frame_id = "odom"
-        odometry.transform.translation.x = 0
-        odometry.transform.translation.y = 0
-        odometry.transform.translation.z = 0
-        odometry.transform.rotation.x = 0
-        odometry.transform.rotation.y = 0
-        odometry.transform.rotation.z = 0
-        odometry.transform.rotation.w = 1.0
         
         seq = seq + 1
 
-        tm = tf2_msgs.msg.TFMessage([postion, odometry])
+        tm = tf2_msgs.msg.TFMessage([postion])
         publisher.publish(tm)
+
         rate.sleep()
+
 
 if __name__ == '__main__':
     try:
@@ -87,9 +79,14 @@ if __name__ == '__main__':
         rospy.init_node('tf_transform', anonymous=True)
         postion_thread = threading.Thread(target=send_position, args=(last_postion,))
         postion_thread.start()
-        rospy.Subscriber("/high_state", HighState, postion_update, callback_args=last_postion)
-       # Comment next line out for testing without robot
-       # rospy.Subscriber("/cmd_vel", Twist, postion_update_Vel, callback_args=last_postion)
+        hardware_connected = sys.argv[1]
+
+        if hardware_connected == 'true':
+            rospy.Subscriber("/high_state", HighState, postion_update, callback_args=last_postion)
+            rospy.loginfo('Send real robot position')
+        else:
+            rospy.Subscriber("/cmd_vel", Twist, postion_update_vel, callback_args=last_postion)
+            rospy.loginfo('Simulate robot position')
 
         rospy.spin()
     except rospy.ROSInterruptException:
