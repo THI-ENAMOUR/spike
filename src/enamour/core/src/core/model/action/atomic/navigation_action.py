@@ -13,6 +13,7 @@ class NavigationAction(AtomicAction):
                 timing_option = StartTime(start_ms=start_ms)
             else:
                 timing_option = Duration(start_ms=start_ms, end_ms=end_ms)
+                self.stopping_time = Duration(start_ms=end_ms - 100, end_ms=end_ms) # needed to stop the robot before exiting the action
 
         # Zeile darunter ist einfach mal auskommentiert, falls man die wieder brauchen wuerde (ich denke mal, dass wir eien Duration brauchen werden, wenn wir cmd_vel verwenden)
         # timing_option = timing_option if timing_option is not None else StartTime(start_ms=start_ms)
