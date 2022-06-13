@@ -135,7 +135,7 @@ class NavigationController(Controller):
         # HIGHLEVEL
         highCmd.levelFlag = 0x00
         # Standing mode
-        highCmd.mode = 1
+        highCmd.mode = 2
         highCmd.forwardSpeed = forwardSpeed
         highCmd.sideSpeed = sideSpeed
         highCmd.rotateSpeed = rotateSpeed
