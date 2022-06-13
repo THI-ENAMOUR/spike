@@ -23,14 +23,6 @@ if __name__ == "__main__":
 
     app = Application(action_queue=__queue)
 
-    __queue.push(
-        ActionGroup(
-            actions=[
-                NavigationAction(start_ms=0, end_ms=None, x=1.0, y=0, yaw=0),
-                # NavigationAction(start_ms=100, end_ms=None, x=-1.0, y=0, az=0),
-            ]
-        )
-    )
 
     __queue.push(
         ActionGroup(

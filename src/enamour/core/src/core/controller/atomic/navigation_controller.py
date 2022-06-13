@@ -77,18 +77,20 @@ class NavigationController(Controller):
                 logger.info(vel_msg)
                 logger.info(highCmd)
 
-            else:
-                vel_msg.linear.x = 0  # publish command with 0 values to stop the robot
+            print(action.timing_option.end_time)
+
+
+            if not rospy.is_shutdown() and action.get_parent_time() >= action.stopping_time.start_time:
+                vel_msg = Twist()
+                vel_msg.linear.x = 0
                 vel_msg.linear.y = 0
                 vel_msg.angular.z = 0
                 highCmd = self.velCmdToHighCmd(vel_msg)
-                i = 0
-                while i < 5:
-                    velocity_publisher.publish(highCmd)
-                    i = i + 1
+                velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
                 logger.info(highCmd)
-                action.complete()
+                
+            
 
         else:
             raise NotImplementedError(
