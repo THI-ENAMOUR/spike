@@ -5,8 +5,7 @@ from core.model.action.timing_option import StartTime, Duration
 
 
 class NavigationAction(AtomicAction):
-    def __init__(self, start_ms, end_ms, x, y, yaw, timing_option=None):
-
+    def __init__(self, start_ms, end_ms, x=None, y=None, yaw=None, body_height=None, timing_option=None):
         if timing_option is None:
             if end_ms is None:
                 timing_option = StartTime(start_ms=start_ms)
@@ -22,6 +21,7 @@ class NavigationAction(AtomicAction):
         self.x = x
         self.y = y
         self.yaw = yaw
+        self.body_height = body_height
 
     def get_controller(self):
         # Local import to break cyclic import chain
