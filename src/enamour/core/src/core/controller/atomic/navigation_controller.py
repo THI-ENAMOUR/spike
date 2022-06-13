@@ -72,14 +72,6 @@ class NavigationController(Controller):
             vel_msg.angular.z = action.yaw
             highCmd = self.velCmdToHighCmd(vel_msg)
 
-            if not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()):
-                velocity_publisher.publish(highCmd)
-                logger.info(vel_msg)
-                logger.info(highCmd)
-
-            print(action.timing_option.end_time)
-
-
             if not rospy.is_shutdown() and action.get_parent_time() >= action.stopping_time.start_time:
                 vel_msg = Twist()
                 vel_msg.linear.x = 0
@@ -89,8 +81,11 @@ class NavigationController(Controller):
                 velocity_publisher.publish(highCmd)
                 logger.info(vel_msg)
                 logger.info(highCmd)
-                
-            
+
+            elif not rospy.is_shutdown() and action.in_time_frame(action.get_parent_time()):
+                velocity_publisher.publish(highCmd)
+                logger.info(vel_msg)
+                logger.info(highCmd)
 
         else:
             raise NotImplementedError(
