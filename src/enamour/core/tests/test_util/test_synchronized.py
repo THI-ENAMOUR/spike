@@ -3,8 +3,9 @@ import threading
 import unittest
 from time import sleep
 
-from tests.app_test import AppTestCases
 from util.synchronized import synchronized
+
+from tests.app_test import AppTestCases
 
 
 @synchronized

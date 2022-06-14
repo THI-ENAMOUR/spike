@@ -152,8 +152,9 @@ class ApiNavigationAction(ApiAction):
         return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw, body_height=body_height)
 
     def to_action_group(self):
-        return NavigationAction(start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw,
-                                body_height=self.body_height)
+        return NavigationAction(
+            start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw, body_height=self.body_height
+        )
 
 
 class ApiNoOpAction(ApiAction):
@@ -192,8 +193,9 @@ class ApiPoseAction(ApiAction):
         return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw, body_height=body_height)
 
     def to_action_group(self):
-        return PoseAction(start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw,
-                          body_height=self.body_height)
+        return PoseAction(
+            start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw, body_height=self.body_height
+        )
 
 
 class ApiStabilizationAction(ApiAction):
