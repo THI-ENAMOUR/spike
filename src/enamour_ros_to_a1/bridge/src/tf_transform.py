@@ -5,12 +5,41 @@ import threading
 import tf2_msgs.msg
 from unitree_legged_msgs.msg import HighState
 from geometry_msgs.msg import Twist, TransformStamped
-from tf.transformations import quaternion_from_euler
+from tf.transformations import quaternion_from_euler, euler_from_quaternion
 import math
 import sys
 
 # Get position updates from robot
 def postion_update(state, position):
+    
+    now = rospy.Time().now().to_nsec()
+    delta_time = (now - position.reserve) / 1000000000.0
+
+    # Missing start time or update greater than 20 ms
+    if delta_time < 0 or delta_time > 0.2:
+        print("Missing Position Update - Rest Time")
+        delta_time = 0.0
+   
+    # xyzw current rotation
+    rotation = euler_from_quaternion([state.imu.quaternion[1],state.imu.quaternion[2],state.imu.quaternion[3],state.imu.quaternion[0]])
+    rotation_z =rotation[2]
+    # Update Position
+    delta_x = (state.forwardSpeed * math.cos(rotation_z) - state.sideSpeed * math.sin(rotation_z)) * delta_time
+    delta_y = (state.forwardSpeed * math.sin(rotation_z) + state.sideSpeed * math.cos(rotation_z)) * delta_time
+    
+    position.forwardPosition = position.forwardPosition + delta_x
+    position.sidePosition = position.sidePosition + delta_y
+
+    # Update Direction
+    position.imu.quaternion[1] = state.imu.quaternion[1]
+    position.imu.quaternion[2] = state.imu.quaternion[2]
+    position.imu.quaternion[3] = state.imu.quaternion[3]
+    position.imu.quaternion[0] = state.imu.quaternion[0]
+
+    # Update time
+    position.reserve = now
+
+def postion_update2(state, position):
     position.forwardPosition = state.forwardPosition
     position.sidePosition = state.sidePosition
     position.bodyHeight = 0
@@ -18,7 +47,6 @@ def postion_update(state, position):
     position.imu.quaternion[2] = state.imu.quaternion[2]
     position.imu.quaternion[3] = state.imu.quaternion[3]
     position.imu.quaternion[0] = state.imu.quaternion[0]
-
 
 # Test position updates without robot
 # Calculate from velocity and direction
@@ -49,7 +77,7 @@ def send_position(state):
     
     while not rospy.is_shutdown():
         
-        now = rospy.Time.now()
+        now = rospy.Time(nsecs=state.reserve)
 
         # Base frame
         postion = TransformStamped()
@@ -65,9 +93,23 @@ def send_position(state):
         postion.transform.rotation.z = state.imu.quaternion[3]
         postion.transform.rotation.w = state.imu.quaternion[0] or 1.0 # set w to 1 if calc quaternion is 0
         
+        # camara frame   
+        postion_cam = TransformStamped()
+        postion_cam.header.seq = seq
+        postion_cam.header.stamp = now
+        postion_cam.header.frame_id = "base_footprint"
+        postion_cam.child_frame_id = "camera_depth_frame"
+        postion_cam.transform.translation.x = 0.2
+        postion_cam.transform.translation.y = 0
+        postion_cam.transform.translation.z = 0.3
+        postion_cam.transform.rotation.x = 0
+        postion_cam.transform.rotation.y = 0
+        postion_cam.transform.rotation.z = 0
+        postion_cam.transform.rotation.w = 1
+        
         seq = seq + 1
 
-        tm = tf2_msgs.msg.TFMessage([postion])
+        tm = tf2_msgs.msg.TFMessage([postion, postion_cam])
         publisher.publish(tm)
 
         rate.sleep()
