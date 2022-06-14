@@ -17,6 +17,11 @@ paths:
   /display:
     description: The display action that should be displayed
     post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DisplayResponse'
       responses:
         200:
           description: (No actual responses will be sent)
@@ -147,6 +152,9 @@ components:
         yaw:
           nullable: true
           default: 0
+        body_height:
+          nullable: true
+          default: None
 
     PoseAction:
       type: object

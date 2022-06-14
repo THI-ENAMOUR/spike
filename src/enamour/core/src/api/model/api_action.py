@@ -133,12 +133,13 @@ class ApiDisplayAction(ApiAction):
 class ApiNavigationAction(ApiAction):
     type = ApiActionType.NAVIGATION
 
-    def __init__(self, start_ms, x, y, yaw):
+    def __init__(self, start_ms, x, y, yaw, body_height):
         super(ApiNavigationAction, self).__init__(start_ms=start_ms)
 
         self.x = x
         self.y = y
         self.yaw = yaw
+        self.body_height = body_height
 
     @staticmethod
     def from_json(data):
@@ -146,11 +147,14 @@ class ApiNavigationAction(ApiAction):
         x = get_default(data, "x", default=0)
         y = get_default(data, "y", default=0)
         yaw = degree_to_radiant(get_default(data, "yaw", default=0))
+        body_height = get_default(data, "body_height", default=None)
 
-        return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw)
+        return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw, body_height=body_height)
 
     def to_action_group(self):
-        return NavigationAction(start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw)
+        return NavigationAction(
+            start_ms=self.start_ms, end_ms=self.end_ms, x=self.x, y=self.y, yaw=self.yaw, body_height=self.body_height
+        )
 
 
 class ApiNoOpAction(ApiAction):
@@ -171,11 +175,12 @@ class ApiNoOpAction(ApiAction):
 class ApiPoseAction(ApiAction):
     type = ApiActionType.POSE
 
-    def __init__(self, start_ms, roll, pitch, yaw):
+    def __init__(self, start_ms, roll, pitch, yaw, body_height):
         super(ApiPoseAction, self).__init__(start_ms=start_ms)
         self.roll = roll
         self.pitch = pitch
         self.yaw = yaw
+        self.body_height = body_height
 
     @staticmethod
     def from_json(data):
@@ -183,10 +188,14 @@ class ApiPoseAction(ApiAction):
         roll = degree_to_radiant(get_default(data, "roll", default=0))
         pitch = degree_to_radiant(get_default(data, "pitch", default=0))
         yaw = degree_to_radiant(get_default(data, "yaw", default=0))
-        return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
+        body_height = get_default(data, "body_height", default=None)
+
+        return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw, body_height=body_height)
 
     def to_action_group(self):
-        return PoseAction(start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw)
+        return PoseAction(
+            start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw, body_height=self.body_height
+        )
 
 
 class ApiStabilizationAction(ApiAction):

@@ -8,7 +8,7 @@ from error.illegal_argument_error import IllegalArgumentError
 
 
 class PoseAction(AtomicAction):
-    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=0, pitch=0, yaw=0):
+    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=0, pitch=0, yaw=0, body_height=None):
 
         if timing_option is None:
             if end_ms is not None:
@@ -28,6 +28,7 @@ class PoseAction(AtomicAction):
         self.pitch = pitch
         PoseAction.validate_angle(yaw, "yaw")
         self.yaw = yaw
+        self.body_height = body_height
 
     MAX_ANGLE = math.pi * 2
     MIN_ANGLE = -MAX_ANGLE

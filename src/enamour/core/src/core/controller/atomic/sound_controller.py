@@ -1,9 +1,8 @@
 import rospy
-from std_msgs.msg import String
-
 from core.controller.controller import Controller
 from core.model.action.atomic.sound_action import SoundAction
 from error.illegal_state_error import IllegalStateError
+from std_msgs.msg import String
 from util.json_mapper import to_json
 from util.logger import Logger
 
