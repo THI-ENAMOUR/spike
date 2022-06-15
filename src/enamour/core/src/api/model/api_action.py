@@ -2,6 +2,7 @@ import abc
 from enum import Enum
 
 from core.model.action.atomic.display_action import DisplayAction
+from core.model.action.atomic.head_action import HeadAction
 from core.model.action.atomic.navigation_action import NavigationAction
 from core.model.action.atomic.no_op_action import NoOpAction
 from core.model.action.atomic.pose_action import PoseAction
@@ -22,6 +23,7 @@ class ApiActionType(Enum):
     NAVIGATION = "navigation"
     NOOP = "no_op"
     POSE = "pose"
+    HEAD = "head"
     STABILIZATION = "stabilization"
 
 
@@ -146,7 +148,7 @@ class ApiNavigationAction(ApiAction):
         start_ms = get(data, "start_ms", expected_type=int)
         x = get_default(data, "x", default=0)
         y = get_default(data, "y", default=0)
-        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
+        yaw = degree_to_radiant(get_default(data, "yaw", default=None))
         body_height = get_default(data, "body_height", default=None)
 
         return ApiNavigationAction(start_ms=start_ms, x=x, y=y, yaw=yaw, body_height=body_height)
@@ -185,9 +187,9 @@ class ApiPoseAction(ApiAction):
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
-        roll = degree_to_radiant(get_default(data, "roll", default=0))
-        pitch = degree_to_radiant(get_default(data, "pitch", default=0))
-        yaw = degree_to_radiant(get_default(data, "yaw", default=0))
+        roll = degree_to_radiant(get_default(data, "roll", default=None))
+        pitch = degree_to_radiant(get_default(data, "pitch", default=None))
+        yaw = degree_to_radiant(get_default(data, "yaw", default=None))
         body_height = get_default(data, "body_height", default=None)
 
         return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw, body_height=body_height)
@@ -196,6 +198,28 @@ class ApiPoseAction(ApiAction):
         return PoseAction(
             start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw, body_height=self.body_height
         )
+
+
+class ApiHeadPoseAction(ApiAction):
+    type = ApiActionType.HEAD
+
+    def __init__(self, start_ms, roll, pitch, yaw):
+        super(ApiHeadPoseAction, self).__init__(start_ms=start_ms)
+        self.roll = roll
+        self.pitch = pitch
+        self.yaw = yaw
+
+    @staticmethod
+    def from_json(data):
+        start_ms = get(data, "start_ms", expected_type=int)
+        roll = degree_to_radiant(get_default(data, "roll", default=None))
+        pitch = degree_to_radiant(get_default(data, "pitch", default=None))
+        yaw = degree_to_radiant(get_default(data, "yaw", default=None))
+
+        return ApiHeadPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
+
+    def to_action_group(self):
+        return HeadAction(start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw)
 
 
 class ApiStabilizationAction(ApiAction):
