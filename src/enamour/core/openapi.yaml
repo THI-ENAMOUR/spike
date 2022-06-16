@@ -17,11 +17,6 @@ paths:
   /display:
     description: The display action that should be displayed
     post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DisplayResponse'
       responses:
         200:
           description: (No actual responses will be sent)
@@ -60,6 +55,7 @@ components:
         - $ref: '#/components/schemas/NavigationAction'
         - $ref: '#/components/schemas/PoseAction'
         - $ref: '#/components/schemas/ActionGroup'
+        - $ref: '#/components/schemas/HeadAction'
       discriminator:
         propertyName: type
         nullable: false
@@ -70,6 +66,7 @@ components:
           navigation: '#/components/schemas/NavigationAction'
           pose: '#/components/schemas/PoseAction'
           group: '#/components/schemas/ActionGroup'
+          head: '#/components/schemas/HeadAction'
       properties:
         start_ms:
           type: number
@@ -144,18 +141,21 @@ components:
           enum:
             - navigation
         x:
+          type: number
           nullable: true
-          default: 0
+          default: null
         y:
+          type: number
           nullable: true
-          default: 0
+          default: null
         yaw:
+          type: number
           nullable: true
-          default: 0
+          default: null
         body_height:
+          type: number
           nullable: true
-          default: None
-
+          default: null
     PoseAction:
       type: object
       required:
@@ -167,34 +167,40 @@ components:
           enum:
             - pose
         roll:
+          type: number
           nullable: true
-          default: 0
+          default: null
         pitch:
+          type: number
           nullable: true
-          default: 0
+          default: null
         yaw:
+          type: number
           nullable: true
-          default: 0
+          default: null
         body_height:
+          type: number
           nullable: true
-          default: None
-
-      HeadPose:
-        type: object
-        required:
-          - type
-        properties:
-          type:
-            nullable: false
-            type: string
-            enum:
-              - pose
-          roll:
-            nullable: true
-            default: 0
-          pitch:
-            nullable: true
-            default: 0
-          yaw:
-            nullable: true
-            default: 0
+          default: null
+    HeadAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - head
+        roll:
+          type: number
+          nullable: true
+          default: null
+        pitch:
+          type: number
+          nullable: true
+          default: null
+        yaw:
+          type: number
+          nullable: true
+          default: null
