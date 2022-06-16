@@ -175,3 +175,26 @@ components:
         yaw:
           nullable: true
           default: 0
+        body_height:
+          nullable: true
+          default: None
+
+      HeadPose:
+        type: object
+        required:
+          - type
+        properties:
+          type:
+            nullable: false
+            type: string
+            enum:
+              - pose
+          roll:
+            nullable: true
+            default: 0
+          pitch:
+            nullable: true
+            default: 0
+          yaw:
+            nullable: true
+            default: 0

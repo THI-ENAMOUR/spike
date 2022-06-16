@@ -3,9 +3,8 @@ import unittest
 import uuid
 
 from error.deserialization_error import DeserializationError
-from util.json_mapper import to_UUID, to_json, get_default, get
-
 from tests.app_test import AppTestCases
+from util.json_mapper import to_UUID, to_json, get_default, get
 
 
 class JsonData(object):

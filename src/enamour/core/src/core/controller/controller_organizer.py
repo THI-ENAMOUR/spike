@@ -1,5 +1,6 @@
 from core.completion_checker import check_completion_after_execution
 from core.controller.atomic.display_controller import DisplayController
+from core.controller.atomic.head_controller import HeadController
 from core.controller.atomic.lambda_conrtoller import LambdaController
 from core.controller.atomic.navigation_controller import NavigationController
 from core.controller.atomic.no_op_controller import NoOpController
@@ -22,6 +23,7 @@ class ControllerOrganizer:
     display_controller = DisplayController()
     sound_controller = SoundController()
     stabilization_controller = StabilizationController()
+    head_controller = HeadController()
 
     def __init__(self, validator=ExecutionListValidator()):
         self.validator = validator

@@ -1,7 +1,6 @@
+import thread
 import threading
 import types
-
-import thread
 
 
 # Source: https://theorangeduck.com/page/synchronized-python. Modified, and utilizing RLocks instead.
