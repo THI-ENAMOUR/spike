@@ -4,7 +4,6 @@ from core.model.action.atomic.no_op_action import NoOpAction
 from core.model.action.group.action_group import ActionGroup
 from core.validation.action_group_validator import ActionGroupValidator
 from error.validation_error import ValidationError
-
 from tests.app_test import AppTestCases
 
 

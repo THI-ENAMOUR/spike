@@ -1,12 +1,14 @@
 import rospy
+from geometry_msgs.msg import Pose
+
+from unitree_legged_msgs.msg import HighCmd, HighState
+
 from core.controller.controller import Controller
 from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
-from geometry_msgs.msg import Pose
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
-from unitree_legged_msgs.msg import HighCmd, HighState
 from util.config import Config
+from util.degree_converter import quaternion_from_euler, euler_from_quaternion
 
 a_measured_roll = 0.0
 a_measured_pitch = 0.0
