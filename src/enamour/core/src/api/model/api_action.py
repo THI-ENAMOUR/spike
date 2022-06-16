@@ -200,11 +200,11 @@ class ApiPoseAction(ApiAction):
         )
 
 
-class ApiHeadPoseAction(ApiAction):
+class ApiHeadAction(ApiAction):
     type = ApiActionType.HEAD
 
     def __init__(self, start_ms, roll, pitch, yaw):
-        super(ApiHeadPoseAction, self).__init__(start_ms=start_ms)
+        super(ApiHeadAction, self).__init__(start_ms=start_ms)
         self.roll = roll
         self.pitch = pitch
         self.yaw = yaw
@@ -216,7 +216,7 @@ class ApiHeadPoseAction(ApiAction):
         pitch = degree_to_radiant(get_default(data, "pitch", default=None))
         yaw = degree_to_radiant(get_default(data, "yaw", default=None))
 
-        return ApiHeadPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
+        return ApiHeadAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw)
 
     def to_action_group(self):
         return HeadAction(start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw)

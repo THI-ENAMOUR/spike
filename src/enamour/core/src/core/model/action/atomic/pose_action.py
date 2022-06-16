@@ -8,7 +8,7 @@ from error.illegal_argument_error import IllegalArgumentError
 
 
 class PoseAction(AtomicAction):
-    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=0, pitch=0, yaw=0, body_height=None):
+    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=None, pitch=None, yaw=None, body_height=None):
 
         if timing_option is None:
             if end_ms is not None:
@@ -35,7 +35,7 @@ class PoseAction(AtomicAction):
 
     @staticmethod
     def validate_angle(angle, name):
-        if angle < PoseAction.MIN_ANGLE or angle > PoseAction.MAX_ANGLE:
+        if angle is not None and (angle < PoseAction.MIN_ANGLE or angle > PoseAction.MAX_ANGLE):
             raise IllegalArgumentError("Angle {name} does not have valid value: {value}".format(name=name, value=angle))
 
     def get_controller(self):

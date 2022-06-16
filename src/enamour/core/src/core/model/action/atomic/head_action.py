@@ -8,7 +8,7 @@ from error.illegal_argument_error import IllegalArgumentError
 
 
 class HeadAction(AtomicAction):
-    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=0, pitch=0, yaw=0):
+    def __init__(self, start_ms, end_ms=None, timing_option=None, roll=None, pitch=None, yaw=None):
 
         if timing_option is None:
             if end_ms is not None:
@@ -34,7 +34,7 @@ class HeadAction(AtomicAction):
 
     @staticmethod
     def validate_angle(angle, name):
-        if angle < HeadAction.MIN_ANGLE or angle > HeadAction.MAX_ANGLE:
+        if angle is not None and (angle < HeadAction.MIN_ANGLE or angle > HeadAction.MAX_ANGLE):
             raise IllegalArgumentError("Angle {name} does not have valid value: {value}".format(name=name, value=angle))
 
     def get_controller(self):

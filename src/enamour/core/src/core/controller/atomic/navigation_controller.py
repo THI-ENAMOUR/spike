@@ -4,13 +4,13 @@ import actionlib  # for move_base
 import rospy
 from geometry_msgs.msg import Twist
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal  # for move_base
-from tf.transformations import quaternion_from_euler
 from unitree_legged_msgs.msg import HighCmd
 
 from core.controller.controller import Controller
 from core.model.action.atomic.navigation_action import NavigationAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
+from util.degree_converter import quaternion_from_euler
 from util.logger import Logger
 
 
