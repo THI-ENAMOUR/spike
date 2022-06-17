@@ -48,7 +48,7 @@ class ApiAction(object):
             ApiNoOpAction.type.value: lambda x: ApiNoOpAction.from_json(x),
             ApiPoseAction.type.value: lambda x: ApiPoseAction.from_json(x),
             ApiStabilizationAction.type.value: lambda x: ApiStabilizationAction.from_json(x),
-            ApiHeadAction.type.value: lambda x: ApiHeadAction.from_json(x)
+            ApiHeadAction.type.value: lambda x: ApiHeadAction.from_json(x),
         }[type]
 
         if parse_action is None:

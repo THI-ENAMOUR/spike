@@ -1,6 +1,5 @@
 import rospy
 from geometry_msgs.msg import Pose
-
 from unitree_legged_msgs.msg import HighCmd, HighState
 
 from core.controller.controller import Controller
