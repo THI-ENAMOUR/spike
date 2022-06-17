@@ -5,9 +5,6 @@ from distutils.util import strtobool
 
 import rospy
 
-from core.model.action.atomic.head_action import HeadAction
-from core.model.action.atomic.pose_action import PoseAction
-from core.model.action.group.action_group import ActionGroup
 from util.config import Config
 
 # The path to the base directory of the project. Used for creating the log file.
@@ -34,6 +31,10 @@ if __name__ == "__main__":
     Config.init_config(passed_arguments, PROJECT_BASE_PATH)
 
     from core.action_queue import ActionQueue
+
+    from core.model.action.atomic.head_action import HeadAction
+    from core.model.action.atomic.pose_action import PoseAction
+    from core.model.action.group.action_group import ActionGroup
 
     __queue = ActionQueue()
     #__queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))

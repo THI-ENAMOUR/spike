@@ -1,6 +1,6 @@
 import rospy
 from geometry_msgs.msg import Pose
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
+
 from unitree_legged_msgs.msg import HighCmd, HighState
 
 from core.controller.controller import Controller

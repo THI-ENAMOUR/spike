@@ -47,7 +47,7 @@ def to_serializable_dict(data):
     elif isinstance(data, uuid.UUID):
         return str(data)
     if hasattr(data, "__dict__"):
-        deserializable_dict = data.__dict__
+        deserializable_dict = dict(data.__dict__)
         for key, value in deserializable_dict.iteritems():
             if isinstance(value, list):
                 new_value = []
