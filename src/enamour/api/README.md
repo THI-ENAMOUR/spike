@@ -9,10 +9,10 @@ them on a ROS topic.
 
 ### API-Information:
 - Intent Topic Name: __\intent__
-- Port: __5000__
+- Port: __4000__
 - Path: __POST /intent__
 - Body: Intent as json payload
 - Success Response: 204
 - Error Response: 400
 - Testing Command:
-  - `curl -X POST http://localhost:5000/intent -H "Content-Type: application/json" -d '{"message":"Hello"}'`
+  - `curl -X POST http://localhost:4000/intent -H "Content-Type: application/json" -d '{"message":"Hello"}'`
