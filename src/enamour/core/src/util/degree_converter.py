@@ -3,6 +3,9 @@ import numpy
 
 
 def degree_to_radiant(degree):
+    if degree is None:
+        return None
+
     return round(math.radians(degree), 3)
 
 
@@ -46,16 +49,7 @@ _NEXT_AXIS = [1, 2, 0, 1]
 
 
 def quaternion_from_euler(ai, aj, ak, axes="sxyz"):
-    """Return quaternion from Euler angles and axis sequence.
-
-    ai, aj, ak : Euler's roll, pitch and yaw angles
-    axes : One of 24 axis sequences as string or encoded tuple
-
-    >>> q = quaternion_from_euler(1, 2, 3, 'ryxz')
-    >>> numpy.allclose(q, [0.310622, -0.718287, 0.444435, 0.435953])
-    True
-
-    """
+    """Return quaternion from Euler angles and axis sequence."""
     try:
         firstaxis, parity, repetition, frame = _AXES2TUPLE[axes.lower()]
     except (AttributeError, KeyError):
@@ -132,9 +126,7 @@ def quaternion_matrix(quaternion):
 
 def euler_from_matrix(matrix, axes="sxyz"):
     """Return Euler angles from rotation matrix for specified axis sequence.
-
-    axes : One of 24 axis sequences as string or encoded tuple
-
+    axes: One of 24 axis sequences as string or encoded tuple
     Note that many Euler angle triplets can describe one matrix.
     """
     try:
