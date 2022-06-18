@@ -32,23 +32,27 @@ if __name__ == "__main__":
 
     from core.action_queue import ActionQueue
 
-    from core.model.action.atomic.head_action import HeadAction
     from core.model.action.atomic.pose_action import PoseAction
     from core.model.action.group.action_group import ActionGroup
 
     __queue = ActionQueue()
-    #__queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
-    #__queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=0, end_ms=800, roll=0, pitch=0.1, yaw=0, body_height=-0.05)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=1600, end_ms=2400, roll=0, pitch=None, yaw=0.2, body_height=None)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=2400, end_ms=3200, roll=0, pitch=None, yaw=-0.2, body_height=None)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=3200, end_ms=4000, roll=0, pitch=None, yaw=0.2, body_height=None)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=4000, end_ms=4800, roll=0, pitch=None, yaw=-0.2, body_height=None)]))
-    __queue.push(ActionGroup(actions=[PoseAction(start_ms=4800, end_ms=5600, roll=0, pitch=0, yaw=0, body_height=0)]))
-    #__queue.push(ActionGroup(actions=[PoseAction(start_ms=4000, end_ms=5000, roll=0, pitch=None, yaw=0.2)]))
+    # __queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
+    # __queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
+    __queue.push(
+        ActionGroup(
+            actions=[
+                PoseAction(start_ms=0, end_ms=800, roll=0, pitch=0.1, yaw=0, body_height=-0.05),
+                PoseAction(start_ms=1600, end_ms=2400, roll=0, pitch=None, yaw=0.2, body_height=None),
+                PoseAction(start_ms=2400, end_ms=3200, roll=0, pitch=None, yaw=-0.2, body_height=None),
+                PoseAction(start_ms=3200, end_ms=4000, roll=0, pitch=None, yaw=0.2, body_height=None),
+                PoseAction(start_ms=4000, end_ms=4800, roll=0, pitch=None, yaw=-0.2, body_height=None),
+                PoseAction(start_ms=4800, end_ms=5600, roll=0, pitch=0, yaw=0, body_height=0),
+            ]
+        )
+    )
+    # __queue.push(ActionGroup(actions=[PoseAction(start_ms=4000, end_ms=5000, roll=0, pitch=None, yaw=0.2)]))
 
-    #__queue.push(ActionGroup(actions=[PoseAction(start_ms=3000, end_ms=3500, roll=0, pitch=None, yaw=-0.001)]))
-
+    # __queue.push(ActionGroup(actions=[PoseAction(start_ms=3000, end_ms=3500, roll=0, pitch=None, yaw=-0.001)]))
 
     from app import Application
 
