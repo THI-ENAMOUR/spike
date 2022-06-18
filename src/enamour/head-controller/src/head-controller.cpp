@@ -16,7 +16,7 @@
 
 #define PORT 12345
 #define BUFSIZE 1024
-#define MAX_ANGLE 1
+#define MAX_ANGLE 180
 #define MIN_ANGLE 0
 #define MAX_PW 2500
 #define MIN_PW 500
@@ -40,18 +40,19 @@ void callback(const std_msgs::String::ConstPtr& msg)
 	ROS_INFO("received ROS message: [%s]", msg->data.c_str());
 }
 
-long smoothstep (long edge0, long edge1, long x)
+float clamp(float x, float lowerlimit, float upperlimit)
 {
-   if (x < edge0)
-      return 0;
+	if (x < lowerlimit)
+		x = lowerlimit;
+	if (x > upperlimit)
+		x = upperlimit;
+	return x;
+}
 
-   if (x >= edge1)
-      return 1000;
-
-   // Scale/bias into [0..1000] range
-   x = (x - edge0) / (edge1 - edge0);
-
-   return x * x * (3000 - 2000 * x);
+float smootherstep(float edge0, float edge1, float x)
+{
+	x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+	return x * x * x * (x * (x * 6 - 15) + 10);
 }
 
 long map(long x, long in_min, long in_max, long out_min, long out_max)
@@ -185,6 +186,7 @@ void tcp_server(context_st *context)
 void servo_driver(context_st *context, int servo_num)
 {
 	//gpioInitialise();
+	int angle = 90;
 	while(context->running)
 	{
 		context->mutex.lock();
@@ -213,20 +215,22 @@ int main(int argc, char **argv)
 	context->tcp_port = 12345;
 
 	std::thread tcp_server_thread (tcp_server, context);
-	std::thread servo_driver_thread (servo_driver, context, 0);
-	std::thread servo_driver_thread (servo_driver, context, 1);
-	std::thread servo_driver_thread (servo_driver, context, 2);
+	std::thread servo_driver_thread_0 (servo_driver, context, 0);
+	std::thread servo_driver_thread_1 (servo_driver, context, 1);
+	std::thread servo_driver_thread_2 (servo_driver, context, 2);
 
 	tcp_server_thread.join();
-	servo_driver_thread.join();
+	servo_driver_thread_0.join();
+	servo_driver_thread_1.join();
+	servo_driver_thread_2.join();
 
-	ros::init(argc, argv, "head_controller");
+	/*ros::init(argc, argv, "head_controller");
 
 	ros::NodeHandle n;
 
 	ros::Subscriber sub = n.subscribe("servo_angles", 1000, callback);
 
-	ros::spin();
+	ros::spin();*/
 
 	return 0;
 }

@@ -38,4 +38,7 @@ if __name__ == "__main__":
 
     app = Application(action_queue=__queue)
 
+    #testing
+    __queue.push(ActionGroup(actions = [HeadAction(start_ms=1000, end_ms=5000, roll=30, pitch=120, yaw=180)]))
+
     app.start()
