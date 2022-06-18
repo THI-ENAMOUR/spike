@@ -6,6 +6,7 @@ from distutils.util import strtobool
 import rospy
 
 from core.model.action.atomic.head_action import HeadAction
+from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.group.action_group import ActionGroup
 from util.config import Config
 
@@ -35,7 +36,17 @@ if __name__ == "__main__":
     from core.action_queue import ActionQueue
 
     __queue = ActionQueue()
-    __queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
+    #__queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
+    #__queue.push(ActionGroup(actions=[HeadAction(1000, roll=None, pitch=0.3, yaw=None)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=0, end_ms=1000, roll=0, pitch=0.3, yaw=0)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=1000, end_ms=2000, roll=0, pitch=None, yaw=-0.2)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=2000, end_ms=3000, roll=0, pitch=None, yaw=0.2)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=3000, end_ms=4000, roll=0, pitch=None, yaw=-0.2)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=4000, end_ms=5000, roll=0, pitch=None, yaw=0.2)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=5000, end_ms=6000, roll=0, pitch=None, yaw=0)]))
+    __queue.push(ActionGroup(actions=[PoseAction(start_ms=6000, end_ms=7000, roll=0, pitch=0.001, yaw=0)]))
+    #__queue.push(ActionGroup(actions=[PoseAction(start_ms=3000, end_ms=3500, roll=0, pitch=None, yaw=-0.001)]))
+
 
     from app import Application
 
