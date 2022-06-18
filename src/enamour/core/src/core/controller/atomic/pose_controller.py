@@ -1,6 +1,6 @@
 import rospy
 from geometry_msgs.msg import Pose
-
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from unitree_legged_msgs.msg import HighCmd, HighState
 
 from core.controller.controller import Controller
@@ -8,11 +8,11 @@ from core.model.action.atomic.pose_action import PoseAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
 from util.config import Config
-from util.degree_converter import quaternion_from_euler, euler_from_quaternion
 
 a_measured_roll = 0.0
 a_measured_pitch = 0.0
 a_measured_yaw = 0.0
+a_measured_body_height = 0.0
 
 
 class PoseController(Controller):
@@ -34,10 +34,12 @@ class PoseController(Controller):
     t_roll = 0.0
     t_pitch = 0.0
     t_yaw = 0.0
+    t_height = 0.0
 
     m_roll = 0.0
     m_pitch = 0.0
     m_yaw = 0.0
+    m_height = 0.0
 
     times_executed = 0
 
@@ -60,28 +62,31 @@ class PoseController(Controller):
         a_measured_yaw = yaw
 
     def execute_action(self, action):
-        global a_measured_roll, a_measured_pitch, a_measured_yaw
+        global a_measured_roll, a_measured_pitch, a_measured_yaw, a_measured_body_height
         if not isinstance(action, PoseAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
 
         a_goal_roll = action.roll  # fuellen der Variable mit der Ziel Kordinate
         a_goal_pitch = action.pitch  # fuellen der Variable mit der Ziel Kordinate
         a_goal_yaw = action.yaw  # fuellen der Variable mit der Ziel Kordinate
+        a_goal_body_height = action.body_height
 
-        if a_goal_roll is None or a_goal_yaw is None or a_goal_pitch is None:
+        if a_goal_roll is None or a_goal_yaw is None or a_goal_pitch is None or a_goal_body_height is None:
             if a_goal_roll is None:
                 a_goal_roll = a_measured_roll
             if a_goal_yaw is None:
                 a_goal_yaw = a_measured_yaw
             if a_goal_pitch is None:
                 a_goal_pitch = a_measured_pitch
+            if a_goal_body_height is None:
+                a_goal_body_height = a_measured_body_height
 
 
         if action.timing_option == StartTime:
             # TODO Jump instantly to position by publishing desired position
             if Config.hardware_connected:
                 # 3. publish highCmd
-                high_cmd = HighCmd(roll=a_goal_roll, yaw=a_goal_yaw, pitch=a_goal_pitch)
+                high_cmd = HighCmd(roll=a_goal_roll, yaw=a_goal_yaw, pitch=a_goal_pitch, bodyHeigt=publish_height)
                 self.high_cmd_publisher.publish(high_cmd)
             else:
                 pose_cmd = Pose()
@@ -90,8 +95,8 @@ class PoseController(Controller):
                 pose_cmd.orientation.y = quaternion[1]
                 pose_cmd.orientation.z = quaternion[2]
                 pose_cmd.orientation.w = quaternion[3]
-                #print("received quaternion  " + str(quaternion))
-                #print("received pose_cmd  " + str(pose_cmd))
+                pose_cmd.position.z = publish_height
+
 
                 self.body_pose_publisher.publish(pose_cmd)
         elif action.timing_option == Duration:
@@ -129,6 +134,11 @@ class PoseController(Controller):
                                 action.timing_option.end_time.to_ms() - action.get_parent_time().to_ms()
                     )
                     self.t_yaw = a_measured_yaw - (self.m_yaw * action.get_parent_time().to_ms())
+
+                    self.m_height = (a_goal_body_height - a_measured_body_height) / (
+                            action.timing_option.end_time.to_ms() - action.get_parent_time().to_ms()
+                    )
+                    self.t_height = a_measured_body_height - (self.m_height * action.get_parent_time().to_ms())
                 else:
                     # 1. correct slope and y-intercept from previous tick with a_measured_*
 
@@ -150,6 +160,12 @@ class PoseController(Controller):
                     )
                     self.t_yaw = a_measured_yaw - (self.m_yaw * self.time_prev)
 
+                    self.m_height = (a_goal_body_height - a_measured_body_height) / (
+                            action.timing_option.end_time.to_ms() - self.time_prev
+                    )
+                    self.t_height = a_measured_body_height - (self.m_height * self.time_prev)
+
+
                     # 2. calculate angle of current time with corrected linear equation
 
 
@@ -160,9 +176,11 @@ class PoseController(Controller):
 
 
                     publish_yaw = self.m_yaw * action.get_parent_time().to_ms() + self.t_yaw
+
+                    publish_height = self.m_height * action.get_parent_time().to_ms() + self.t_height
                     if Config.hardware_connected:
                         # 3. publish highCmd
-                        high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch)
+                        high_cmd = HighCmd(roll=publish_roll, yaw=publish_yaw, pitch=publish_pitch, bodyHeigt=publish_height)
                         self.high_cmd_publisher.publish(high_cmd)
                     else:
                         pose_cmd = Pose()
@@ -171,7 +189,8 @@ class PoseController(Controller):
                         pose_cmd.orientation.y = quaternion[1]
                         pose_cmd.orientation.z = quaternion[2]
                         pose_cmd.orientation.w = quaternion[3]
-                        print("received quaternion  " + str(quaternion))
+                        pose_cmd.position.z = publish_height
+                        #print("received quaternion  " + str(quaternion))
                         print("received pose_cmd  " + str(pose_cmd))
 
                         self.body_pose_publisher.publish(pose_cmd)
@@ -180,8 +199,9 @@ class PoseController(Controller):
                     a_measured_pitch = publish_pitch
                     a_measured_roll = publish_roll
                     a_measured_yaw = publish_yaw
+                    a_measured_body_height = publish_height
 
-                # 4. update previous tick
+                    # 4. update previous tick
                 self.time_prev = action.get_parent_time().to_ms()
             else:
                 action.complete()  # Wenn abbruch Bedingung von der weil Schleife eintritt action.completed()
