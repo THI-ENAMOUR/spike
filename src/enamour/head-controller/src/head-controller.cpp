@@ -16,10 +16,12 @@
 
 #define PORT 12345
 #define BUFSIZE 1024
-#define MAX_ANGLE 180
+#define MAX_ANGLE 1
 #define MIN_ANGLE 0
 #define MAX_PW 2500
 #define MIN_PW 500
+#define MIN_TIME 0
+#define MAX_TIME 10000
 
 typedef struct head_controller_context
 {
@@ -27,7 +29,7 @@ typedef struct head_controller_context
 	int gpio_pins[3];
 	int angles[3];
 	int tcp_port;
-	std::mutex mutex;
+	std::mutex servo[3];
 } context_st;
 
 #include "ros/ros.h"
@@ -36,6 +38,32 @@ typedef struct head_controller_context
 void callback(const std_msgs::String::ConstPtr& msg)
 {
 	ROS_INFO("received ROS message: [%s]", msg->data.c_str());
+}
+
+long smoothstep (long edge0, long edge1, long x)
+{
+   if (x < edge0)
+      return 0;
+
+   if (x >= edge1)
+      return 1000;
+
+   // Scale/bias into [0..1000] range
+   x = (x - edge0) / (edge1 - edge0);
+
+   return x * x * (3000 - 2000 * x);
+}
+
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void set_angle(int gpio, long angle)
+{
+	//map 0...1000 to 500...2500
+	//gpioServo(gpio, map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW))
+	map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW);
 }
 
 void tcp_server(context_st *context)
@@ -106,13 +134,15 @@ void tcp_server(context_st *context)
 		else if(strstr(buffer, "angles") == buffer)
 		{
 			int ang[3] = { 0 };
-			sscanf(buffer, "angles:%d,%d,%d", &ang[0], &ang[1], &ang[2]);
+			int time;
+			sscanf(buffer, "angles:%d,%d,%d,%d", &ang[0], &ang[1], &ang[2], &time);
 
-			printf("set angles to %d %d %d\n", ang[0], ang[1], ang[2]);
+			printf("set angles to %d %d %d in %dms\n", ang[0], ang[1], ang[2], time);
 
 			if(MIN_ANGLE <= ang[0] && ang[0] <= MAX_ANGLE &&
 				MIN_ANGLE <= ang[1] && ang[1] <= MAX_ANGLE &&
-				MIN_ANGLE <= ang[2] && ang[2] <= MAX_ANGLE)
+				MIN_ANGLE <= ang[2] && ang[2] <= MAX_ANGLE &&
+				MIN_TIME <= time && time <= MAX_TIME)
 			{
 				context->mutex.lock();
 
@@ -121,6 +151,13 @@ void tcp_server(context_st *context)
 				context->angles[2] = ang[2];
 
 				context->mutex.unlock();
+
+				//interpolate here
+
+				for(int i=0; i<time; i+=50)
+				{
+					set_angle(context->gpio_pins[servo_num], smoothstep(0, time, i) * ang);
+				}
 
 				memset(buffer, 0, sizeof(buffer));
 				sprintf(buffer, "OK");
@@ -145,28 +182,14 @@ void tcp_server(context_st *context)
 	shutdown(server_fd, SHUT_RDWR);
 }
 
-long map(long x, long in_min, long in_max, long out_min, long out_max)
-{
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-void set_angle(int gpio, int angle)
-{
-	//gpioServo(gpio, map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW))
-	map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW);
-}
-
-void servo_driver(context_st *context)
+void servo_driver(context_st *context, int servo_num)
 {
 	//gpioInitialise();
 	while(context->running)
 	{
 		context->mutex.lock();
 		
-		for(int i=0; i<3; i++)
-		{
-			set_angle(context->gpio_pins[i], context->angles[i]);
-		}
+		set_angle(context->gpio_pins[servo_num], context->angles[servo_num]);
 
 		context->mutex.unlock();
 
@@ -189,11 +212,13 @@ int main(int argc, char **argv)
 	context->angles[2] = 0;
 	context->tcp_port = 12345;
 
-	/*std::thread tcp_server_thread (tcp_server, context);
-	std::thread servo_driver_thread (servo_driver, context);
+	std::thread tcp_server_thread (tcp_server, context);
+	std::thread servo_driver_thread (servo_driver, context, 0);
+	std::thread servo_driver_thread (servo_driver, context, 1);
+	std::thread servo_driver_thread (servo_driver, context, 2);
 
 	tcp_server_thread.join();
-	servo_driver_thread.join();*/
+	servo_driver_thread.join();
 
 	ros::init(argc, argv, "head_controller");
 
