@@ -16,14 +16,14 @@ from core.controller.controller import Controller
 
 
 class HeadController(Controller):
-    """Controller for stabilization of the robot."""
+    """Controller for the head of the robot."""
 
     def execute_action(self, action):
         logger = Logger("head_controller")
 
         if action.get_parent_time() > action.timing_option.start_ms:
 
-            logger.info("received " + str(action.roll) + "," + str(action.pitch) + "," str(action.yaw))
+            logger.info("received " + str(action.roll) + "," + str(action.pitch) + "," + str(action.yaw))
 
             roll = action.roll
             pitch = action.pitch

@@ -14,15 +14,15 @@
 #include <unistd.h>
 #include <signal.h>
 
-//#include <pigpio.h>
+#include <pigpio.h>
 
 #define PORT 12345
 #define BUFSIZE 1024
 #define MAX_ANGLE 180
-#define MIN_ANGLE 0
+#define MIN_ANGLE -1
 #define MAX_PW 2500
 #define MIN_PW 500
-#define MIN_TIME 0
+#define MIN_TIME 1000
 #define MAX_TIME 10000
 
 typedef struct head_controller_context
@@ -60,8 +60,8 @@ int map(int x, int in_min, int in_max, int out_min, int out_max)
 void set_angle(int gpio, int angle)
 {
 	//map angle to 500...2500
-	//gpioServo(gpio, map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW))
-	map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW);
+	gpioServo(gpio, map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW));
+	//map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW);
 }
 
 void tcp_server(context_st *context)
@@ -72,7 +72,7 @@ void tcp_server(context_st *context)
 	int addrlen = sizeof(address);
 	char buffer[BUFSIZE] = { 0 };
 
-	puts("Creating socket file descriptor");
+	//puts("Creating socket file descriptor");
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0))== 0) {
 		perror("socket failed");
 		exit(EXIT_FAILURE);
@@ -147,7 +147,7 @@ void tcp_server(context_st *context)
 					context->roll_angle = ang[0];
 					context->pitch_angle = ang[1];
 					context->yaw_angle = ang[2];
-					context->time = time;
+					context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
 
 					context->driver_wait.unlock();//unblock driver
 					context->angle_lock.unlock();//unacquiring angle memory lock
@@ -188,12 +188,18 @@ void servo_driver(context_st *context)
 		context->angle_lock.lock();//get exclusive access on angle memory
 		for(int i=0; i<context->time && context->running; i+=10)
 		{
+			if(context->roll_angle > -1)
 			set_angle(context->roll_pin,
 				context->roll_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->roll_angle - context->roll_angle_prev));
+			
+			if(context->pitch_angle > -1)
 			set_angle(context->pitch_pin,
 				context->pitch_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->pitch_angle - context->pitch_angle_prev));
+			
+			if(context->yaw_angle > -1)
 			set_angle(context->yaw_pin,
 				context->yaw_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->yaw_angle - context->yaw_angle_prev));
+			
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		context->roll_angle_prev = context->roll_angle;
@@ -210,20 +216,28 @@ int main(int argc, char **argv)
 
 	context->running = true;
 	
-	context->roll_pin = 18;
-	context->pitch_pin = 20;
-	context->yaw_pin = 22;
+	context->roll_pin = 24;
+	context->pitch_pin = 23;
+	context->yaw_pin = 18;
+
+	context->roll_angle_prev = 90;
+	context->pitch_angle_prev = 90;
+	context->yaw_angle_prev = 90;
 
 	context->roll_angle = 90;
 	context->pitch_angle = 90;
 	context->yaw_angle = 90;
 
+	context->time = 1000;
+
 	context->tcp_port = 12345;
 
-	//gpioInitialise();
+	gpioInitialise();
 
 	std::thread tcp_server_thread (tcp_server, context);
 	std::thread servo_driver_thread (servo_driver, context);
+
+	context->angle_lock.unlock();
 
 	sigset_t w;
 	int signo;
@@ -251,7 +265,7 @@ int main(int argc, char **argv)
 	/*tcp_server_thread.join();
 	servo_driver_thread.join();*/
 
-	//gpioTerminate();
+	gpioTerminate();
 
 	return 0;
 }

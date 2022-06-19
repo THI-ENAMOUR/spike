@@ -4,7 +4,7 @@ CC := g++
 
 CFLAGS := -g -Wall
 
-LDFLAGS := -pthread
+LDFLAGS := -pthread -lpigpio
 
 SRCS := ./src/head-server.cpp
 
@@ -30,4 +30,4 @@ endif
 	systemctl daemon-reload
 	systemctl stop head-server.service
 	systemctl enable head-server.service
-	#systemctl start head-server.service
+	systemctl start head-server.service
