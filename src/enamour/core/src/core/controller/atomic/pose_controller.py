@@ -28,24 +28,27 @@ class PoseController(Controller):
         self.high_cmd_publisher = rospy.Publisher("high_command", HighCmd, queue_size=10)
         self.body_pose_publisher = rospy.Publisher("body_pose", Pose, queue_size=10)
         self.highStateSub = rospy.Subscriber("high_state", HighState, self.update_high_state)
+        self.time_prev = -1.0
 
-    time_prev = -1.0
+        self.t_roll = 0.0
+        self.t_pitch = 0.0
+        self.t_yaw = 0.0
+        self.t_height = 0.0
 
-    t_roll = 0.0
-    t_pitch = 0.0
-    t_yaw = 0.0
-    t_height = 0.0
+        self.m_roll = 0.0
+        self.m_pitch = 0.0
+        self.m_yaw = 0.0
+        self.m_height = 0.0
 
-    m_roll = 0.0
-    m_pitch = 0.0
-    m_yaw = 0.0
-    m_height = 0.0
-
-    times_executed = 0
+        self.times_executed = 0
+        self.last_action = None
 
     def execute_action(self, action):
         if not isinstance(action, PoseAction):
             raise IllegalStateError("This controller does not support the action " + str(action))
+
+        if self.last_action is not None and self.last_action.id != action.id:
+            self.time_prev = -1
 
         goal_pose = PoseController.define_goal_pose(action)
 
@@ -72,6 +75,7 @@ class PoseController(Controller):
             )
 
         self.times_executed = self.times_executed + 1
+        self.last_action = action
 
     @staticmethod
     def define_goal_pose(action):

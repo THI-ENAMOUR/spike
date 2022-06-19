@@ -178,8 +178,8 @@ class ApiNoOpAction(ApiAction):
 class ApiPoseAction(ApiAction):
     type = ApiActionType.POSE
 
-    def __init__(self, start_ms, roll, pitch, yaw, body_height):
-        super(ApiPoseAction, self).__init__(start_ms=start_ms)
+    def __init__(self, start_ms, end_ms, roll, pitch, yaw, body_height):
+        super(ApiPoseAction, self).__init__(start_ms=start_ms, end_ms=end_ms)
         self.roll = roll
         self.pitch = pitch
         self.yaw = yaw
@@ -188,16 +188,22 @@ class ApiPoseAction(ApiAction):
     @staticmethod
     def from_json(data):
         start_ms = get(data, "start_ms", expected_type=int)
+        end_ms = get_default(data, "end_ms", None)
         roll = degree_to_radiant(get_default(data, "roll", default=None))
         pitch = degree_to_radiant(get_default(data, "pitch", default=None))
         yaw = degree_to_radiant(get_default(data, "yaw", default=None))
         body_height = get_default(data, "body_height", default=None)
 
-        return ApiPoseAction(start_ms=start_ms, roll=roll, pitch=pitch, yaw=yaw, body_height=body_height)
+        return ApiPoseAction(start_ms=start_ms, end_ms=end_ms, roll=roll, pitch=pitch, yaw=yaw, body_height=body_height)
 
     def to_action_group(self):
         return PoseAction(
-            start_ms=self.start_ms, roll=self.roll, pitch=self.pitch, yaw=self.yaw, body_height=self.body_height
+            start_ms=self.start_ms,
+            end_ms=self.end_ms,
+            roll=self.roll,
+            pitch=self.pitch,
+            yaw=self.yaw,
+            body_height=self.body_height,
         )
 
 
