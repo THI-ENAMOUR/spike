@@ -21,35 +21,41 @@ class HeadController(Controller):
     def execute_action(self, action):
         logger = Logger("head_controller")
 
-        logger.info("received " + str(action.roll) + "," + str(action.pitch) + "," str(action.yaw))
+        if action.get_parent_time() > action.timing_option.start_ms:
 
-        roll = action.roll
-        pitch = action.pitch
-        yaw = action.yaw
+            logger.info("received " + str(action.roll) + "," + str(action.pitch) + "," str(action.yaw))
 
-        tcp_string = "angles:" + str(roll) + "," + str(pitch) + "," + str(yaw) + ","
+            roll = action.roll
+            pitch = action.pitch
+            yaw = action.yaw
 
-        if action.timing_option == StartTime:
-            logger.info("head action by StartTime")
-            tcp_string = tcp_string + str(0) + "\0"
-        elif action.timing_option == Duration:
-            logger.info("head action by Duration")
-            tcp_string = tcp_string + str(action.timing_option.end_ms - action.timing_option.start_ms) + "\0"
-        else:
-            raise NotImplementedError(
-                "Timing option {timing} for action {id} not implemented".format(
-                    timing=action.timing_option, id=action.id
+            tcp_string = "angles:" + str(roll) + "," + str(pitch) + "," + str(yaw) + ","
+
+            if action.timing_option == StartTime:
+                logger.info("head action by StartTime")
+                tcp_string = tcp_string + str(0) + "\0"
+            elif action.timing_option == Duration:
+                logger.info("head action by Duration")
+                tcp_string = tcp_string + str(action.timing_option.end_ms - action.timing_option.start_ms) + "\0"
+            else:
+                raise NotImplementedError(
+                    "Timing option {timing} for action {id} not implemented".format(
+                        timing=action.timing_option, id=action.id
+                    )
                 )
-            )
 
-        data = sendTCP(tcp_string)
-        
-        if data == "OK":
-            logger.info("received OK from server")
-        elif data == "error.range":
-            logger.warn("received range error from server")
-        elif data == "error.unexpected":
-            logger.warn("received unexpected error from server")
+            data = sendTCP(tcp_string)
+
+            if data == "OK":
+                logger.info("received OK from server")
+            elif data == "error.busy":
+                logger.warn("received busy error from server")
+            elif data == "error.range":
+                logger.warn("received range error from server")
+            elif data == "error.unexpected":
+                logger.warn("received unexpected error from server")
+
+            action.complete()
 
     def sendTCP(string):
         logger.info("sending: |" + string + "|")

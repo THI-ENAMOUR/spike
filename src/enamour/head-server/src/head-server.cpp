@@ -4,6 +4,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <future>
 
 #include <netinet/in.h>
 #include <stdio.h>
@@ -11,6 +12,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <signal.h>
 
 //#include <pigpio.h>
 
@@ -26,19 +28,14 @@
 typedef struct head_controller_context
 {
 	bool running;
-	int gpio_pins[3];
-	int angles[3];
+	int roll_pin, pitch_pin, yaw_pin;
+	int roll_angle_prev, pitch_angle_prev, yaw_angle_prev;
+	int roll_angle, pitch_angle, yaw_angle;
+	int time;
 	int tcp_port;
-	std::mutex servo[3];
+	std::mutex driver_wait;
+	std::mutex angle_lock;
 } context_st;
-
-#include "ros/ros.h"
-#include "std_msgs/String.h"
-
-void callback(const std_msgs::String::ConstPtr& msg)
-{
-	ROS_INFO("received ROS message: [%s]", msg->data.c_str());
-}
 
 float clamp(float x, float lowerlimit, float upperlimit)
 {
@@ -55,14 +52,14 @@ float smootherstep(float edge0, float edge1, float x)
 	return x * x * x * (x * (x * 6 - 15) + 10);
 }
 
-long map(long x, long in_min, long in_max, long out_min, long out_max)
+int map(int x, int in_min, int in_max, int out_min, int out_max)
 {
 	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void set_angle(int gpio, long angle)
+void set_angle(int gpio, int angle)
 {
-	//map 0...1000 to 500...2500
+	//map angle to 500...2500
 	//gpioServo(gpio, map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW))
 	map(angle, MIN_ANGLE, MAX_ANGLE, MIN_PW, MAX_PW);
 }
@@ -81,7 +78,7 @@ void tcp_server(context_st *context)
 		exit(EXIT_FAILURE);
 	}
 
-	puts("Setting socket options");
+	//puts("Setting socket options");
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
 		perror("setsockopt");
 		exit(EXIT_FAILURE);
@@ -90,19 +87,19 @@ void tcp_server(context_st *context)
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(PORT);
 
-	puts("Binding socket to port 12345");
+	//puts("Binding socket to port 12345");
 	if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
 	while(context->running)
 	{
-		puts("Listening for connection attempts");
+		//puts("Listening for connection attempts");
 		if (listen(server_fd, 16) < 0) {
 			perror("listen");
 			exit(EXIT_FAILURE);
 		}
-		puts("Accepting connections");
+		//puts("Accepting connections");
 		if ((conn_fd = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
 			perror("accept");
 			exit(EXIT_FAILURE);
@@ -115,11 +112,11 @@ void tcp_server(context_st *context)
 			exit(EXIT_FAILURE);
 		}
 
-		printf("read:[%s]\n", buffer);
+		//printf("read:[%s]\n", buffer);
 
 		if(strstr(buffer, "test") == buffer)
 		{
-			puts("received test message");
+			//puts("received test message");
 			int num;
 			sscanf(buffer, "test:%d", &num);
 			num = num * num;
@@ -130,7 +127,7 @@ void tcp_server(context_st *context)
 		{
 			//get servo angles and send them
 			memset(buffer, 0, sizeof(buffer));
-			sprintf(buffer, "angles:%d,%d,%d", context->angles[0], context->angles[1], context->angles[2]);
+			sprintf(buffer, "angles:%d,%d,%d", context->roll_angle, context->pitch_angle, context->yaw_angle);
 		}
 		else if(strstr(buffer, "angles") == buffer)
 		{
@@ -138,31 +135,31 @@ void tcp_server(context_st *context)
 			int time;
 			sscanf(buffer, "angles:%d,%d,%d,%d", &ang[0], &ang[1], &ang[2], &time);
 
-			printf("set angles to %d %d %d in %dms\n", ang[0], ang[1], ang[2], time);
+			//printf("set angles to %d %d %d in %dms\n", ang[0], ang[1], ang[2], time);
 
 			if(MIN_ANGLE <= ang[0] && ang[0] <= MAX_ANGLE &&
 				MIN_ANGLE <= ang[1] && ang[1] <= MAX_ANGLE &&
 				MIN_ANGLE <= ang[2] && ang[2] <= MAX_ANGLE &&
 				MIN_TIME <= time && time <= MAX_TIME)
 			{
-				context->mutex.lock();
-
-				context->angles[0] = ang[0];
-				context->angles[1] = ang[1];
-				context->angles[2] = ang[2];
-
-				context->mutex.unlock();
-
-				//interpolate here
-
-				for(int i=0; i<time; i+=50)
+				if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
 				{
-					set_angle(context->gpio_pins[servo_num], smoothstep(0, time, i) * ang);
-				}
+					context->roll_angle = ang[0];
+					context->pitch_angle = ang[1];
+					context->yaw_angle = ang[2];
+					context->time = time;
 
-				memset(buffer, 0, sizeof(buffer));
-				sprintf(buffer, "OK");
-				puts(buffer);
+					context->driver_wait.unlock();//unblock driver
+					context->angle_lock.unlock();//unacquiring angle memory lock
+
+					memset(buffer, 0, sizeof(buffer));
+					sprintf(buffer, "OK");
+				}
+				else
+				{
+					memset(buffer, 0, sizeof(buffer));
+					sprintf(buffer, "error.busy");
+				}
 			}
 			else
 			{
@@ -183,54 +180,78 @@ void tcp_server(context_st *context)
 	shutdown(server_fd, SHUT_RDWR);
 }
 
-void servo_driver(context_st *context, int servo_num)
+void servo_driver(context_st *context)
 {
-	//gpioInitialise();
-	int angle = 90;
 	while(context->running)
 	{
-		context->mutex.lock();
-		
-		set_angle(context->gpio_pins[servo_num], context->angles[servo_num]);
+		context->driver_wait.lock();//block until unlocked by tcp server
+		context->angle_lock.lock();//get exclusive access on angle memory
+		for(int i=0; i<context->time && context->running; i+=10)
+		{
+			set_angle(context->roll_pin,
+				context->roll_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->roll_angle - context->roll_angle_prev));
+			set_angle(context->pitch_pin,
+				context->pitch_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->pitch_angle - context->pitch_angle_prev));
+			set_angle(context->yaw_pin,
+				context->yaw_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->yaw_angle - context->yaw_angle_prev));
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+		context->roll_angle_prev = context->roll_angle;
+		context->pitch_angle_prev = context->pitch_angle;
+		context->yaw_angle_prev = context->yaw_angle;
 
-		context->mutex.unlock();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		context->angle_lock.unlock();
 	}
-	/*gpioServo(23, 2500);
-	getc(stdin);
-	gpioTerminate();*/
 }
 
 int main(int argc, char **argv)
 {
 	context_st *context = new context_st;
+
 	context->running = true;
-	// TODO
-	// gpio pin numbers
-	// context->gpio_pins[0,1,2]
-	context->angles[0] = 0;
-	context->angles[1] = 0;
-	context->angles[2] = 0;
+	
+	context->roll_pin = 18;
+	context->pitch_pin = 20;
+	context->yaw_pin = 22;
+
+	context->roll_angle = 90;
+	context->pitch_angle = 90;
+	context->yaw_angle = 90;
+
 	context->tcp_port = 12345;
 
+	//gpioInitialise();
+
 	std::thread tcp_server_thread (tcp_server, context);
-	std::thread servo_driver_thread_0 (servo_driver, context, 0);
-	std::thread servo_driver_thread_1 (servo_driver, context, 1);
-	std::thread servo_driver_thread_2 (servo_driver, context, 2);
+	std::thread servo_driver_thread (servo_driver, context);
 
-	tcp_server_thread.join();
-	servo_driver_thread_0.join();
-	servo_driver_thread_1.join();
-	servo_driver_thread_2.join();
+	sigset_t w;
+	int signo;
 
-	/*ros::init(argc, argv, "head_controller");
+	sigemptyset(&w);
+	sigaddset(&w, SIGTERM);
+	sigwait(&w, &signo);
 
-	ros::NodeHandle n;
+	context->running = false;
 
-	ros::Subscriber sub = n.subscribe("servo_angles", 1000, callback);
+	auto future = std::async(std::launch::async, &std::thread::join, &tcp_server_thread);
+	if (future.wait_for(std::chrono::seconds(5)) 
+		== std::future_status::timeout)
+	{
+		pthread_cancel(tcp_server_thread.native_handle());
+	}
 
-	ros::spin();*/
+	future = std::async(std::launch::async, &std::thread::join, &servo_driver_thread);
+	if (future.wait_for(std::chrono::seconds(5)) 
+		== std::future_status::timeout)
+	{
+		pthread_cancel(servo_driver_thread.native_handle());
+	}
+
+	/*tcp_server_thread.join();
+	servo_driver_thread.join();*/
+
+	//gpioTerminate();
 
 	return 0;
 }
