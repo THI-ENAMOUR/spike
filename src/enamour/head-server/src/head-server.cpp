@@ -202,8 +202,13 @@ void servo_driver(context_st *context)
 			
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
+		if(context->roll_angle > -1)
 		context->roll_angle_prev = context->roll_angle;
+
+		if(context->pitch_angle > -1)
 		context->pitch_angle_prev = context->pitch_angle;
+
+		if(context->yaw_angle > -1)
 		context->yaw_angle_prev = context->yaw_angle;
 
 		context->angle_lock.unlock();
