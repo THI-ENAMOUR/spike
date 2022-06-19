@@ -14,14 +14,14 @@ from util.logger import Logger
 
 from core.controller.controller import Controller
 
+logger = Logger(__name__)
 
 class HeadController(Controller):
     """Controller for the head of the robot."""
 
     def execute_action(self, action):
-        logger = Logger("head_controller")
 
-        if action.get_parent_time() > action.timing_option.start_ms:
+        if action.in_time_frame(action.get_parent_time()):
 
             logger.info("received " + str(action.roll) + "," + str(action.pitch) + "," + str(action.yaw))
 
@@ -29,14 +29,14 @@ class HeadController(Controller):
             pitch = action.pitch
             yaw = action.yaw
 
-            tcp_string = "angles:" + str(roll) + "," + str(pitch) + "," + str(yaw) + ","
+            tcp_string = "angles:" + str(int(roll)) + "," + str(int(pitch)) + "," + str(int(yaw)) + ","
 
             if action.timing_option == StartTime:
                 logger.info("head action by StartTime")
                 tcp_string = tcp_string + str(0) + "\0"
             elif action.timing_option == Duration:
                 logger.info("head action by Duration")
-                tcp_string = tcp_string + str(action.timing_option.end_ms - action.timing_option.start_ms) + "\0"
+                tcp_string = tcp_string + str(action.timing_option.duration_in_ms()) + "\0"
             else:
                 raise NotImplementedError(
                     "Timing option {timing} for action {id} not implemented".format(
@@ -44,7 +44,7 @@ class HeadController(Controller):
                     )
                 )
 
-            data = sendTCP(tcp_string)
+            data = self.sendTCP(tcp_string)
 
             if data == "OK":
                 logger.info("received OK from server")
@@ -54,10 +54,12 @@ class HeadController(Controller):
                 logger.warn("received range error from server")
             elif data == "error.unexpected":
                 logger.warn("received unexpected error from server")
+            else:
+                logger.warn("unexpected error")
 
             action.complete()
 
-    def sendTCP(string):
+    def sendTCP(self, string):
         logger.info("sending: |" + string + "|")
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -66,7 +68,9 @@ class HeadController(Controller):
 
         sock.sendall(string)
 
-        data = sock.recv(1024)
+        ready = select.select([sock], [], [], 2)
+        if ready[0]:
+             data = sock.recv(1024)
 
         sock.close()
 

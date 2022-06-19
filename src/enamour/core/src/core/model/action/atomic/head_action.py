@@ -23,11 +23,13 @@ class HeadAction(AtomicAction):
         )
 
         HeadAction.validate_angle(roll, "roll")
-        self.roll = convert_angle(roll)
+        self.roll = self.convert_angle(roll)
+
         HeadAction.validate_angle(pitch, "pitch")
-        self.pitch = convert_angle(pitch)
+        self.pitch = self.convert_angle(pitch)
+
         HeadAction.validate_angle(yaw, "yaw")
-        self.yaw = convert_angle(yaw)
+        self.yaw = self.convert_angle(yaw)
 
     MAX_ANGLE = math.pi * 1.5
     MIN_ANGLE = -MAX_ANGLE
@@ -37,6 +39,7 @@ class HeadAction(AtomicAction):
         if angle is not None and (angle < HeadAction.MIN_ANGLE or angle > HeadAction.MAX_ANGLE):
             raise IllegalArgumentError("Angle {name} does not have valid value: {value}".format(name=name, value=angle))
 
+    @staticmethod
     def convert_angle(angle):
         if angle is None:
             return -1
