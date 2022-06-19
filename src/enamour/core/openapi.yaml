@@ -14,6 +14,18 @@ paths:
       responses:
         200:
           description: (No actual responses will be sent)
+  /display:
+    description: The display action that should be displayed
+    post:
+      responses:
+        200:
+          description: (No actual responses will be sent)
+  /sound:
+    description: The sound action that should be played
+    post:
+      responses:
+        200:
+          description: (No actual responses will be sent)
 
 components:
   schemas:
@@ -43,6 +55,7 @@ components:
         - $ref: '#/components/schemas/NavigationAction'
         - $ref: '#/components/schemas/PoseAction'
         - $ref: '#/components/schemas/ActionGroup'
+        - $ref: '#/components/schemas/HeadAction'
       discriminator:
         propertyName: type
         nullable: false
@@ -53,10 +66,16 @@ components:
           navigation: '#/components/schemas/NavigationAction'
           pose: '#/components/schemas/PoseAction'
           group: '#/components/schemas/ActionGroup'
+          head: '#/components/schemas/HeadAction'
       properties:
-        start_time:
+        start_ms:
           type: number
           nullable: false
+          description: "Start time of action within an action group in milliseconds"
+        end_ms:
+          type: number
+          nullable: true
+          description: "End time of action within an action group in milliseconds"
 
 
     # All possible types of actions
@@ -95,6 +114,9 @@ components:
           type: string
           enum:
             - sound
+        data:
+          type: object
+          additionalProperties: true
     DisplayAction:
       type: object
       required:
@@ -105,6 +127,9 @@ components:
           type: string
           enum:
             - display
+        data:
+          type: object
+          additionalProperties: true
     NavigationAction:
       type: object
       required:
@@ -115,6 +140,22 @@ components:
           type: string
           enum:
             - navigation
+        x:
+          type: number
+          nullable: true
+          default: null
+        y:
+          type: number
+          nullable: true
+          default: null
+        yaw:
+          type: number
+          nullable: true
+          default: null
+        body_height:
+          type: number
+          nullable: true
+          default: null
     PoseAction:
       type: object
       required:
@@ -125,19 +166,41 @@ components:
           type: string
           enum:
             - pose
-        x:
-          nullable: true
-        y:
-          nullable: true
-        z:
-          nullable: true
-        ax:
-          nullable: true
-        ay:
-          nullable: true
-        az:
-          nullable: true
-        end_time:
-          nullable: true
+        roll:
           type: number
-
+          nullable: true
+          default: null
+        pitch:
+          type: number
+          nullable: true
+          default: null
+        yaw:
+          type: number
+          nullable: true
+          default: null
+        body_height:
+          type: number
+          nullable: true
+          default: null
+    HeadAction:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          nullable: false
+          type: string
+          enum:
+            - head
+        roll:
+          type: number
+          nullable: true
+          default: null
+        pitch:
+          type: number
+          nullable: true
+          default: null
+        yaw:
+          type: number
+          nullable: true
+          default: null

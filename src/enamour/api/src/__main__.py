@@ -60,7 +60,7 @@ def publish_intent(intent):
     pub.publish(intent)
 
 
-API_PORT = 5000
+API_PORT = 4000
 rospy.init_node("intent_api_service")
 pub = rospy.Publisher("intent", String, queue_size=10)
 server = HTTPServer(("", API_PORT), RequestHandler)

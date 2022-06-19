@@ -13,6 +13,8 @@ def get(data, key, expected_type=None):
         if expected_type is not None and type(value) is not expected_type:
             raise DeserializationError(key + " is not of the correct type")
 
+        # Ignore unknown type 'unicode' in code linter with the comment 'noqa: F821'
+        value = value if not isinstance(value, unicode) else str(value)  # noqa: F821
         return value
     except KeyError:
         raise DeserializationError(key + " not found in json")
@@ -21,6 +23,8 @@ def get(data, key, expected_type=None):
 def get_default(data, key, default):
     try:
         value = get(data, key)
+        value = value if not isinstance(value, unicode) else str(value)  # noqa: F821
+
         return value if not None else default
     except DeserializationError:
         return default
@@ -33,13 +37,17 @@ def to_UUID(key):
         raise DeserializationError(key + " is not an valid uuid version 4")
 
 
-def to_json(data):
-    return json.dumps(data, default=to_serializable_dict)
+def to_json(data, **kwds):
+    return json.dumps(data, default=to_serializable_dict, **kwds)
 
 
 def to_serializable_dict(data):
+    if is_primitive(data) or data is None:
+        return data
+    elif isinstance(data, uuid.UUID):
+        return str(data)
     if hasattr(data, "__dict__"):
-        deserializable_dict = data.__dict__
+        deserializable_dict = dict(data.__dict__)
         for key, value in deserializable_dict.iteritems():
             if isinstance(value, list):
                 new_value = []
@@ -49,8 +57,9 @@ def to_serializable_dict(data):
             elif isinstance(value, uuid.UUID):
                 deserializable_dict[key] = str(value)
         return deserializable_dict
-    elif data is None:
-        # Just return 'None' so json.dumps changes it to 'null'
-        return None
     else:
         return str(data)
+
+
+def is_primitive(data):
+    return isinstance(data, (int, float, bool, str))

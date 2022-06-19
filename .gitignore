@@ -3,14 +3,16 @@ __pycache__/
 venv/
 
 .git/
+.cache/
 devel/
 build/
 .settings
 .vscode
 
 logs/
+.cache/
 
-.log
+*.log
 .DS_Store 
 .idea
 .catkin_workspace
