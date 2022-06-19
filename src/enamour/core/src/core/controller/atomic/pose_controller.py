@@ -112,7 +112,7 @@ class PoseController(Controller):
 
     def interpolate_duration(self, action, goal_pose):
         global current_pose
-        if self.times_executed == 0:
+        if self.time_prev == -1:
             # 1st iteration -> set up the first linear equations, do not publish
 
             self.m_pitch = (goal_pose.pitch - current_pose.pitch) / (
