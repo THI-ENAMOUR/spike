@@ -22,7 +22,7 @@ class NavigationController(Controller):
 
         self.vel_msg = Twist()
 
-        logger = Logger("cmd_vel")
+        logger = Logger("NavigationController")
         velocity_publisher = rospy.Publisher("/high_command", HighCmd, queue_size=10)
         rate = rospy.Rate(500)
 
@@ -43,6 +43,10 @@ class NavigationController(Controller):
             goal.target_pose.pose.orientation.z = q_rot[2]  # uses qz-quaternion
             goal.target_pose.pose.orientation.w = q_rot[3]  # uses qw-quaternion
 
+            #print(action.x)
+            #print(action.y)
+            #print(action.yaw)
+
             move_base_thread = threading.Thread(target=thread_function, args=(goal,))
             move_base_thread.start()
 
@@ -51,7 +55,7 @@ class NavigationController(Controller):
                 and action.in_time_frame(action.get_parent_time())
                 and move_base_thread.is_alive()
             ):
-                print(self.vel_msg)
+                #print(self.vel_msg)
                 highCmd = self.velCmdToHighCmd(self.vel_msg)
                 velocity_publisher.publish(highCmd)
                 logger.info(self.vel_msg)
