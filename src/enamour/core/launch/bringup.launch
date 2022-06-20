@@ -1,6 +1,8 @@
 <launch>
     <arg name="hardware_connected" default="false"/>
+    <arg name="raspi_pi_ip" default="127.0.0.1"/>
     <param name="hardware_connected" type="bool" value="$(arg hardware_connected)"/>
+    <param name="raspi_pi_ip" type="string" value="$(arg raspi_pi_ip)"/>
     <node name="core" pkg="enamour_core" type="__main__.py" output="screen"
-          args="hardware_connected=$(arg hardware_connected)"/>
+          args="hardware_connected=$(arg hardware_connected) raspi_pi_ip=$(arg raspi_pi_ip)"/>
 </launch>

@@ -57,3 +57,14 @@ This framework is utilized ontop of ROS in order to reduce boiler plate and help
 ### Simulation
 For simulation mainly [Gazebo](https://gazebosim.org/) and [RVIZ](https://wiki.ros.org/rviz) are used.
 
+## head-server
+The head-server runs on the Raspberry Pi independently of the rest of the project
+
+### Building
+Navigate to `src/enamour/head-server/` and run `make`.
+
+### Installing the service
+Navigate to `src/enamour/head-server/` and run `sudo make install`. This moves the binary executable to `/opt/head-server/` and the SystemD Service file to `/etc/systemd/system/`.
+
+### Starting the service
+The service will start automatically. If it doesn't it can be started manually with `sudo systemctl start head-server.service`.
