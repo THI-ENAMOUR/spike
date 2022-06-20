@@ -5,6 +5,7 @@ from core.controller.controller import Controller
 from core.model.action.atomic.head_action import HeadAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
+from util.config import Config
 from util.logger import Logger
 
 logger = Logger(__name__)
@@ -56,10 +57,11 @@ class HeadController(Controller):
             action.complete()
 
     def sendTCP(self, string):
-        logger.info("sending: |" + string + "|")
+        ip = Config.raspi_pi_ip
+        logger.info("sending: | " + string + " | to: " + ip)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(("127.0.0.1", 12345))
+        sock.connect((ip, 12345))
         sock.setblocking(False)
 
         sock.sendall(string)

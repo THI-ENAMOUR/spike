@@ -32,7 +32,7 @@ class HeadAction(AtomicAction):
         self.yaw = self.convert_angle(yaw)
 
     MAX_ANGLE = math.pi * 1.5
-    MIN_ANGLE = -MAX_ANGLE
+    MIN_ANGLE = 0
 
     @staticmethod
     def validate_angle(angle, name):
