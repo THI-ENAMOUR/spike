@@ -1,25 +1,21 @@
-import socket
 import select
-
-import threading
-
-import rospy
+import socket
 
 from core.controller.controller import Controller
 from core.model.action.atomic.head_action import HeadAction
 from core.model.action.timing_option import Duration, StartTime
 from error.illegal_state_error import IllegalStateError
-from util.degree_converter import quaternion_from_euler
 from util.logger import Logger
 
-from core.controller.controller import Controller
-
 logger = Logger(__name__)
+
 
 class HeadController(Controller):
     """Controller for the head of the robot."""
 
     def execute_action(self, action):
+        if not isinstance(action, HeadAction):
+            raise IllegalStateError("This controller does not support the action " + str(action))
 
         if action.in_time_frame(action.get_parent_time()):
 
@@ -49,13 +45,13 @@ class HeadController(Controller):
             if data == "OK":
                 logger.info("received OK from server")
             elif data == "error.busy":
-                logger.warn("received busy error from server")
+                logger.warning("received busy error from server")
             elif data == "error.range":
-                logger.warn("received range error from server")
+                logger.warning("received range error from server")
             elif data == "error.unexpected":
-                logger.warn("received unexpected error from server")
+                logger.warning("received unexpected error from server")
             else:
-                logger.warn("unexpected error")
+                logger.warning("unexpected error")
 
             action.complete()
 
@@ -64,13 +60,15 @@ class HeadController(Controller):
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(("127.0.0.1", 12345))
-        sock.setblocking(0)
+        sock.setblocking(False)
 
         sock.sendall(string)
 
         ready = select.select([sock], [], [], 2)
+        data = None
+
         if ready[0]:
-             data = sock.recv(1024)
+            data = sock.recv(1024)
 
         sock.close()
 
