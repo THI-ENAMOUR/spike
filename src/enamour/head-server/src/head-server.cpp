@@ -18,7 +18,7 @@
 
 #define PORT 12345
 #define BUFSIZE 1024
-#define MAX_ANGLE 180
+#define MAX_ANGLE 270
 #define MIN_ANGLE -1
 #define MAX_PW 2500
 #define MIN_PW 500
@@ -137,34 +137,23 @@ void tcp_server(context_st *context)
 
 			//printf("set angles to %d %d %d in %dms\n", ang[0], ang[1], ang[2], time);
 
-			if(MIN_ANGLE <= ang[0] && ang[0] <= MAX_ANGLE &&
-				MIN_ANGLE <= ang[1] && ang[1] <= MAX_ANGLE &&
-				MIN_ANGLE <= ang[2] && ang[2] <= MAX_ANGLE &&
-				MIN_TIME <= time && time <= MAX_TIME)
+			if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
 			{
-				if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
-				{
-					context->roll_angle = ang[0];
-					context->pitch_angle = ang[1];
-					context->yaw_angle = ang[2];
-					context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
+				context->roll_angle = (int)clamp(ang[0]);
+				context->pitch_angle = (int)clamp(ang[1]);
+				context->yaw_angle = (int)clamp(ang[2]);
+				context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
 
-					context->driver_wait.unlock();//unblock driver
-					context->angle_lock.unlock();//unacquiring angle memory lock
+				context->driver_wait.unlock();//unblock driver
+				context->angle_lock.unlock();//unacquiring angle memory lock
 
-					memset(buffer, 0, sizeof(buffer));
-					sprintf(buffer, "OK");
-				}
-				else
-				{
-					memset(buffer, 0, sizeof(buffer));
-					sprintf(buffer, "error.busy");
-				}
+				memset(buffer, 0, sizeof(buffer));
+				sprintf(buffer, "OK");
 			}
 			else
 			{
 				memset(buffer, 0, sizeof(buffer));
-				sprintf(buffer, "error.range");
+				sprintf(buffer, "error.busy");
 			}
 		}
 		else
@@ -189,27 +178,27 @@ void servo_driver(context_st *context)
 		for(int i=0; i<context->time && context->running; i+=10)
 		{
 			if(context->roll_angle > -1)
-			set_angle(context->roll_pin,
-				context->roll_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->roll_angle - context->roll_angle_prev));
+				set_angle(context->roll_pin,
+					context->roll_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->roll_angle - context->roll_angle_prev));
 			
 			if(context->pitch_angle > -1)
-			set_angle(context->pitch_pin,
-				context->pitch_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->pitch_angle - context->pitch_angle_prev));
+				set_angle(context->pitch_pin,
+					context->pitch_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->pitch_angle - context->pitch_angle_prev));
 			
 			if(context->yaw_angle > -1)
-			set_angle(context->yaw_pin,
-				context->yaw_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->yaw_angle - context->yaw_angle_prev));
+				set_angle(context->yaw_pin,
+					context->yaw_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->yaw_angle - context->yaw_angle_prev));
 			
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		if(context->roll_angle > -1)
-		context->roll_angle_prev = context->roll_angle;
+			context->roll_angle_prev = context->roll_angle;
 
 		if(context->pitch_angle > -1)
-		context->pitch_angle_prev = context->pitch_angle;
+			context->pitch_angle_prev = context->pitch_angle;
 
 		if(context->yaw_angle > -1)
-		context->yaw_angle_prev = context->yaw_angle;
+			context->yaw_angle_prev = context->yaw_angle;
 
 		context->angle_lock.unlock();
 	}
@@ -225,13 +214,13 @@ int main(int argc, char **argv)
 	context->pitch_pin = 23;
 	context->yaw_pin = 18;
 
-	context->roll_angle_prev = 90;
-	context->pitch_angle_prev = 90;
-	context->yaw_angle_prev = 90;
+	context->roll_angle_prev = 135;
+	context->pitch_angle_prev = 135;
+	context->yaw_angle_prev = 135;
 
-	context->roll_angle = 90;
-	context->pitch_angle = 90;
-	context->yaw_angle = 90;
+	context->roll_angle = 135;
+	context->pitch_angle = 135;
+	context->yaw_angle = 135;
 
 	context->time = 1000;
 

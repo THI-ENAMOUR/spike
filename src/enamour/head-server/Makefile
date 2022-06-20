@@ -13,6 +13,7 @@ BINS := ./bin/head-server
 all: head-server
 
 head-server:
+	install -d ./bin
 	${CC} ${CFLAGS} -o ${BINS} ${SRCS} ${LDFLAGS}
 
 clean:
