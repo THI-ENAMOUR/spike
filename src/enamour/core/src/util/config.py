@@ -10,6 +10,7 @@ class Config(object):
     loop_rate = None
     log_location = None
     hardware_connected = False
+    raspi_pi_ip = "127.0.0.1"
 
     @staticmethod
     def init_config(sys_args_dict, base_path="."):
@@ -27,6 +28,10 @@ class Config(object):
         hardware_connected = bool(sys_arg_dict.get("hardware_connected", False))
         rospy.set_param("hardware_connected", hardware_connected)
         Config.hardware_connected = hardware_connected
+
+        raspi_pi_ip = str(sys_arg_dict.get("raspi_pi_ip", "127.0.0.1"))
+        rospy.set_param("raspi_pi_ip", raspi_pi_ip)
+        Config.raspi_pi_ip = raspi_pi_ip
 
     @staticmethod
     def get_parameter(name, fallback):
