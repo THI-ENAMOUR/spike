@@ -139,9 +139,9 @@ void tcp_server(context_st *context)
 
 			if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
 			{
-				context->roll_angle = (int)clamp(ang[0]);
-				context->pitch_angle = (int)clamp(ang[1]);
-				context->yaw_angle = (int)clamp(ang[2]);
+				context->roll_angle = (int)clamp(ang[0], MIN_ANGLE, MAX_ANGLE);
+				context->pitch_angle = (int)clamp(ang[1], MIN_ANGLE, MAX_ANGLE);
+				context->yaw_angle = (int)clamp(ang[2], MIN_ANGLE, MAX_ANGLE);
 				context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
 
 				context->driver_wait.unlock();//unblock driver
