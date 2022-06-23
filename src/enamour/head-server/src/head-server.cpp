@@ -1,5 +1,5 @@
-#include <iostream>   
-#include <cstdlib> 
+#include <iostream>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <thread>
@@ -20,8 +20,8 @@
 #define BUFSIZE 1024
 #define MAX_ANGLE 270
 #define MIN_ANGLE -1
-#define MAX_PW 2500
-#define MIN_PW 500
+#define MAX_PW 2400 // of 2500
+#define MIN_PW 600 // from 500
 #define MIN_TIME 1000
 #define MAX_TIME 10000
 
@@ -139,9 +139,9 @@ void tcp_server(context_st *context)
 
 			if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
 			{
-				context->roll_angle = (int)clamp(ang[0], MIN_ANGLE, MAX_ANGLE);
-				context->pitch_angle = (int)clamp(ang[1], MIN_ANGLE, MAX_ANGLE);
-				context->yaw_angle = (int)clamp(ang[2], MIN_ANGLE, MAX_ANGLE);
+				context->roll_angle = (int)clamp(ang[0], 90, 180);
+				context->pitch_angle = (int)clamp(ang[1], 10, 60);
+				context->yaw_angle = (int)clamp(ang[2], 90, 180);
 				context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
 
 				context->driver_wait.unlock();//unblock driver
@@ -180,15 +180,15 @@ void servo_driver(context_st *context)
 			if(context->roll_angle > -1)
 				set_angle(context->roll_pin,
 					context->roll_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->roll_angle - context->roll_angle_prev));
-			
+
 			if(context->pitch_angle > -1)
 				set_angle(context->pitch_pin,
 					context->pitch_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->pitch_angle - context->pitch_angle_prev));
-			
+
 			if(context->yaw_angle > -1)
 				set_angle(context->yaw_pin,
 					context->yaw_angle_prev + smootherstep((float)0, (float)context->time, (float)i) * (context->yaw_angle - context->yaw_angle_prev));
-			
+
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		if(context->roll_angle > -1)
@@ -209,17 +209,17 @@ int main(int argc, char **argv)
 	context_st *context = new context_st;
 
 	context->running = true;
-	
-	context->roll_pin = 24;
+
+	context->roll_pin = 18;
 	context->pitch_pin = 23;
-	context->yaw_pin = 18;
+	context->yaw_pin = 24;
 
 	context->roll_angle_prev = 135;
-	context->pitch_angle_prev = 135;
+	context->pitch_angle_prev = 60;//hard stop at ~90 !
 	context->yaw_angle_prev = 135;
 
 	context->roll_angle = 135;
-	context->pitch_angle = 135;
+	context->pitch_angle = 60;
 	context->yaw_angle = 135;
 
 	context->time = 1000;
