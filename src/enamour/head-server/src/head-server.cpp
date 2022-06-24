@@ -140,8 +140,11 @@ void tcp_server(context_st *context)
 			if(context->angle_lock.try_lock())//get exclusive access to angle memory, unless driver running then error.busy
 			{
 				context->roll_angle = (int)clamp(ang[0], 90, 180);
+				if(ang[0] == -1) context->roll_angle = -1;
 				context->pitch_angle = (int)clamp(ang[1], 10, 60);
-				context->yaw_angle = (int)clamp(ang[2], 90, 180);
+				if(ang[1] == -1) context->pitch_angle = -1;
+				context->yaw_angle = (int)clamp(ang[2] - 55, 45, 115);// adjusted because hw
+				if(ang[2] == -1) context->yaw_angle = -1;
 				context->time = (int)clamp(time, MIN_TIME, MAX_TIME);
 
 				context->driver_wait.unlock();//unblock driver
@@ -216,11 +219,11 @@ int main(int argc, char **argv)
 
 	context->roll_angle_prev = 135;
 	context->pitch_angle_prev = 60;//hard stop at ~90 !
-	context->yaw_angle_prev = 135;
+	context->yaw_angle_prev = 80;//adjusted because hw
 
 	context->roll_angle = 135;
 	context->pitch_angle = 60;
-	context->yaw_angle = 135;
+	context->yaw_angle = 80;
 
 	context->time = 1000;
 
