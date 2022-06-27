@@ -27,7 +27,8 @@ class PoseController(Controller):
     def __init__(self):
         self.high_cmd_publisher = rospy.Publisher("high_command", HighCmd, queue_size=10)
         self.body_pose_publisher = rospy.Publisher("body_pose", Pose, queue_size=10)
-        self.highStateSub = rospy.Subscriber("high_state", HighState, self.update_high_state)
+        # Commented out due to the receiving of HighStates not working
+        # self.highStateSub = rospy.Subscriber("high_state", HighState, self.update_high_state)
         self.time_prev = -1.0
 
         self.t_roll = 0.0

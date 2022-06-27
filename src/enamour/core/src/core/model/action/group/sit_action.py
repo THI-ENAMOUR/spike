@@ -7,6 +7,7 @@ class SitAction(ActionGroup):
     def __init__(self, start_ms, execution_method=ExecutionMethod.EXCLUSIVE):
         super(SitAction, self).__init__(
             start_ms=start_ms,
-            actions=[PoseAction(start_ms=0, end_ms=3000), PoseAction(start_ms=3000, end_ms=6000)],
+            actions=[PoseAction(start_ms=0, end_ms=800, pitch=-1.8, body_height=-1.0),
+                     PoseAction(start_ms=6000, end_ms=8000, pitch=0.0, body_height=0.0)],
             execution_method=execution_method,
         )

@@ -41,6 +41,7 @@ void RosCommandHandler<TCmd, TLCM>::handleRosCommand(const unitree_legged_msgs::
     SendHighROS = msg;
     ROS_INFO("High Command received");
     SendHighLCM = ToLcm(SendHighROS, SendHighLCM);
+    printf("High_cmd body_height %f\n", SendHighLCM.bodyHeight);
     printf("High_cmd roll: %f\n", SendHighLCM.roll);
     printf("High_cmd pitch: %f\n", SendHighLCM.pitch);
     printf("High_cmd yaw: %f\n", SendHighLCM.yaw);
